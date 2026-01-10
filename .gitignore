@@ -1,9 +1,14 @@
-﻿################################################################################
-# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
-################################################################################
-
-/.vs/He_thong_Quan_Ly_trung_tam_gia_su/FileContentIndex
+﻿## Visual Studio Temp Files
 .vs/
-bin/
-obj/
-out/
+[Bb]in/
+[Oo]bj/
+*.user
+*.userosscache
+*.sln.docstates
+
+## SQL Server files
+*.mdf
+*.ldf
+
+## Others
+.DS_Store
