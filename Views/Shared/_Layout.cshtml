@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="utf-8" />
@@ -26,8 +26,28 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Giới thiệu</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="login">Đăng nhập</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="MonHoc" asp-action="Index">Danh sách môn học</a>
                         </li>
+                    </ul>
+
+                    <ul class="navbar-nav">
+                        @if (Context.Session.GetString("IsAdmin") == "true")
+                        {
+                            <li class="nav-item d-flex align-items-center me-2 text-muted small">
+                                Xin chào, @Context.Session.GetString("AdminName")
+                            </li>
+                            <li class="nav-item">
+                                <form asp-controller="Home" asp-action="Logout" method="post" class="d-inline">
+                                    <button class="btn btn-outline-danger btn-sm" type="submit">Đăng xuất</button>
+                                </form>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="login">Đăng nhập</a>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>

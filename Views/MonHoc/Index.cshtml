@@ -1,0 +1,83 @@
+@model He_thong_Quan_Ly_trung_tam_gia_su.Models.ViewModels.MonHocFilterViewModel
+@{
+    ViewData["Title"] = "Danh sách môn học";
+}
+
+<h1 class="mb-3">Danh sách môn học & gia sư</h1>
+
+<form method="get" class="row g-3 mb-4">
+    <div class="col-md-3">
+        <label class="form-label">Từ khóa (môn / tên gia sư)</label>
+        <input class="form-control" name="keyword" value="@Model.Keyword" placeholder="Ví dụ: Toán, Nguyễn Văn A" />
+    </div>
+
+    <div class="col-md-3">
+        <label class="form-label">Môn học</label>
+        <select class="form-select" name="monHocId">
+            <option value="">-- Tất cả --</option>
+            @foreach (var opt in Model.MonHocOptions)
+            {
+                <option value="@opt.Value" selected="@(opt.Value == Model.MonHocId?.ToString())">@opt.Text</option>
+            }
+        </select>
+    </div>
+
+    <div class="col-md-3">
+        <label class="form-label">Khu vực (Xã)</label>
+        <select class="form-select" name="xaId">
+            <option value="">-- Tất cả --</option>
+            @foreach (var opt in Model.XaOptions)
+            {
+                <option value="@opt.Value" selected="@(opt.Value == Model.XaId?.ToString())">@opt.Text</option>
+            }
+        </select>
+    </div>
+
+    <div class="col-md-3">
+        <label class="form-label">Sắp xếp</label>
+        <select class="form-select" name="sort">
+            <option value="name_asc" selected="@(Model.Sort == "name_asc")">Tên môn A-Z</option>
+            <option value="name_desc" selected="@(Model.Sort == "name_desc")">Tên môn Z-A</option>
+            <option value="price_asc" selected="@(Model.Sort == "price_asc")">Giá tăng dần</option>
+            <option value="price_desc" selected="@(Model.Sort == "price_desc")">Giá giảm dần</option>
+        </select>
+    </div>
+
+    <div class="col-12 d-flex gap-2">
+        <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Đặt lại</a>
+    </div>
+</form>
+
+<div class="table-responsive">
+    <table class="table table-striped table-bordered align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>Môn học</th>
+                <th>Gia sư</th>
+                <th>Khu vực</th>
+                <th class="text-end">Giá theo giờ</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Items.Count == 0)
+            {
+                <tr>
+                    <td colspan="4" class="text-center text-muted">Không có dữ liệu phù hợp.</td>
+                </tr>
+            }
+            else
+            {
+                @foreach (var item in Model.Items)
+                {
+                    <tr>
+                        <td>@item.TenMon</td>
+                        <td>@item.TenGiaSu (ID: @item.GiaSuId)</td>
+                        <td>@item.TenXa</td>
+                        <td class="text-end">@item.GiaTheoGio.ToString("N0") VNĐ</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>

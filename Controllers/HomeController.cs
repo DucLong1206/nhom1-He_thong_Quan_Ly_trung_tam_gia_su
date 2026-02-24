@@ -1,29 +1,34 @@
 ﻿using System.Diagnostics;
+using He_thong_Quan_Ly_trung_tam_gia_su.Data;
 using He_thong_Quan_Ly_trung_tam_gia_su.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly ApplicationDbContext _db;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, ApplicationDbContext db)
         {
             _logger = logger;
+            _db = db;
         }
 
         public IActionResult Index()
         {
             return View();
         }
+
         public IActionResult login()
         {
             return View();
         }
 
         [HttpPost]
-        public IActionResult Login(string username, string password)
+        public async Task<IActionResult> Login(string username, string password)
         {
             if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
             {
@@ -31,8 +36,30 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
                 return View("login");
             }
 
-            // Tạm thời chỉ điều hướng về trang chủ cho bản demo giao diện.
-            return RedirectToAction(nameof(Index));
+            var admin = await _db.TaiKhoans.FirstOrDefaultAsync(x =>
+                x.Name == username &&
+                x.PassWord == password &&
+                x.TypeUsser &&
+                x.IsAction);
+
+            if (admin == null)
+            {
+                ViewBag.Error = "Sai thông tin đăng nhập hoặc tài khoản không có quyền Admin.";
+                return View("login");
+            }
+
+            HttpContext.Session.SetString("IsAdmin", "true");
+            HttpContext.Session.SetInt32("AdminId", admin.ID);
+            HttpContext.Session.SetString("AdminName", admin.Name);
+
+            return RedirectToAction("Index", "MonHoc");
+        }
+
+        [HttpPost]
+        public IActionResult Logout()
+        {
+            HttpContext.Session.Clear();
+            return RedirectToAction(nameof(login));
         }
 
         public IActionResult Privacy()
