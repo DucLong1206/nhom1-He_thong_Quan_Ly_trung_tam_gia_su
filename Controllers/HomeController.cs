@@ -22,6 +22,19 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
             return View();
         }
 
+        [HttpPost]
+        public IActionResult Login(string username, string password)
+        {
+            if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
+            {
+                ViewBag.Error = "Vui lòng nhập đầy đủ tài khoản và mật khẩu.";
+                return View("login");
+            }
+
+            // Tạm thời chỉ điều hướng về trang chủ cho bản demo giao diện.
+            return RedirectToAction(nameof(Index));
+        }
+
         public IActionResult Privacy()
         {
             return View();

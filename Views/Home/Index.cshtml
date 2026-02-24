@@ -1,8 +1,83 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@{
+    ViewData["Title"] = "Trang chủ";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<section class="hero-section py-5">
+    <div class="row align-items-center g-4">
+        <div class="col-lg-6">
+            <span class="hero-badge">Trung tâm gia sư Nhom1</span>
+            <h1 class="hero-title mt-3">Kết nối gia sư chất lượng với học viên phù hợp</h1>
+            <p class="hero-subtitle mt-3">
+                Nền tảng quản lý lớp học, lịch dạy và theo dõi tiến độ giúp phụ huynh,
+                học viên và gia sư phối hợp hiệu quả hơn mỗi ngày.
+            </p>
+
+            <div class="d-flex flex-wrap gap-3 mt-4">
+                <a class="btn btn-primary btn-lg" asp-controller="Home" asp-action="login">Đăng nhập hệ thống</a>
+                <a class="btn btn-outline-primary btn-lg" href="#features">Khám phá tính năng</a>
+            </div>
+
+            <div class="hero-stats mt-4">
+                <div class="stat-item">
+                    <strong>500+</strong>
+                    <span>Học viên đang theo học</span>
+                </div>
+                <div class="stat-item">
+                    <strong>120+</strong>
+                    <span>Gia sư đã xác thực</span>
+                </div>
+                <div class="stat-item">
+                    <strong>95%</strong>
+                    <span>Phụ huynh hài lòng</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="hero-card">
+                <h2>Bảng tổng quan nhanh</h2>
+                <ul>
+                    <li>✅ Quản lý hồ sơ học viên và gia sư tập trung.</li>
+                    <li>✅ Theo dõi lớp học, lịch dạy và trạng thái ghép lớp.</li>
+                    <li>✅ Quản lý học phí, lương gia sư theo từng kỳ.</li>
+                    <li>✅ Báo cáo tiến độ học tập theo tuần/tháng.</li>
+                </ul>
+                <p class="mb-0 text-muted">* Giao diện mẫu cho trang chủ trung tâm gia sư.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="features" class="features-section py-5">
+    <div class="text-center mb-4">
+        <h2 class="section-title">Tính năng nổi bật</h2>
+        <p class="text-muted">Những công cụ cốt lõi giúp trung tâm vận hành chuyên nghiệp.</p>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-4">
+            <article class="feature-card h-100">
+                <h3>Quản lý học viên</h3>
+                <p>Quản lý thông tin cá nhân, lớp đang học, tiến độ và ghi chú học tập.</p>
+            </article>
+        </div>
+        <div class="col-md-4">
+            <article class="feature-card h-100">
+                <h3>Quản lý gia sư</h3>
+                <p>Lưu hồ sơ chuyên môn, lịch rảnh và hiệu suất giảng dạy theo từng môn.</p>
+            </article>
+        </div>
+        <div class="col-md-4">
+            <article class="feature-card h-100">
+                <h3>Ghép lớp thông minh</h3>
+                <p>Đề xuất gia sư phù hợp dựa trên môn học, thời gian và khu vực.</p>
+            </article>
+        </div>
+    </div>
+</section>
+
+<section class="cta-section text-center py-5">
+    <h2>Sẵn sàng triển khai hệ thống quản lý cho trung tâm?</h2>
+    <p class="mb-4">Bắt đầu từ trang chủ này và mở rộng dần các module nghiệp vụ cốt lõi.</p>
+    <a class="btn btn-success btn-lg" asp-controller="Home" asp-action="login">Bắt đầu ngay</a>
+</section>
