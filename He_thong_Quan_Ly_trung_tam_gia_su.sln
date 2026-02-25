@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "He_thong_Quan_Ly_trung_tam_
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "He_thong_Quan_Ly_trung_tam_gia_su_Entity", "He_thong_Quan_Ly_trung_tam_gia_su_Entity\He_thong_Quan_Ly_trung_tam_gia_su_Entity.csproj", "{622ECAE9-0986-4486-B58A-A4B4164AC731}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "He_thong_Quan_Ly_trung_tam_gia_su_Logic", "..\Logic\He_thong_Quan_Ly_trung_tam_gia_su_Logic.csproj", "{3279B8C8-6082-487B-A76B-723F9A3381CF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{622ECAE9-0986-4486-B58A-A4B4164AC731}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{622ECAE9-0986-4486-B58A-A4B4164AC731}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{622ECAE9-0986-4486-B58A-A4B4164AC731}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3279B8C8-6082-487B-A76B-723F9A3381CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3279B8C8-6082-487B-A76B-723F9A3381CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3279B8C8-6082-487B-A76B-723F9A3381CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3279B8C8-6082-487B-A76B-723F9A3381CF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
