@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace He_thong_Quan_Ly_trung_tam_gia_su.Models.Entities;
+namespace He_thong_Quan_Ly_trung_tam_gia_su_Entity.Entities;
 
 [Table("DM_tinh")]
 public class DmTinh

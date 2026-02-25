@@ -1,4 +1,4 @@
-using He_thong_Quan_Ly_trung_tam_gia_su.Data;
+using He_thong_Quan_Ly_trung_tam_gia_su_Entity.Data;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
