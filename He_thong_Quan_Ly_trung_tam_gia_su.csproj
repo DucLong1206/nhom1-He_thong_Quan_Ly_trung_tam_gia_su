@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -13,6 +13,11 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Entity\He_thong_Quan_Ly_trung_tam_gia_su_Entity.csproj" />
+    <ProjectReference Include="..\Logic\He_thong_Quan_Ly_trung_tam_gia_su_Logic.csproj" />
   </ItemGroup>
 
 </Project>
