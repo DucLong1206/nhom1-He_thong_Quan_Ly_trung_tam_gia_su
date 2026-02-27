@@ -1,4 +1,4 @@
-﻿
+﻿using He_thong_Quan_Ly_trung_tam_gia_su_Entity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -41,7 +41,7 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
             }
             else
             {
-                var admin = await _db.TaiKhoan.FirstOrDefaultAsync(x =>
+                var admin = _db.TaiKhoan.FirstOrDefaultAsync(x =>
                    x.Name == username &&
                    x.PassWord == password &&
                    x.TypeUsser &&
@@ -54,8 +54,7 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
                 }
 
                 HttpContext.Session.SetString("IsAdmin", "true");
-                HttpContext.Session.SetInt32("AdminId", admin.ID);
-                HttpContext.Session.SetString("AdminName", admin.Name);
+
             }
 
 

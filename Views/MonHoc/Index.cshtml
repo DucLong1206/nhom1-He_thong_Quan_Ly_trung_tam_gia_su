@@ -121,10 +121,10 @@
         <label class="form-label">Môn học</label>
         <select class="form-select" name="monHocId">
             <option value="">-- Tất cả --</option>
-            @foreach (var opt in Model.MonHocOptions)
+          @*   @foreach (var opt in Model.MonHocOptions)
             {
                 <option value="@opt.Value">@opt.Text</option>
-            }
+            } *@
         </select>
     </div>
 
@@ -132,10 +132,10 @@
         <label class="form-label">Khu vực</label>
         <select class="form-select" name="xaId">
             <option value="">-- Tất cả --</option>
-            @foreach (var opt in Model.XaOptions)
+          @*   @foreach (var opt in Model.XaOptions)
             {
                 <option value="@opt.Value">@opt.Text</option>
-            }
+            } *@
         </select>
     </div>
 
@@ -173,7 +173,7 @@
             const formData = new FormData(document.getElementById("filterForm"));
             const queryString = new URLSearchParams(formData).toString();
 
-            fetch("/GiaSu/getlist?" + queryString) // đổi đúng controller nếu khác
+            fetch("/MonHoc/getlist?") // đổi đúng controller nếu khác
                 .then(res => res.json())
                 .then(res => renderList(res.data))
                 .catch(err => console.error(err));

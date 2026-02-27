@@ -23,7 +23,7 @@ public class MonHocController : Controller
 
 
 
-        return View(vm);
+        return View();
     }
     public JsonResult getlist(string? keyword, int? monHocId, int? xaId, string sort = "name_asc")
     {
