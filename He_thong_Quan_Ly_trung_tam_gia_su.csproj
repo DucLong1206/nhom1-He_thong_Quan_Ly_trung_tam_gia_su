@@ -20,4 +20,8 @@
     <ProjectReference Include="..\Logic\He_thong_Quan_Ly_trung_tam_gia_su_Logic.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Models\" />
+  </ItemGroup>
+
 </Project>

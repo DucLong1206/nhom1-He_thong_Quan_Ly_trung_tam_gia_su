@@ -1,4 +1,4 @@
-@model He_thong_Quan_Ly_trung_tam_gia_su.Models.ViewModels.MonHocFilterViewModel
+
 @{
     ViewData["Title"] = "Danh sách môn học";
 }
@@ -39,7 +39,6 @@
             box-shadow: 0 8px 28px rgba(0,0,0,0.10);
         }
 
-    /* Avatar bên trái */
     .gs-avatar {
         width: 62px;
         height: 62px;
@@ -52,7 +51,6 @@
         font-weight: 700;
         color: #fff;
         flex-shrink: 0;
-        letter-spacing: -0.5px;
     }
 
     .gs-divider {
@@ -60,23 +58,16 @@
         height: 50px;
         background: #e8e8f0;
         margin: 0 18px;
-        flex-shrink: 0;
     }
 
-    /* Thông tin bên phải */
     .gs-info {
         flex: 1;
-        min-width: 0;
     }
 
     .gs-name {
         font-weight: 700;
         font-size: 0.95rem;
-        color: #1a1a2e;
         margin-bottom: 5px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
     }
 
     .gs-tags {
@@ -92,19 +83,16 @@
         padding: 2px 9px;
         border-radius: 20px;
         text-transform: uppercase;
-        letter-spacing: 0.03em;
     }
 
         .gs-tag.subject {
             background: rgba(108,99,255,0.1);
             color: #6c63ff;
-            border: 1px solid rgba(108,99,255,0.2);
         }
 
         .gs-tag.area {
             background: rgba(255,159,67,0.1);
             color: #d97706;
-            border: 1px solid rgba(255,159,67,0.2);
         }
 
     .gs-price {
@@ -113,127 +101,123 @@
         color: #059669;
     }
 
-        .gs-price small {
-            font-size: 0.72rem;
-            font-weight: 400;
-            color: #9ca3af;
-            margin-left: 2px;
-        }
-
     .gs-empty {
         text-align: center;
         padding: 40px;
         color: #9ca3af;
         font-style: italic;
     }
-
-    /* Màu xoay vòng cho card */
-    .gs-card:nth-child(5n+1) {
-        --stripe: #6c63ff;
-        --grad1: #6c63ff;
-        --grad2: #a78bfa;
-    }
-
-    .gs-card:nth-child(5n+2) {
-        --stripe: #06d6a0;
-        --grad1: #06d6a0;
-        --grad2: #0ea5e9;
-    }
-
-    .gs-card:nth-child(5n+3) {
-        --stripe: #f59e0b;
-        --grad1: #f59e0b;
-        --grad2: #ef4444;
-    }
-
-    .gs-card:nth-child(5n+4) {
-        --stripe: #ec4899;
-        --grad1: #ec4899;
-        --grad2: #a78bfa;
-    }
-
-    .gs-card:nth-child(5n+5) {
-        --stripe: #14b8a6;
-        --grad1: #14b8a6;
-        --grad2: #06d6a0;
-    }
 </style>
 
 <h1 class="mb-3">Danh sách môn học & gia sư</h1>
 
-<form method="get" class="row g-3 mb-4">
+<form id="filterForm" class="row g-3 mb-4">
     <div class="col-md-3">
-        <label class="form-label">Từ khóa (môn / tên gia sư)</label>
-        <input class="form-control" name="keyword" value="@Model.Keyword" placeholder="Ví dụ: Toán, Nguyễn Văn A" />
+        <label class="form-label">Từ khóa</label>
+        <input class="form-control" name="keyword" placeholder="Ví dụ: Toán, Nguyễn Văn A" />
     </div>
+
     <div class="col-md-3">
         <label class="form-label">Môn học</label>
         <select class="form-select" name="monHocId">
             <option value="">-- Tất cả --</option>
             @foreach (var opt in Model.MonHocOptions)
             {
-                <option value="@opt.Value" selected="@(opt.Value == Model.MonHocId?.ToString())">@opt.Text</option>
+                <option value="@opt.Value">@opt.Text</option>
             }
         </select>
     </div>
+
     <div class="col-md-3">
-        <label class="form-label">Khu vực (Xã)</label>
+        <label class="form-label">Khu vực</label>
         <select class="form-select" name="xaId">
             <option value="">-- Tất cả --</option>
             @foreach (var opt in Model.XaOptions)
             {
-                <option value="@opt.Value" selected="@(opt.Value == Model.XaId?.ToString())">@opt.Text</option>
+                <option value="@opt.Value">@opt.Text</option>
             }
         </select>
     </div>
+
     <div class="col-md-3">
         <label class="form-label">Sắp xếp</label>
         <select class="form-select" name="sort">
-            <option value="name_asc" selected="@(Model.Sort == "name_asc")">Tên môn A-Z</option>
-            <option value="name_desc" selected="@(Model.Sort == "name_desc")">Tên môn Z-A</option>
-            <option value="price_asc" selected="@(Model.Sort == "price_asc")">Giá tăng dần</option>
-            <option value="price_desc" selected="@(Model.Sort == "price_desc")">Giá giảm dần</option>
+            <option value="name_asc">Tên A-Z</option>
+            <option value="name_desc">Tên Z-A</option>
+            <option value="price_asc">Giá tăng dần</option>
+            <option value="price_desc">Giá giảm dần</option>
         </select>
     </div>
-    <div class="col-12 d-flex gap-2">
+
+    <div class="col-12">
         <button type="submit" class="btn btn-primary">Tìm kiếm</button>
-        <a asp-action="Index" class="btn btn-outline-secondary">Đặt lại</a>
     </div>
 </form>
 
 <div class="gs-list">
-    @if (Model.Items.Count == 0)
-    {
-        <div class="gs-empty">Không có dữ liệu phù hợp.</div>
-    }
-    else
-    {
-        @foreach (var item in Model.Items)
-        {
-            /* Lấy 2 chữ cái đầu của tên gia sư làm avatar */
-            var parts = item.TenGiaSu?.Trim().Split(' ');
-            var initials = parts != null && parts.Length >= 2
-            ? $"{parts[0][0]}{parts[^1][0]}"
-            : (item.TenGiaSu?.Length >= 2 ? item.TenGiaSu.Substring(0, 2) : "GS");
-
-            <div class="gs-card">
-                <!-- Avatar bên trái -->
-                <div class="gs-avatar">@initials.ToUpper()</div>
-
-                <div class="gs-divider"></div>
-
-                <!-- Thông tin bên phải -->
-                <div class="gs-info">
-                    <div class="gs-name">@item.TenGiaSu</div>
-                    <div class="gs-tags">
-                        <span class="gs-tag subject">@item.TenMon</span>
-                        <span class="gs-tag area">@item.TenXa</span>
-                    </div>
-                    <div class="gs-price">
-                        @item.GiaTheoGio.ToString("N0") VNĐ <small>/ giờ</small>
-                    </div>
-                </div>
-            </div>
-        }
-    }
+    <div class="gs-empty">Đang tải dữ liệu...</div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        loadData();
+
+        document.getElementById("filterForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+            loadData();
+        });
+
+        function loadData() {
+
+            const formData = new FormData(document.getElementById("filterForm"));
+            const queryString = new URLSearchParams(formData).toString();
+
+            fetch("/GiaSu/getlist?" + queryString) // đổi đúng controller nếu khác
+                .then(res => res.json())
+                .then(res => renderList(res.data))
+                .catch(err => console.error(err));
+        }
+
+        function renderList(data) {
+
+            const container = document.querySelector(".gs-list");
+            container.innerHTML = "";
+
+            if (!data || data.length === 0) {
+                container.innerHTML = `<div class="gs-empty">Không có dữ liệu phù hợp.</div>`;
+                return;
+            }
+
+            data.forEach(item => {
+
+                let initials = "GS";
+                if (item.tenGiaSu) {
+                    let parts = item.tenGiaSu.trim().split(" ");
+                    if (parts.length >= 2)
+                        initials = parts[0][0] + parts[parts.length - 1][0];
+                    else if (item.tenGiaSu.length >= 2)
+                        initials = item.tenGiaSu.substring(0, 2);
+                }
+
+                const html = `
+                <div class="gs-card">
+                    <div class="gs-avatar">${initials.toUpperCase()}</div>
+                    <div class="gs-divider"></div>
+                    <div class="gs-info">
+                        <div class="gs-name">${item.tenGiaSu ?? ""}</div>
+                        <div class="gs-tags">
+                            <span class="gs-tag subject">${item.tenMon ?? ""}</span>
+                            <span class="gs-tag area">${item.tenXa ?? ""}</span>
+                        </div>
+                        <div class="gs-price">
+                            ${Number(item.giaTheoGio).toLocaleString()} VNĐ / giờ
+                        </div>
+                    </div>
+                </div>`;
+
+                container.insertAdjacentHTML("beforeend", html);
+            });
+        }
+    });
+</script>

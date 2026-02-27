@@ -1,13 +1,21 @@
-using He_thong_Quan_Ly_trung_tam_gia_su.Data;
+﻿
+using He_thong_Quan_Ly_trung_tam_gia_su_Entity;
+using He_thong_Quan_Ly_trung_tam_gia_su_Logic.ILogic;
+using He_thong_Quan_Ly_trung_tam_gia_su_Logic.Logic;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.AddControllersWithViews();
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+// Cấu hình Entity Framework với SQL Server
+builder.Services.AddDbContext<Appdbcontext>(options =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("Appdbcontext"));
+});
 
+// Add Logic
+builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+builder.Services.AddScoped<IMonhocLogic, MonhocLogic>();
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
