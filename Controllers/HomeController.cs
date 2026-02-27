@@ -1,6 +1,7 @@
 ﻿using He_thong_Quan_Ly_trung_tam_gia_su_Entity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Data.Common;
 
 namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
 {
@@ -41,7 +42,7 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
             }
             else
             {
-                var admin = _db.TaiKhoan.FirstOrDefaultAsync(x =>
+                var admin = await _db.TaiKhoan.FirstOrDefaultAsync(x =>
                    x.Name == username &&
                    x.PassWord == password &&
                    x.TypeUsser &&
@@ -59,6 +60,51 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
 
 
             return RedirectToAction("Index", "MonHoc");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> DbHealth()
+        {
+            try
+            {
+                var canConnect = await _db.Database.CanConnectAsync();
+
+                if (!canConnect)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Không kết nối được DB. Hãy kiểm tra lại ConnectionString/SQL Server."
+                    });
+                }
+
+                var taiKhoanCount = await _db.TaiKhoan.CountAsync();
+
+                return Json(new
+                {
+                    success = true,
+                    message = "Kết nối DB thành công.",
+                    totalTaiKhoan = taiKhoanCount
+                });
+            }
+            catch (DbException dbEx)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Lỗi truy cập DB.",
+                    detail = dbEx.Message
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Lỗi không xác định khi gọi DB.",
+                    detail = ex.Message
+                });
+            }
         }
 
         [HttpPost]

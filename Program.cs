@@ -7,8 +7,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' is missing in appsettings.json");
+
 builder.Services.AddDbContext<Appdbcontext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("Appdbcontext"))
+    options.UseSqlServer(connectionString)
 );
 
 builder.Services.AddHttpContextAccessor();
