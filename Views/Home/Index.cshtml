@@ -81,3 +81,35 @@
     <p class="mb-4">Bắt đầu từ trang chủ này và mở rộng dần các module nghiệp vụ cốt lõi.</p>
     <a class="btn btn-success btn-lg" asp-controller="Home" asp-action="login">Bắt đầu ngay</a>
 </section>
+<div id="db-status" class="alert d-none mt-4"></div>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        fetch('@Url.Action("DbHealth", "Home")')
+            .then(response => response.json())
+            .then(data => {
+
+                const statusDiv = document.getElementById("db-status");
+                statusDiv.classList.remove("d-none");
+
+                if (data.success) {
+                    statusDiv.classList.add("alert-success");
+                    statusDiv.innerHTML =
+                        `<strong>${data.message}</strong><br/>
+                         Tổng tài khoản: ${data.totalTaiKhoan}`;
+                } else {
+                    statusDiv.classList.add("alert-danger");
+                    statusDiv.innerHTML =
+                        `<strong>${data.message}</strong>`;
+                }
+            })
+            .catch(error => {
+                const statusDiv = document.getElementById("db-status");
+                statusDiv.classList.remove("d-none");
+                statusDiv.classList.add("alert-danger");
+                statusDiv.innerHTML =
+                    "Không gọi được API kiểm tra DB.";
+            });
+
+    });
+</script>
