@@ -1,0 +1,30 @@
+@model He_thong_Quan_Ly_trung_tam_gia_su.Models.CompleteProfileViewModel
+@{
+    ViewData["Title"] = "Thông tin cá nhân";
+}
+
+<div class="container mt-5" style="max-width:520px;">
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h3 class="mb-3">Nhập thông tin cá nhân</h3>
+            <p class="text-muted">Bạn chưa có hồ sơ liên kết với tài khoản. Vui lòng cập nhật để tiếp tục.</p>
+
+            <form asp-action="CompleteProfile" method="post">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+
+                <div class="mb-3">
+                    <label asp-for="FullName" class="form-label">Họ và tên</label>
+                    <input asp-for="FullName" class="form-control" />
+                    <span asp-validation-for="FullName" class="text-danger"></span>
+                </div>
+
+                <button type="submit" class="btn btn-success">Lưu thông tin</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
