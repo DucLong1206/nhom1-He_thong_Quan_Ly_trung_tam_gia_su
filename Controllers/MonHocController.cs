@@ -18,11 +18,6 @@ public class MonHocController : Controller
         {
             return RedirectToAction("login", "Home");
         }
-
-
-
-
-
         return View();
     }
     public JsonResult getlist(string? keyword, int? monHocId, int? xaId, string sort = "name_asc")

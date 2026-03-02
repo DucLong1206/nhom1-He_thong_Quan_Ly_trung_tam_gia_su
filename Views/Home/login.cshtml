@@ -16,13 +16,13 @@
         <h2>SIGN IN</h2>
 
         <form method="post" asp-action="Login">
-            <p class="text-muted" style="font-size:0.9rem;">Đăng nhập bằng tài khoản Admin để vào danh sách môn học.</p>
+            @* <p class="text-muted" style="font-size:0.9rem;">Đăng nhập bằng tài khoản Admin để vào danh sách môn học.</p> *@
             <input type="text" name="username" placeholder="Username" required />
             <input type="password" name="password" placeholder="Password" required />
 
             <div class="extras">
                 <a href="#">Forgot Password</a>
-                <a href="#" class="signup">Signup</a>
+                <a asp-action="Register" class="signup">Đăng kí</a>
             </div>
 
             <button type="submit">Login</button>

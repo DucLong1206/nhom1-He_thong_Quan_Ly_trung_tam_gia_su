@@ -1,19 +1,22 @@
 ﻿using He_thong_Quan_Ly_trung_tam_gia_su_Entity;
+using He_thong_Quan_Ly_trung_tam_gia_su_Entity.Entity;
+using He_thong_Quan_Ly_trung_tam_gia_su_Logic.ILogic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Data.Common;
-
 namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
         private readonly Appdbcontext _db;
+        private readonly ITaiKhoanLogic _tk;
 
-        public HomeController(ILogger<HomeController> logger, Appdbcontext db)
+        public HomeController(ILogger<HomeController> logger, Appdbcontext db, ITaiKhoanLogic tk)
         {
             _logger = logger;
             _db = db;
+            _tk = tk;
         }
 
         public IActionResult Index()
@@ -26,38 +29,51 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
             return View();
         }
 
+
+
         [HttpPost]
         public async Task<IActionResult> Login(string username, string password)
         {
             if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
             {
                 ViewBag.Error = "Vui lòng nhập đầy đủ tài khoản và mật khẩu.";
-                return View("login");
+                return View("Login");
             }
+
+            // Hardcode admin (giữ nguyên nếu bạn muốn)
             if (username == "admin" && password == "admin")
             {
                 HttpContext.Session.SetString("IsAdmin", "true");
                 HttpContext.Session.SetInt32("AdminId", -1);
                 HttpContext.Session.SetString("AdminName", "admin");
+
+                return RedirectToAction("Index", "MonHoc");
             }
-            else
+
+            // Tìm user theo username trước
+            var user = _db.TaiKhoan.FirstOrDefault(x => x.Name == username);
+
+            if (user == null)
             {
-                var admin = _db.TaiKhoan.FirstOrDefault(x =>
-                   x.Name == username &&
-                   x.PassWord == password);
-
-                if (admin == null)
-                {
-                    ViewBag.Error = "Sai thông tin đăng nhập hoặc tài khoản không có quyền Admin.";
-                    return View("login");
-                }
-                var ur = _db.USER.FirstOrDefault(x => x.IDTK == admin.ID);
-                HttpContext.Session.SetString("IsAdmin", "true");
-                HttpContext.Session.SetInt32("AdminId", admin.ID);
-                HttpContext.Session.SetString("AdminName", ur.Name ?? "");
-
+                ViewBag.Error = "Sai thông tin đăng nhập.";
+                return View("Login");
             }
 
+            // So sánh password bằng BCrypt
+            bool isPasswordValid = BCrypt.Net.BCrypt.Verify(password, user.PassWord);
+
+            if (!isPasswordValid)
+            {
+                ViewBag.Error = "Sai thông tin đăng nhập.";
+                return View("Login");
+            }
+
+            // Lấy thông tin user
+            var ur = _db.USER.FirstOrDefault(x => x.IDTK == user.ID);
+            if (ur == null) return RedirectToAction("AddorEdit", "USER", new { idtk = user.ID });
+            HttpContext.Session.SetString("IsAdmin", "true");
+            HttpContext.Session.SetInt32("AdminId", user.ID);
+            HttpContext.Session.SetString("AdminName", ur?.Name ?? "");
 
             return RedirectToAction("Index", "MonHoc");
         }
@@ -123,6 +139,21 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
         public IActionResult Error()
         {
             return View(/*new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier }*/);
+        }
+        [HttpGet]
+        public IActionResult Register()
+        {
+            return View();
+        }
+        public JsonResult SaveUser(TaiKhoan tk)
+        {
+            string mes = "";
+            if (string.IsNullOrEmpty(tk.Name) || string.IsNullOrEmpty(tk.PassWord))
+            {
+                return Json(new { success = false, message = "Thiếu thông tin." });
+            }
+            var check = _tk.save(tk, mes);
+            return Json(new { success = tk, Mess = mes });
         }
     }
 }
