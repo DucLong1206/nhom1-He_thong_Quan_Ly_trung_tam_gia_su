@@ -14,7 +14,7 @@ public class MonHocController : Controller
 
     public IActionResult Index()
     {
-        if (HttpContext.Session.GetString("IsAdmin") != "true")
+        if (HttpContext.Session.GetString("UserId") == null)
         {
             return RedirectToAction("login", "Home");
         }

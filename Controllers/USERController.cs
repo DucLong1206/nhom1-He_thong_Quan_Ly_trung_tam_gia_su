@@ -8,11 +8,13 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
     {
         private readonly IDM_TinhLogic _t;
         private readonly IDM_XaLogic _x;
+        private readonly IUSERLogic _user;
 
-        public USERController(IDM_TinhLogic t, IDM_XaLogic x)
+        public USERController(IDM_TinhLogic t, IDM_XaLogic x, IUSERLogic user)
         {
             _t = t;
             _x = x;
+            _user = user;
         }
         public IActionResult Index()
         {
@@ -20,11 +22,8 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
         }
         public IActionResult AddorEdit(int idtk)
         {
-            var model = new USER
-            {
-                IDTK = idtk
-            };
-            return View(model);
+            ViewBag.idtk = idtk;
+            return View();
         }
         public JsonResult getlistxa(int id)
         {
@@ -39,17 +38,14 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
         [HttpPost]
         public JsonResult Save(USER model, IFormFile avatarFile)
         {
-            if (!ModelState.IsValid)
-            {
-                return Json(new { success = false, message = "Dữ liệu không hợp lệ" });
-            }
+            string mes = "";
+
 
             // Validate server nâng cao
             if (model.SDT.Length > 12)
             {
                 return Json(new { success = false, message = "SĐT không hợp lệ" });
             }
-
             // Upload avatar nếu có
             if (avatarFile != null && avatarFile.Length > 0)
             {
@@ -63,10 +59,38 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
 
                 model.avata = "/images/" + fileName;
             }
+            if (model.ID > 0)
+            {
+                var updateResult = _user.EDIT(model, out mes);
+                if (!updateResult)
+                    return Json(new { success = false, message = "Cập nhật thất bại" });
+                return Json(new { success = true, message = "Cập nhật thành công" });
+            }
+            else
+            {
+                var user = _user.save(model, mes);
+                return Json(new { success = true, message = "Lưu thành công" });
+            }
 
-            var user = _user.Save(model);
 
-            return Json(new { success = true, message = "Lưu thành công" });
+
+        }
+        [HttpGet]
+        public JsonResult GETUSER(int IDTK)
+        {
+            var ur = _user.GETBYIDTK(IDTK);
+
+            if (ur == null)
+                return Json(new { success = false });
+
+            return Json(new { success = true, data = ur });
+        }
+        public JsonResult GETXABYID(int IDXA)
+        {
+            var xa = _x.GETBYID(IDXA);
+            if (xa == null)
+                return Json(new { success = false });
+            return Json(new { success = true, data = xa });
         }
     }
 }

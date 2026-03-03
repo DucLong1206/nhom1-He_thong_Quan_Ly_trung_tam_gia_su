@@ -71,9 +71,9 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
             // Lấy thông tin user
             var ur = _db.USER.FirstOrDefault(x => x.IDTK == user.ID);
             if (ur == null) return RedirectToAction("AddorEdit", "USER", new { idtk = user.ID });
-            HttpContext.Session.SetString("IsAdmin", "true");
-            HttpContext.Session.SetInt32("AdminId", user.ID);
-            HttpContext.Session.SetString("AdminName", ur?.Name ?? "");
+
+            HttpContext.Session.SetInt32("UserId", user.ID);
+            HttpContext.Session.SetString("UserName", ur?.Name ?? "");
 
             return RedirectToAction("Index", "MonHoc");
         }

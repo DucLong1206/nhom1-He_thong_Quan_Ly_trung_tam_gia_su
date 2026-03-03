@@ -13,7 +13,7 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Trung tâm gia sư Nhom1</a>
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Trung tâm gia sư </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -32,23 +32,69 @@
                     </ul>
 
                     <ul class="navbar-nav">
-                        @if (Context.Session.GetString("IsAdmin") == "true")
+
+                        @{
+                            var userId = Context.Session.GetInt32("UserId");
+                            var userName = Context.Session.GetString("UserName");
+                        }
+
+                        @if (!string.IsNullOrEmpty(userName))
                         {
-                            <li class="nav-item d-flex align-items-center me-2 text-muted small">
-                                Xin chào, @Context.Session.GetString("AdminName")
+                            <li class="nav-item d-flex align-items-center me-3 text-muted small">
+                                Xin chào, @userName
                             </li>
-                            <li class="nav-item">
-                                <form asp-controller="Home" asp-action="Logout" method="post" class="d-inline">
-                                    <button class="btn btn-outline-danger btn-sm" type="submit">Đăng xuất</button>
-                                </form>
+                            <li class="nav-item dropdown">
+
+                                <a class="nav-link dropdown-toggle d-flex align-items-center"
+                                   href="#"
+                                   id="userMenu"
+                                   role="button"
+                                   data-bs-toggle="dropdown"
+                                   aria-expanded="false">
+
+                                    <span style="font-size:20px;">&#9776;</span>
+                                </a>
+
+                                <ul class="dropdown-menu dropdown-menu-end shadow"
+                                    aria-labelledby="userMenu">
+
+                                    
+
+                                    <li>
+                                        <a class="dropdown-item"
+                                           href="/USER/AddOrEdit?idtk=@userId">
+                                            Chỉnh sửa thông tin
+                                        </a>
+                                    </li>
+
+                                    <li><hr class="dropdown-divider"></li>
+
+                                    <li>
+                                        <form asp-controller="Home"
+                                              asp-action="Logout"
+                                              method="post">
+                                            <button class="dropdown-item text-danger"
+                                                    type="submit">
+                                                Đăng xuất
+                                            </button>
+                                        </form>
+                                    </li>
+
+                                </ul>
                             </li>
+                           
                         }
                         else
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="login">Đăng nhập</a>
+                                <a class="nav-link text-dark"
+                                   asp-controller="Home"
+                                   asp-action="Login">
+                                    Đăng nhập
+                                </a>
                             </li>
                         }
+
                     </ul>
                 </div>
             </div>
@@ -70,5 +116,9 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
+    <script>
+        console.log("UserID:", "@userId");
+        console.log("UserName:", "@userName");
+    </script>
 </body>
 </html>
