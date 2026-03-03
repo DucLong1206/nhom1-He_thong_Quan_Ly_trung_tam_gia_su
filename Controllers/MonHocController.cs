@@ -26,4 +26,14 @@ public class MonHocController : Controller
 
         return Json(new { data = vm });
     }
+
+    public IActionResult TutorDetail(string? tutorName, string? mon, string? xa, decimal? giaTheoGio)
+    {
+        ViewData["TutorName"] = tutorName;
+        ViewData["Mon"] = mon;
+        ViewData["Xa"] = xa;
+        ViewData["GiaTheoGio"] = giaTheoGio;
+
+        return View();
+    }
 }

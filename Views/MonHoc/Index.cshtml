@@ -173,7 +173,7 @@
             const formData = new FormData(document.getElementById("filterForm"));
             const queryString = new URLSearchParams(formData).toString();
 
-            fetch("/MonHoc/getlist?") // đổi đúng controller nếu khác
+            fetch(`/MonHoc/getlist?${queryString}`)
                 .then(res => res.json())
                 .then(res => renderList(res.data))
                 .catch(err => console.error(err));
@@ -200,12 +200,13 @@
                         initials = item.tenGiaSu.substring(0, 2);
                 }
 
+                const detailUrl = `/MonHoc/TutorDetail?tutorName=${encodeURIComponent(item.name ?? "")}&mon=${encodeURIComponent(item.mon ?? "")}&xa=${encodeURIComponent(item.xa ?? "")}&giaTheoGio=${encodeURIComponent(item.giaTheoGio ?? 0)}`;
                 const html = `
-                <div class="gs-card">
+                <a class="gs-card text-decoration-none" href="${detailUrl}">
                     <div class="gs-avatar">${initials.toUpperCase()}</div>
                     <div class="gs-divider"></div>
                     <div class="gs-info">
-                        <div class="gs-name">${item.name ?? ""}</div>
+                        <div class="gs-name text-dark">${item.name ?? ""}</div>
                         <div class="gs-tags">
                             <span class="gs-tag subject">${item.mon ?? ""}</span>
                             <span class="gs-tag area">${item.xa ?? ""}</span>
@@ -214,7 +215,7 @@
                             ${Number(item.giaTheoGio).toLocaleString()} VNĐ / giờ
                         </div>
                     </div>
-                </div>`;
+                </a>`;
 
                 container.insertAdjacentHTML("beforeend", html);
             });
