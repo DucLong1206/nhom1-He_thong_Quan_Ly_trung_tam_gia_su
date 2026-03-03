@@ -1,0 +1,173 @@
+@{
+    ViewData["Title"] = "Lịch đã đăng ký";
+}
+
+<style>
+    .schedule-wrap {
+        max-width: 1050px;
+        margin: 0 auto;
+    }
+
+    .schedule-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 18px;
+    }
+
+    .summary-row {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+        margin-bottom: 18px;
+    }
+
+    .summary-box {
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        background: #fff;
+        padding: 12px;
+        text-align: center;
+    }
+
+    .summary-number {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #111827;
+    }
+
+    .summary-label {
+        font-size: 0.82rem;
+        color: #6b7280;
+    }
+
+    .schedule-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .schedule-card {
+        border: 1px solid #e5e7eb;
+        background: #fff;
+        border-radius: 14px;
+        padding: 14px;
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .schedule-title {
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+
+    .schedule-meta {
+        color: #4b5563;
+        font-size: 0.92rem;
+    }
+
+    .status-badge {
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 6px 10px;
+        border-radius: 999px;
+        text-transform: uppercase;
+        height: fit-content;
+    }
+
+    .status-pending {
+        color: #92400e;
+        background: #fef3c7;
+    }
+
+    .status-approved {
+        color: #065f46;
+        background: #d1fae5;
+    }
+
+    .status-completed {
+        color: #1d4ed8;
+        background: #dbeafe;
+    }
+
+    .status-cancelled {
+        color: #991b1b;
+        background: #fee2e2;
+    }
+
+    @@media (max-width: 992px) {
+        .summary-row {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+    @@media (max-width: 576px) {
+        .summary-row {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="schedule-wrap">
+    <div class="schedule-header">
+        <h1 class="mb-0">Lịch học đã đăng ký</h1>
+        <a class="btn btn-outline-primary" href="/MonHoc/Index">+ Đăng ký lịch mới</a>
+    </div>
+
+    <div class="summary-row">
+        <div class="summary-box">
+            <div class="summary-number">6</div>
+            <div class="summary-label">Tổng lịch đã tạo</div>
+        </div>
+        <div class="summary-box">
+            <div class="summary-number">2</div>
+            <div class="summary-label">Đang chờ duyệt</div>
+        </div>
+        <div class="summary-box">
+            <div class="summary-number">3</div>
+            <div class="summary-label">Đã duyệt</div>
+        </div>
+        <div class="summary-box">
+            <div class="summary-number">1</div>
+            <div class="summary-label">Đã hoàn thành</div>
+        </div>
+    </div>
+
+    <div class="schedule-list">
+        <article class="schedule-card">
+            <div>
+                <div class="schedule-title">Toán 8 - Gia sư Nguyễn Văn A</div>
+                <div class="schedule-meta">Ngày học: 10/10/2026 • 18:00 - 19:30 • Khu vực: P. Long Bình</div>
+            </div>
+            <span class="status-badge status-approved">Đã duyệt</span>
+        </article>
+
+        <article class="schedule-card">
+            <div>
+                <div class="schedule-title">Tiếng Anh 9 - Gia sư Trần Thị B</div>
+                <div class="schedule-meta">Ngày học: 12/10/2026 • 19:30 - 21:00 • Khu vực: P. Tân Phong</div>
+            </div>
+            <span class="status-badge status-pending">Chờ duyệt</span>
+        </article>
+
+        <article class="schedule-card">
+            <div>
+                <div class="schedule-title">Vật lý 10 - Gia sư Lê Văn C</div>
+                <div class="schedule-meta">Ngày học: 15/10/2026 • 08:00 - 10:00 • Khu vực: P. Hố Nai</div>
+            </div>
+            <span class="status-badge status-completed">Đã hoàn thành</span>
+        </article>
+
+        <article class="schedule-card">
+            <div>
+                <div class="schedule-title">Ngữ văn 7 - Gia sư Phạm Thị D</div>
+                <div class="schedule-meta">Ngày học: 16/10/2026 • 17:00 - 18:30 • Khu vực: P. Trảng Dài</div>
+            </div>
+            <span class="status-badge status-cancelled">Đã hủy</span>
+        </article>
+    </div>
+</div>
