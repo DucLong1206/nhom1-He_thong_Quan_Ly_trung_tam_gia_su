@@ -7,10 +7,12 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers;
 public class MonHocController : Controller
 {
     private readonly IMonhocLogic _mh;
+    private readonly ILopHocLogic _lh;
 
-    public MonHocController(IMonhocLogic mh)
+    public MonHocController(IMonhocLogic mh, ILopHocLogic lh)
     {
         _mh = mh;
+        _lh = lh;
     }
 
     public IActionResult Index()
@@ -48,12 +50,15 @@ public class MonHocController : Controller
     [HttpPost]
     public JsonResult Save([FromBody] SaveLop model)
     {
+        string mess = "";
         model.lop.ngaytao = DateTime.Now;
         model.lop.idnguoitao = HttpContext.Session.GetInt32("UserId");
         model.lop.isdetele = false;
         model.lop.TrangThai = 1;
 
+        var save = _lh.SaveLopHoc(model, out mess);
 
+        if (mess.Length > 0) return Json(new { success = false, mess = mess });
         return Json(new { success = true });
     }
 }

@@ -20,6 +20,7 @@ builder.Services.AddScoped<ITaiKhoanLogic, TaiKhoanLogic>();
 builder.Services.AddScoped<IDM_TinhLogic, DM_TinhLogic>();
 builder.Services.AddScoped<IDM_XaLogic, DM_XaLogic>();
 builder.Services.AddScoped<IUSERLogic, USERLogic>();
+builder.Services.AddScoped<ILopHocLogic, LopHocLogic>();
 
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
