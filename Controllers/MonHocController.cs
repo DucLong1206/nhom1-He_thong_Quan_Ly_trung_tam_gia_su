@@ -43,10 +43,7 @@ public class MonHocController : Controller
 
         return View();
     }
-    public IActionResult LichDaDangKy()
-    {
-        return View();
-    }
+
     [HttpPost]
     public JsonResult Save([FromBody] SaveLop model)
     {

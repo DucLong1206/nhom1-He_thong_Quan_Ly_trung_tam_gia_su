@@ -1,4 +1,4 @@
-@{
+﻿@{
     ViewData["Title"] = "Lịch đã đăng ký";
 }
 
@@ -171,3 +171,119 @@
         </article>
     </div>
 </div>
+@section Scripts {
+<script>
+    $(document).ready(function () {
+
+        const userId = @Context.Session.GetInt32("UserId");
+
+        $.ajax({
+                url: '/LopHoc/Getlistlophocdangkiping',
+            type: 'GET',
+            data: { id: userId },
+            success: function (res) {
+
+                if (!res.success) {
+                    alert(res.message);
+                    return;
+                }
+
+                renderSchedule(res.data);
+            },
+            error: function () {
+                alert("Lỗi gọi dữ liệu");
+            }
+        });
+
+        function renderSchedule(data) {
+
+            let html = '';
+            let total = data.length;
+            let pending = 0;
+            let approved = 0;
+            let completed = 0;
+
+            data.forEach(item => {
+
+                let statusClass = '';
+                let statusText = '';
+
+                        switch (item.trangThai) {
+
+            case 1:
+                statusClass = 'status-pending';
+                pending++;
+                break;
+
+            case 2:
+                statusClass = 'status-cancelled';
+                break;
+
+            case 3:
+                statusClass = 'status-pending';
+                break;
+
+            case 4:
+                statusClass = 'status-approved';
+                approved++;
+                break;
+
+            case 5:
+                statusClass = 'status-approved';
+                approved++;
+                break;
+
+            case 6:
+                statusClass = 'status-approved';
+                approved++;
+                break;
+
+            case 7:
+                statusClass = 'status-completed';
+                completed++;
+                break;
+
+            case 8:
+                statusClass = 'status-cancelled';
+                break;
+
+            default:
+                statusClass = 'status-pending';
+                break;
+        }
+
+                html += `
+                <article class="schedule-card">
+                    <div>
+                        <div class="schedule-title">
+                            ${item.mon} - Gia sư ${item.name}
+                        </div>
+                        <div class="schedule-meta">
+                            Bắt đầu: ${formatDate(item.ngayBatdau)}
+                            • Khu vực: ${item.xa}
+                        </div>
+                    </div>
+                    <span class="status-badge ${statusClass}">
+                                ${item.trangthainame?? "không xác đinh"}
+                    </span>
+                </article>`;
+            });
+
+            $('.schedule-list').html(html);
+
+            // Update summary
+            $('.summary-number').eq(0).text(total);
+            $('.summary-number').eq(1).text(pending);
+            $('.summary-number').eq(2).text(approved);
+            $('.summary-number').eq(3).text(completed);
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('vi-VN');
+        }
+
+    });
+</script>
+}

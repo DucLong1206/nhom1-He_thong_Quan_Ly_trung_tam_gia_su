@@ -10,6 +10,11 @@
     <link rel="stylesheet" href="~/He_thong_Quan_Ly_trung_tam_gia_su.styles.css" asp-append-version="true" />
 </head>
 <body>
+
+    @{
+        var userId = Context.Session.GetInt32("UserId");
+        var userName = Context.Session.GetString("UserName");
+    }
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
@@ -29,14 +34,16 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="MonHoc" asp-action="Index">Danh sách môn học</a>
                         </li>
+                         @if (!string.IsNullOrEmpty(userName))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="LopHoc" asp-action="Index">Lịch đã đăng ký</a>
+                            </li>
+                        }
                     </ul>
 
                     <ul class="navbar-nav">
 
-                        @{
-                            var userId = Context.Session.GetInt32("UserId");
-                            var userName = Context.Session.GetString("UserName");
-                        }
 
                         @if (!string.IsNullOrEmpty(userName))
                         {
