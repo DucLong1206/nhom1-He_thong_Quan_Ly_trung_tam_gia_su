@@ -184,7 +184,7 @@
             }
 
             data.forEach(item => {
-
+                console.log(item)
                 let initials = "GS";
                 if (item.tenGiaSu) {
                     let parts = item.tenGiaSu.trim().split(" ");
@@ -194,7 +194,18 @@
                         initials = item.tenGiaSu.substring(0, 2);
                 }
 
-                const detailUrl = `/MonHoc/TutorDetail?tutorName=${encodeURIComponent(item.name ?? "")}&mon=${encodeURIComponent(item.mon ?? "")}&xa=${encodeURIComponent(item.xa ?? "")}&giaTheoGio=${encodeURIComponent(item.giaTheoGio ?? 0)}`;
+        const params = new URLSearchParams({
+        tutorName: item.name ?? "",
+        mon: item.mon ?? "",
+        xa: item.xa ?? "",
+        giaTheoGio: item.giaTheoGio ?? 0,
+        ID: item.id ?? 0,
+        IDXa: item.idXa ?? 0,
+        IDMon: item.idMon ?? 0,
+        Trinhdo: item.trinhdo ?? 0
+    });
+
+    const detailUrl = `/MonHoc/TutorDetail?${params.toString()}`;
                 const html = `
                 <a class="gs-card text-decoration-none" href="${detailUrl}">
                     <div class="gs-avatar">${initials.toUpperCase()}</div>
@@ -202,7 +213,7 @@
                     <div class="gs-info">
                         <div class="gs-name text-dark">${item.name ?? ""}</div>
                         <div class="gs-tags">
-                            <span class="gs-tag subject">${item.mon ?? ""}</span>
+                            <span class="gs-tag subject">${item.mon ?? ""}-lớp ${item.trinhdo ?? ""}</span>
                             <span class="gs-tag area">${item.xa ?? ""}</span>
                         </div>
                         <div class="gs-price">

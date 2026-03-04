@@ -72,7 +72,7 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
             var ur = _db.USER.FirstOrDefault(x => x.IDTK == user.ID);
             if (ur == null) return RedirectToAction("AddorEdit", "USER", new { idtk = user.ID });
 
-            HttpContext.Session.SetInt32("UserId", user.ID);
+            HttpContext.Session.SetInt32("UserId", ur.ID);
             HttpContext.Session.SetString("UserName", ur?.Name ?? "");
 
             return RedirectToAction("Index", "MonHoc");
