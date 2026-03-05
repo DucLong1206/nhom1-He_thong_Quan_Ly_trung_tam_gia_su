@@ -40,48 +40,68 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(string username, string password)
         {
-            if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
+            try
             {
-                ViewBag.Error = "Vui lòng nhập đầy đủ tài khoản và mật khẩu.";
-                return View("Login");
-            }
+                if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
+                {
+                    ViewBag.Error = "Vui lòng nhập đầy đủ tài khoản và mật khẩu.";
+                    return View("Login");
+                }
 
-            // Hardcode admin (giữ nguyên nếu bạn muốn)
-            if (username == "admin" && password == "admin")
-            {
-                HttpContext.Session.SetString("IsAdmin", "true");
-                HttpContext.Session.SetInt32("AdminId", -1);
-                HttpContext.Session.SetString("AdminName", "admin");
+                // Hardcode admin
+                if (username == "admin" && password == "admin")
+                {
+                    HttpContext.Session.SetString("IsAdmin", "true");
+                    HttpContext.Session.SetInt32("AdminId", -1);
+                    HttpContext.Session.SetString("AdminName", "admin");
+
+                    return RedirectToAction("Index", "MonHoc");
+                }
+
+                // tìm tài khoản
+                var user = _db.TaiKhoan.FirstOrDefault(x => x.Name == username);
+
+                if (user == null)
+                {
+                    ViewBag.Error = "Sai thông tin đăng nhập.";
+                    return View("Login");
+                }
+
+                bool isPasswordValid = false;
+
+                try
+                {
+                    // kiểm tra password
+                    isPasswordValid = BCrypt.Net.BCrypt.Verify(password, user.PassWord);
+                }
+                catch
+                {
+                    ViewBag.Error = "Mật khẩu hệ thống không hợp lệ.";
+                    return View("Login");
+                }
+
+                if (!isPasswordValid)
+                {
+                    ViewBag.Error = "Sai thông tin đăng nhập.";
+                    return View("Login");
+                }
+
+                // lấy user profile
+                var ur = _db.USER.FirstOrDefault(x => x.IDTK == user.ID);
+
+                if (ur == null)
+                    return RedirectToAction("AddorEdit", "USER", new { idtk = user.ID });
+
+                HttpContext.Session.SetInt32("UserId", ur.ID);
+                HttpContext.Session.SetString("UserName", ur?.Name ?? "");
 
                 return RedirectToAction("Index", "MonHoc");
             }
-
-            // Tìm user theo username trước
-            var user = _db.TaiKhoan.FirstOrDefault(x => x.Name == username);
-
-            if (user == null)
+            catch (Exception ex)
             {
-                ViewBag.Error = "Sai thông tin đăng nhập.";
+                ViewBag.Error = "Có lỗi xảy ra khi đăng nhập.";
                 return View("Login");
             }
-
-            // So sánh password bằng BCrypt
-            bool isPasswordValid = BCrypt.Net.BCrypt.Verify(password, user.PassWord);
-
-            if (!isPasswordValid)
-            {
-                ViewBag.Error = "Sai thông tin đăng nhập.";
-                return View("Login");
-            }
-
-            // Lấy thông tin user
-            var ur = _db.USER.FirstOrDefault(x => x.IDTK == user.ID);
-            if (ur == null) return RedirectToAction("AddorEdit", "USER", new { idtk = user.ID });
-
-            HttpContext.Session.SetInt32("UserId", ur.ID);
-            HttpContext.Session.SetString("UserName", ur?.Name ?? "");
-
-            return RedirectToAction("Index", "MonHoc");
         }
 
         [HttpGet]
