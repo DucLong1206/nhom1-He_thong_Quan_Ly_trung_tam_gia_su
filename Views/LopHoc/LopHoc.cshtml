@@ -1,106 +1,218 @@
 @{
-    ViewData["Title"] = "Bắt đầu buổi học";
+    ViewData["Title"] = "Bắt đầu buổi học OFFLINE";
 }
 
 <style>
-    .start-lesson-wrap {
-        max-width: 900px;
-        margin: 0 auto;
-    }
-
+    .start-lesson-wrap { max-width: 980px; margin: 0 auto; }
     .start-lesson-card {
-        border: 1px solid #dbeafe;
-        background: linear-gradient(180deg, #eff6ff, #ffffff);
-        border-radius: 16px;
-        padding: 18px;
-        margin-bottom: 16px;
+        border: 1px solid #dbeafe; background: linear-gradient(180deg, #eff6ff, #ffffff);
+        border-radius: 16px; padding: 18px; margin-bottom: 16px;
     }
-
-    .flow-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        margin-top: 12px;
-    }
-
-    .flow-step {
-        background: #dbeafe;
-        color: #1e40af;
-        border-radius: 999px;
-        font-size: 0.84rem;
-        font-weight: 600;
-        padding: 8px 12px;
-    }
-
-    .lesson-box {
-        border: 1px solid #e5e7eb;
-        border-radius: 14px;
-        padding: 14px;
-        background: #fff;
-    }
-
+    .flow-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+    .flow-step { background: #dbeafe; color: #1e40af; border-radius: 999px; font-size: .84rem; font-weight: 600; padding: 8px 12px; }
+    .lesson-box { border: 1px solid #e5e7eb; border-radius: 14px; padding: 14px; background: #fff; }
     .lesson-check {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border: 1px dashed #cbd5e1;
-        border-radius: 10px;
-        padding: 8px 10px;
-        margin-top: 8px;
+        display: flex; justify-content: space-between; align-items: center;
+        border: 1px dashed #cbd5e1; border-radius: 10px; padding: 10px; margin-top: 8px;
     }
-
-    .timer-box {
-        margin-top: 12px;
-        background: #f8fafc;
-        border-radius: 10px;
-        padding: 10px;
-        text-align: center;
-        font-weight: 700;
+    .camera-zone {
+        margin-top: 12px; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; background: #f8fafc;
     }
+    .camera-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .cam-box { border: 1px solid #cbd5e1; border-radius: 10px; background: #fff; padding: 10px; }
+    .cam-view { width: 100%; border-radius: 10px; background: #0f172a; min-height: 220px; object-fit: cover; }
+    .timer-box { margin-top: 12px; background: #f8fafc; border-radius: 10px; padding: 10px; text-align: center; font-weight: 700; font-size: 1.1rem; }
+    .status-dot { width: 10px; height: 10px; border-radius: 999px; display: inline-block; margin-right: 6px; }
+    .dot-ok { background: #16a34a; }
+    .dot-warn { background: #f59e0b; }
+    @@media (max-width: 768px) { .camera-grid { grid-template-columns: 1fr; } }
 </style>
 
 <div class="start-lesson-wrap">
     <div class="d-flex justify-content-between align-items-center mb-3 gap-2 flex-wrap">
-        <h2 class="mb-0">Bắt đầu buổi học OFFLINE (Demo tĩnh)</h2>
+        <h2 class="mb-0">Bắt đầu buổi học OFFLINE</h2>
         <a class="btn btn-outline-secondary" href="/LopHoc/Index">← Quay lại lịch học</a>
     </div>
 
     <section class="start-lesson-card">
         <div class="fw-bold">Luồng bắt đầu buổi học trực tiếp (OFFLINE)</div>
-        <div class="text-muted" style="font-size:0.92rem;">Không dùng DB, ưu tiên mô phỏng lớp học trực tiếp trước; phần online sẽ làm sau.</div>
+        <div class="text-muted" style="font-size:0.92rem;">Có chụp xác nhận bằng camera học viên trước khi vào học. Nếu quá giờ sẽ cảnh báo và tạo nhanh nội dung gửi Gmail.</div>
         <div class="flow-row">
             <span class="flow-step">1. Điểm danh</span>
-            <span class="flow-step">2. Check-in tại địa điểm học</span>
-            <span class="flow-step">3. Ổn định chỗ ngồi & tài liệu</span>
-            <span class="flow-step">4. Bắt đầu buổi học</span>
+            <span class="flow-step">2. Bật camera học viên</span>
+            <span class="flow-step">3. Chụp ảnh xác nhận</span>
+            <span class="flow-step">4. Bắt đầu buổi học + bấm giờ</span>
         </div>
     </section>
 
     <section class="lesson-box">
         <div class="fw-bold">Lớp: Toán 8 - Gia sư Nguyễn Văn A</div>
-        <div class="text-muted" style="font-size:0.92rem;">Thời gian: 18:00 - 19:30 • Địa điểm: P. Long Bình (học trực tiếp)</div>
+        <div class="text-muted" style="font-size:0.92rem;">Địa điểm: P. Long Bình (học trực tiếp)</div>
 
-        <div class="lesson-check"><span>Điểm danh học viên</span><span>✅</span></div>
-        <div class="lesson-check"><span>Xác nhận có mặt phụ huynh/học viên</span><span>✅</span></div>
-        <div class="lesson-check"><span>Dụng cụ học tập đầy đủ</span><span>✅</span></div>
+        <div class="row mt-2 g-2 align-items-end">
+            <div class="col-md-6">
+                <label class="form-label mb-1">Giờ bắt đầu dự kiến</label>
+                <input type="datetime-local" id="scheduledStart" class="form-control" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label mb-1">Email nhận báo quá giờ (Gmail)</label>
+                <input type="email" id="alertEmail" class="form-control" placeholder="tenban@gmail.com" />
+            </div>
+        </div>
 
-        <div class="timer-box">00:00:00</div>
+        <div class="lesson-check"><span>Điểm danh học viên</span><span id="statusAttendance"><span class="status-dot dot-warn"></span>Chưa xác nhận</span></div>
+        <div class="lesson-check"><span>Ảnh xác nhận học viên</span><span id="statusCapture"><span class="status-dot dot-warn"></span>Chưa chụp</span></div>
 
-        <div class="d-flex justify-content-end mt-3">
+        <div class="camera-zone">
+            <div class="camera-grid">
+                <div class="cam-box">
+                    <div class="fw-semibold mb-2">Camera học viên</div>
+                    <video id="camPreview" autoplay playsinline class="cam-view"></video>
+                    <div class="mt-2 d-flex gap-2 flex-wrap">
+                        <button class="btn btn-outline-primary" type="button" id="btnOpenCam">Mở camera</button>
+                        <button class="btn btn-outline-dark" type="button" id="btnCapture">Chụp xác nhận</button>
+                    </div>
+                </div>
+                <div class="cam-box">
+                    <div class="fw-semibold mb-2">Ảnh xác nhận</div>
+                    <img id="capturedImage" class="cam-view" alt="Ảnh xác nhận" />
+                    <canvas id="captureCanvas" class="d-none"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="timer-box" id="timerBox">00:00:00</div>
+
+        <div class="d-flex justify-content-end mt-3 gap-2 flex-wrap">
+            <a id="gmailLink" class="btn btn-outline-danger d-none" target="_blank">Báo quá giờ qua Gmail</a>
             <button class="btn btn-primary" id="btnStartLesson" type="button">Xác nhận bắt đầu OFFLINE</button>
+            <button class="btn btn-outline-secondary" id="btnStopLesson" type="button">Kết thúc buổi học</button>
         </div>
     </section>
 </div>
 
 @section Scripts {
-    <script>
-        $(document).on('click', '#btnStartLesson', function () {
+<script>
+    $(function () {
+        const now = new Date();
+        now.setSeconds(0, 0);
+        $('#scheduledStart').val(now.toISOString().slice(0, 16));
+
+        let streamRef = null;
+        let capturedOk = false;
+        let lessonStartedAt = null;
+        let timerRef = null;
+        let overdueNotified = false;
+
+        function setStatus(selector, ok, okText, noText) {
+            const html = ok
+                ? `<span class="status-dot dot-ok"></span>${okText}`
+                : `<span class="status-dot dot-warn"></span>${noText}`;
+            $(selector).html(html);
+        }
+
+        async function openCamera() {
+            try {
+                streamRef = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                const video = document.getElementById('camPreview');
+                video.srcObject = streamRef;
+                setStatus('#statusAttendance', true, 'Đã xác nhận có mặt', 'Chưa xác nhận');
+            } catch (err) {
+                Swal.fire('Không mở được camera', 'Vui lòng cấp quyền camera để chụp xác nhận.', 'error');
+            }
+        }
+
+        function captureImage() {
+            const video = document.getElementById('camPreview');
+            const canvas = document.getElementById('captureCanvas');
+            if (!video.videoWidth) {
+                Swal.fire('Chưa có camera', 'Bạn cần mở camera trước khi chụp.', 'warning');
+                return;
+            }
+
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+            const dataUrl = canvas.toDataURL('image/png');
+            $('#capturedImage').attr('src', dataUrl);
+            capturedOk = true;
+            setStatus('#statusCapture', true, 'Đã chụp xác nhận', 'Chưa chụp');
+        }
+
+        function startTimer() {
+            if (timerRef) clearInterval(timerRef);
+            timerRef = setInterval(function () {
+                if (!lessonStartedAt) return;
+                const diff = Math.floor((Date.now() - lessonStartedAt.getTime()) / 1000);
+                const hh = String(Math.floor(diff / 3600)).padStart(2, '0');
+                const mm = String(Math.floor((diff % 3600) / 60)).padStart(2, '0');
+                const ss = String(diff % 60).padStart(2, '0');
+                $('#timerBox').text(`${hh}:${mm}:${ss}`);
+            }, 1000);
+        }
+
+        function buildGmailAlertLink() {
+            const email = $('#alertEmail').val()?.trim();
+            if (!email) return null;
+            const subject = encodeURIComponent('[Cảnh báo] Buổi học bị quá giờ bắt đầu');
+            const body = encodeURIComponent('Buổi học OFFLINE hiện tại đã quá giờ bắt đầu dự kiến. Vui lòng kiểm tra ngay.');
+            return `mailto:${email}?subject=${subject}&body=${body}`;
+        }
+
+        function checkOverdue() {
+            const value = $('#scheduledStart').val();
+            if (!value || overdueNotified) return;
+            const scheduled = new Date(value);
+            const now = new Date();
+
+            if (now > scheduled && !lessonStartedAt) {
+                overdueNotified = true;
+                Swal.fire('Cảnh báo quá giờ', 'Buổi học chưa bắt đầu và đã quá giờ dự kiến.', 'warning');
+
+                if ('Notification' in window) {
+                    if (Notification.permission === 'granted') {
+                        new Notification('Lớp học quá giờ', { body: 'Buổi học OFFLINE chưa bắt đầu.' });
+                    } else if (Notification.permission !== 'denied') {
+                        Notification.requestPermission();
+                    }
+                }
+
+                const link = buildGmailAlertLink();
+                if (link) {
+                    $('#gmailLink').attr('href', link).removeClass('d-none');
+                }
+            }
+        }
+
+        $('#btnOpenCam').on('click', openCamera);
+        $('#btnCapture').on('click', captureImage);
+
+        $('#btnStartLesson').on('click', function () {
+            if (!capturedOk) {
+                Swal.fire('Thiếu xác nhận', 'Cần chụp ảnh học viên trước khi bắt đầu buổi học.', 'warning');
+                return;
+            }
+
+            lessonStartedAt = new Date();
+            startTimer();
+
             Swal.fire({
                 icon: 'success',
-                title: 'Đã bắt đầu buổi học OFFLINE (demo)',
-                text: 'Luồng offline đã sẵn sàng (tĩnh), phần online sẽ bổ sung sau.',
+                title: 'Đã bắt đầu buổi học OFFLINE',
+                text: 'Bấm giờ đã chạy. Ảnh xác nhận đã ghi nhận ở phiên làm việc hiện tại.',
                 confirmButtonText: 'OK'
             });
         });
-    </script>
+
+        $('#btnStopLesson').on('click', function () {
+            if (timerRef) clearInterval(timerRef);
+            timerRef = null;
+            lessonStartedAt = null;
+            $('#timerBox').text('00:00:00');
+            Swal.fire('Đã kết thúc', 'Buổi học đã được kết thúc (demo tĩnh).', 'info');
+        });
+
+        setInterval(checkOverdue, 30000);
+    });
+</script>
 }
