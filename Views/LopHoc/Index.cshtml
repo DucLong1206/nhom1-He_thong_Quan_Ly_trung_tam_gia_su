@@ -15,7 +15,6 @@
         color: #374151;
         padding: 4px 0;
     }
-
     .schedule-wrap {
         max-width: 1050px;
         margin: 0 auto;
@@ -71,7 +70,6 @@
         justify-content: space-between;
         gap: 12px;
         flex-wrap: wrap;
-        cursor: pointer;
     }
 
     .schedule-title {
@@ -113,91 +111,6 @@
         background: #fee2e2;
     }
 
-    .demo-start-panel {
-        border: 1px solid #dbeafe;
-        background: linear-gradient(180deg, #eff6ff, #ffffff);
-        border-radius: 14px;
-        padding: 14px;
-        margin-bottom: 18px;
-    }
-
-    .demo-flow {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-        margin-top: 10px;
-    }
-
-    .demo-step {
-        padding: 8px 12px;
-        border-radius: 999px;
-        background: #dbeafe;
-        color: #1e40af;
-        font-size: 0.82rem;
-        font-weight: 600;
-    }
-
-    .schedule-card-actions {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    .start-lesson-btn {
-        border: none;
-        border-radius: 8px;
-        background: #2563eb;
-        color: #fff;
-        padding: 7px 10px;
-        font-size: 0.82rem;
-        font-weight: 600;
-    }
-
-        .start-lesson-btn:hover {
-            background: #1d4ed8;
-        }
-
-    .lesson-modal-backdrop {
-        position: fixed;
-        inset: 0;
-        background: rgba(15, 23, 42, 0.55);
-        display: none;
-        align-items: center;
-        justify-content: center;
-        z-index: 1040;
-        padding: 12px;
-    }
-
-    .lesson-modal {
-        width: min(560px, 96vw);
-        border-radius: 14px;
-        background: #fff;
-        border: 1px solid #e5e7eb;
-        padding: 16px;
-        box-shadow: 0 20px 45px rgba(0, 0, 0, 0.18);
-    }
-
-    .lesson-check {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border: 1px dashed #cbd5e1;
-        border-radius: 10px;
-        padding: 8px 10px;
-        margin-top: 8px;
-        font-size: 0.9rem;
-    }
-
-    .lesson-timer {
-        margin-top: 14px;
-        border-radius: 10px;
-        background: #f8fafc;
-        padding: 10px;
-        font-weight: 700;
-        text-align: center;
-        color: #0f172a;
-    }
-
     @@media (max-width: 992px) {
         .summary-row {
             grid-template-columns: 1fr 1fr;
@@ -214,21 +127,11 @@
 <div class="schedule-wrap">
     <div class="schedule-header">
         <h1 class="mb-0">Lịch học đã đăng ký</h1>
-        <a class="btn btn-outline-primary" href="/MonHoc/Index">+ Đăng ký lịch mới</a>
+        <div class="d-flex gap-2">
+            <a class="btn btn-outline-success" href="/LopHoc/LopHoc">▶ Bắt đầu buổi học (Demo)</a>
+            <a class="btn btn-outline-primary" href="/MonHoc/Index">+ Đăng ký lịch mới</a>
+        </div>
     </div>
-
-    <section class="demo-start-panel">
-        <strong>Mô phỏng “Bắt đầu buổi học” (tĩnh, chưa dùng DB)</strong>
-        <div class="text-muted mt-1" style="font-size:0.92rem;">
-            Sau khi lớp ở trạng thái <b>Đã duyệt</b>, học viên bấm <b>Bắt đầu buổi học</b> để mở checklist trước giờ học.
-        </div>
-        <div class="demo-flow">
-            <span class="demo-step">1. Điểm danh</span>
-            <span class="demo-step">2. Xác nhận kết nối</span>
-            <span class="demo-step">3. Bắt đầu bộ đếm giờ</span>
-            <span class="demo-step">4. Vào phiên học</span>
-        </div>
-    </section>
 
     <div class="summary-row">
         <div class="summary-box">
@@ -255,37 +158,34 @@
                 <div class="schedule-title">Toán 8 - Gia sư Nguyễn Văn A</div>
                 <div class="schedule-meta">Ngày học: 10/10/2026 • 18:00 - 19:30 • Khu vực: P. Long Bình</div>
             </div>
-            <div class="schedule-card-actions">
-                <button class="start-lesson-btn" type="button" data-title="Toán 8 - Gia sư Nguyễn Văn A">Bắt đầu buổi học</button>
-                <span class="status-badge status-approved">Đã duyệt</span>
+            <span class="status-badge status-approved">Đã duyệt</span>
+        </article>
+
+        <article class="schedule-card">
+            <div>
+                <div class="schedule-title">Tiếng Anh 9 - Gia sư Trần Thị B</div>
+                <div class="schedule-meta">Ngày học: 12/10/2026 • 19:30 - 21:00 • Khu vực: P. Tân Phong</div>
             </div>
+            <span class="status-badge status-pending">Chờ duyệt</span>
+        </article>
+
+        <article class="schedule-card">
+            <div>
+                <div class="schedule-title">Vật lý 10 - Gia sư Lê Văn C</div>
+                <div class="schedule-meta">Ngày học: 15/10/2026 • 08:00 - 10:00 • Khu vực: P. Hố Nai</div>
+            </div>
+            <span class="status-badge status-completed">Đã hoàn thành</span>
+        </article>
+
+        <article class="schedule-card">
+            <div>
+                <div class="schedule-title">Ngữ văn 7 - Gia sư Phạm Thị D</div>
+                <div class="schedule-meta">Ngày học: 16/10/2026 • 17:00 - 18:30 • Khu vực: P. Trảng Dài</div>
+            </div>
+            <span class="status-badge status-cancelled">Đã hủy</span>
         </article>
     </div>
 </div>
-
-<div class="lesson-modal-backdrop" id="lessonModal">
-    <div class="lesson-modal">
-        <div class="d-flex justify-content-between align-items-start gap-2">
-            <div>
-                <div class="fw-bold">Bắt đầu buổi học (Demo)</div>
-                <div class="text-muted" id="lessonTitle" style="font-size:0.9rem;">Toán 8 - Gia sư Nguyễn Văn A</div>
-            </div>
-            <button class="btn btn-sm btn-outline-secondary" type="button" id="closeLessonModal">Đóng</button>
-        </div>
-
-        <div class="lesson-check"><span>Điểm danh học viên</span><span>✅</span></div>
-        <div class="lesson-check"><span>Kiểm tra camera/mic</span><span>✅</span></div>
-        <div class="lesson-check"><span>Tài liệu buổi học</span><span>✅</span></div>
-
-        <div class="lesson-timer">00:00:00</div>
-
-        <div class="d-flex justify-content-end mt-3 gap-2">
-            <button class="btn btn-outline-secondary" type="button" id="cancelLessonStart">Hủy</button>
-            <button class="btn btn-primary" type="button" id="confirmLessonStart">Xác nhận bắt đầu</button>
-        </div>
-    </div>
-</div>
-
 @section Scripts {
 <script>
     $(document).ready(function () {
@@ -293,7 +193,7 @@
         const userId = @Context.Session.GetInt32("UserId");
 
         $.ajax({
-            url: '/LopHoc/Getlistlophocdangkiping',
+                url: '/LopHoc/Getlistlophocdangkiping',
             type: 'GET',
             data: { id: userId },
             success: function (res) {
@@ -321,55 +221,75 @@
             data.forEach(item => {
 
                 let statusClass = '';
-                const canStartLesson = [4, 5, 6].includes(item.trangThai);
+                let statusText = '';
 
-                switch (item.trangThai) {
-                    case 1:
-                        statusClass = 'status-pending';
-                        pending++;
-                        break;
-                    case 2:
-                        statusClass = 'status-cancelled';
-                        break;
-                    case 3:
-                        statusClass = 'status-pending';
-                        break;
-                    case 4:
-                    case 5:
-                    case 6:
-                        statusClass = 'status-approved';
-                        approved++;
-                        break;
-                    case 7:
-                        statusClass = 'status-completed';
-                        completed++;
-                        break;
-                    case 8:
-                        statusClass = 'status-cancelled';
-                        break;
-                    default:
-                        statusClass = 'status-pending';
-                        break;
-                }
+                        switch (item.trangThai) {
 
-                html += `
-                <article class="schedule-card" data-id="${item.id}">
-                    <div>
-                        <div class="schedule-title">${item.mon} - Gia sư ${item.name}</div>
-                        <div class="schedule-meta">Bắt đầu: ${formatDate(item.ngayBatdau)} • Khu vực: ${item.xa}</div>
-                    </div>
+            case 1:
+                statusClass = 'status-pending';
+                pending++;
+                break;
 
-                    <div class="schedule-card-actions">
-                        ${canStartLesson ? `<button class="start-lesson-btn" type="button" data-title="${item.mon} - Gia sư ${item.name}">Bắt đầu buổi học</button>` : ''}
-                        <span class="status-badge ${statusClass}">${item.trangthainame ?? "không xác định"}</span>
-                    </div>
+            case 2:
+                statusClass = 'status-cancelled';
+                break;
 
-                    <div class="schedule-detail" style="display:none"></div>
-                </article>`;
+            case 3:
+                statusClass = 'status-pending';
+                break;
+
+            case 4:
+                statusClass = 'status-approved';
+                approved++;
+                break;
+
+            case 5:
+                statusClass = 'status-approved';
+                approved++;
+                break;
+
+            case 6:
+                statusClass = 'status-approved';
+                approved++;
+                break;
+
+            case 7:
+                statusClass = 'status-completed';
+                completed++;
+                break;
+
+            case 8:
+                statusClass = 'status-cancelled';
+                break;
+
+            default:
+                statusClass = 'status-pending';
+                break;
+        }
+
+                       html += `
+        <article class="schedule-card" data-id="${item.id}">
+            <div>
+                <div class="schedule-title">
+                    ${item.mon} - Gia sư ${item.name}
+                </div>
+                <div class="schedule-meta">
+                    Bắt đầu: ${formatDate(item.ngayBatdau)}
+                    • Khu vực: ${item.xa}
+                </div>
+            </div>
+
+            <span class="status-badge ${statusClass}">
+                ${item.trangthainame ?? "không xác định"}
+            </span>
+
+            <div class="schedule-detail" style="display:none"></div>
+        </article>`;
             });
 
             $('.schedule-list').html(html);
 
+            // Update summary
             $('.summary-number').eq(0).text(total);
             $('.summary-number').eq(1).text(pending);
             $('.summary-number').eq(2).text(approved);
@@ -382,38 +302,20 @@
             return date.toLocaleDateString('vi-VN');
         }
 
-        $(document).on('click', '.start-lesson-btn', function (e) {
-            e.stopPropagation();
-            const title = $(this).data('title') || 'Buổi học';
-            $('#lessonTitle').text(title);
-            $('#lessonModal').css('display', 'flex');
-        });
-
-        $('#closeLessonModal, #cancelLessonStart').on('click', function () {
-            $('#lessonModal').hide();
-        });
-
-        $('#confirmLessonStart').on('click', function () {
-            Swal.fire({
-                icon: 'success',
-                title: 'Đã bắt đầu buổi học (demo)',
-                text: 'Hiện tại chỉ là mô phỏng tĩnh, chưa ghi DB.',
-                confirmButtonText: 'OK'
-            });
-            $('#lessonModal').hide();
-        });
-
-        $(document).on('click', '.schedule-card', function () {
+    });
+            $(document).on('click', '.schedule-card', function () {
 
             const card = $(this);
             const id = card.data('id');
             const detail = card.find('.schedule-detail');
 
+            // nếu đã mở thì thu lại
             if (detail.is(':visible')) {
                 detail.slideUp(200);
                 return;
             }
 
+            // nếu chưa load thì gọi API
             if (!detail.data('loaded')) {
 
                 $.ajax({
@@ -430,11 +332,18 @@
                         let html = '';
 
                         res.data.forEach(buoi => {
-                            html += `<div class="buoi-item">Thứ ${buoi.thu} • ${formatTime(buoi.giobatdau)} - ${formatTime(buoi.gioketthuc)}</div>`;
+
+                            html += `
+                            <div class="buoi-item">
+                                Thứ ${buoi.thu}
+                                • ${formatTime(buoi.giobatdau)}
+                                - ${formatTime(buoi.gioketthuc)}
+                            </div>`;
                         });
 
                         detail.html(html);
                         detail.data('loaded', true);
+
                         detail.slideDown(250);
                     }
                 });
@@ -444,11 +353,9 @@
             }
 
         });
-
-        function formatTime(timeString) {
+                function formatTime(timeString) {
             if (!timeString) return '';
-            return timeString.substring(0, 5);
+            return timeString.substring(0,5);
         }
-    });
 </script>
 }

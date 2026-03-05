@@ -15,6 +15,12 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
         {
             return View();
         }
+
+        public IActionResult LopHoc()
+        {
+            return View();
+        }
+
         [HttpGet]
         public JsonResult Getlistlophocdangkiping(int id)
         {
