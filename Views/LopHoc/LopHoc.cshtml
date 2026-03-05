@@ -61,33 +61,33 @@
 
 <div class="start-lesson-wrap">
     <div class="d-flex justify-content-between align-items-center mb-3 gap-2 flex-wrap">
-        <h2 class="mb-0">Bắt đầu buổi học (Demo tĩnh)</h2>
+        <h2 class="mb-0">Bắt đầu buổi học OFFLINE (Demo tĩnh)</h2>
         <a class="btn btn-outline-secondary" href="/LopHoc/Index">← Quay lại lịch học</a>
     </div>
 
     <section class="start-lesson-card">
-        <div class="fw-bold">Luồng bắt đầu buổi học</div>
-        <div class="text-muted" style="font-size:0.92rem;">Không dùng DB, chỉ mô phỏng UI để chốt flow trước khi nối backend.</div>
+        <div class="fw-bold">Luồng bắt đầu buổi học trực tiếp (OFFLINE)</div>
+        <div class="text-muted" style="font-size:0.92rem;">Không dùng DB, ưu tiên mô phỏng lớp học trực tiếp trước; phần online sẽ làm sau.</div>
         <div class="flow-row">
             <span class="flow-step">1. Điểm danh</span>
-            <span class="flow-step">2. Kiểm tra camera/mic</span>
-            <span class="flow-step">3. Xác nhận tài liệu</span>
-            <span class="flow-step">4. Bắt đầu phiên học</span>
+            <span class="flow-step">2. Check-in tại địa điểm học</span>
+            <span class="flow-step">3. Ổn định chỗ ngồi & tài liệu</span>
+            <span class="flow-step">4. Bắt đầu buổi học</span>
         </div>
     </section>
 
     <section class="lesson-box">
         <div class="fw-bold">Lớp: Toán 8 - Gia sư Nguyễn Văn A</div>
-        <div class="text-muted" style="font-size:0.92rem;">Thời gian: 18:00 - 19:30 • Khu vực: P. Long Bình</div>
+        <div class="text-muted" style="font-size:0.92rem;">Thời gian: 18:00 - 19:30 • Địa điểm: P. Long Bình (học trực tiếp)</div>
 
         <div class="lesson-check"><span>Điểm danh học viên</span><span>✅</span></div>
-        <div class="lesson-check"><span>Kiểm tra camera/mic</span><span>✅</span></div>
-        <div class="lesson-check"><span>Tài liệu buổi học</span><span>✅</span></div>
+        <div class="lesson-check"><span>Xác nhận có mặt phụ huynh/học viên</span><span>✅</span></div>
+        <div class="lesson-check"><span>Dụng cụ học tập đầy đủ</span><span>✅</span></div>
 
         <div class="timer-box">00:00:00</div>
 
         <div class="d-flex justify-content-end mt-3">
-            <button class="btn btn-primary" id="btnStartLesson" type="button">Xác nhận bắt đầu</button>
+            <button class="btn btn-primary" id="btnStartLesson" type="button">Xác nhận bắt đầu OFFLINE</button>
         </div>
     </section>
 </div>
@@ -97,8 +97,8 @@
         $(document).on('click', '#btnStartLesson', function () {
             Swal.fire({
                 icon: 'success',
-                title: 'Đã bắt đầu buổi học (demo)',
-                text: 'Đây là giao diện tĩnh, chưa lưu dữ liệu xuống DB.',
+                title: 'Đã bắt đầu buổi học OFFLINE (demo)',
+                text: 'Luồng offline đã sẵn sàng (tĩnh), phần online sẽ bổ sung sau.',
                 confirmButtonText: 'OK'
             });
         });
