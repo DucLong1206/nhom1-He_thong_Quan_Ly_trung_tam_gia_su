@@ -3,6 +3,18 @@
 }
 
 <style>
+    .schedule-detail {
+        width: 100%;
+        border-top: 1px dashed #e5e7eb;
+        margin-top: 10px;
+        padding-top: 10px;
+    }
+
+    .buoi-item {
+        font-size: 0.9rem;
+        color: #374151;
+        padding: 4px 0;
+    }
     .schedule-wrap {
         max-width: 1050px;
         margin: 0 auto;
@@ -252,21 +264,24 @@
                 break;
         }
 
-                html += `
-                <article class="schedule-card">
-                    <div>
-                        <div class="schedule-title">
-                            ${item.mon} - Gia sư ${item.name}
-                        </div>
-                        <div class="schedule-meta">
-                            Bắt đầu: ${formatDate(item.ngayBatdau)}
-                            • Khu vực: ${item.xa}
-                        </div>
-                    </div>
-                    <span class="status-badge ${statusClass}">
-                                ${item.trangthainame?? "không xác đinh"}
-                    </span>
-                </article>`;
+                       html += `
+        <article class="schedule-card" data-id="${item.id}">
+            <div>
+                <div class="schedule-title">
+                    ${item.mon} - Gia sư ${item.name}
+                </div>
+                <div class="schedule-meta">
+                    Bắt đầu: ${formatDate(item.ngayBatdau)}
+                    • Khu vực: ${item.xa}
+                </div>
+            </div>
+
+            <span class="status-badge ${statusClass}">
+                ${item.trangthainame ?? "không xác định"}
+            </span>
+
+            <div class="schedule-detail" style="display:none"></div>
+        </article>`;
             });
 
             $('.schedule-list').html(html);
@@ -285,5 +300,59 @@
         }
 
     });
+            $(document).on('click', '.schedule-card', function () {
+
+            const card = $(this);
+            const id = card.data('id');
+            const detail = card.find('.schedule-detail');
+
+            // nếu đã mở thì thu lại
+            if (detail.is(':visible')) {
+                detail.slideUp(200);
+                return;
+            }
+
+            // nếu chưa load thì gọi API
+            if (!detail.data('loaded')) {
+
+                $.ajax({
+                    url: '/LopHoc/LopHoc_Buoihocdangki_GetList_ByIDLopHoc',
+                    type: 'GET',
+                    data: { id: id },
+                    success: function (res) {
+
+                        if (!res.success) {
+                            alert(res.message);
+                            return;
+                        }
+
+                        let html = '';
+
+                        res.data.forEach(buoi => {
+
+                            html += `
+                            <div class="buoi-item">
+                                Thứ ${buoi.thu}
+                                • ${formatTime(buoi.giobatdau)}
+                                - ${formatTime(buoi.gioketthuc)}
+                            </div>`;
+                        });
+
+                        detail.html(html);
+                        detail.data('loaded', true);
+
+                        detail.slideDown(250);
+                    }
+                });
+
+            } else {
+                detail.slideDown(250);
+            }
+
+        });
+                function formatTime(timeString) {
+            if (!timeString) return '';
+            return timeString.substring(0,5);
+        }
 </script>
 }

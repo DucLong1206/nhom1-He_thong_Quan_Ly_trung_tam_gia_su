@@ -28,5 +28,18 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
                 return Json(new { success = false, message = ex.Message });
             }
         }
+        public JsonResult LopHoc_Buoihocdangki_GetList_ByIDLopHoc(int id)
+        {
+            try
+            {
+                var data = _lh.LopHoc_Buoihocdangki_GetList_ByIDLopHoc(id);
+                return Json(new { success = true, data = data });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
     }
 }
