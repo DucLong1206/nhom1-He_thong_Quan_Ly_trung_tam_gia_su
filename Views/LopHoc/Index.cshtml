@@ -111,6 +111,35 @@
         background: #fee2e2;
     }
 
+
+    .upcoming-box {
+        margin-top: 18px;
+        border: 1px solid #e5e7eb;
+        background: #fff;
+        border-radius: 14px;
+        padding: 14px;
+    }
+
+    .upcoming-title {
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+
+    .upcoming-item {
+        display: block;
+        border: 1px dashed #cbd5e1;
+        border-radius: 10px;
+        padding: 10px 12px;
+        margin-bottom: 8px;
+        text-decoration: none;
+        color: #1f2937;
+    }
+
+    .upcoming-item:hover {
+        border-color: #93c5fd;
+        background: #eff6ff;
+    }
+
     @@media (max-width: 992px) {
         .summary-row {
             grid-template-columns: 1fr 1fr;
@@ -185,7 +214,21 @@
             <span class="status-badge status-cancelled">Đã hủy</span>
         </article>
     </div>
+
+    <section class="upcoming-box">
+        <div class="upcoming-title">Các buổi học sắp tới</div>
+        <a class="upcoming-item" href="/LopHoc/LopHoc?lesson=toan8">
+            Toán 8 - 18:00 10/10/2026 • Bấm để vào lớp học
+        </a>
+        <a class="upcoming-item" href="/LopHoc/LopHoc?lesson=anh9">
+            Tiếng Anh 9 - 19:30 12/10/2026 • Bấm để vào lớp học
+        </a>
+        <a class="upcoming-item" href="/LopHoc/LopHoc?lesson=ly10">
+            Vật lý 10 - 08:00 15/10/2026 • Bấm để vào lớp học
+        </a>
+    </section>
 </div>
+
 @section Scripts {
 <script>
     $(document).ready(function () {

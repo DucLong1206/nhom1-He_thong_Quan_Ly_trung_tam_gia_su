@@ -46,7 +46,7 @@
     </section>
 
     <section class="lesson-box">
-        <div class="fw-bold">Lớp: Toán 8 - Gia sư Nguyễn Văn A</div>
+        <div class="fw-bold" id="lessonName">Lớp: Toán 8 - Gia sư Nguyễn Văn A</div>
         <div class="text-muted" style="font-size:0.92rem;">Địa điểm: P. Long Bình (học trực tiếp)</div>
 
         <div class="row mt-2 g-2 align-items-end">
@@ -104,6 +104,17 @@
         let timerRef = null;
         let overdueNotified = false;
 
+        const lessonMap = {
+            toan8: 'Lớp: Toán 8 - Gia sư Nguyễn Văn A',
+            anh9: 'Lớp: Tiếng Anh 9 - Gia sư Trần Thị B',
+            ly10: 'Lớp: Vật lý 10 - Gia sư Lê Văn C'
+        };
+
+        const lessonKey = new URLSearchParams(window.location.search).get('lesson');
+        if (lessonKey && lessonMap[lessonKey]) {
+            $('#lessonName').text(lessonMap[lessonKey]);
+        }
+
         function setStatus(selector, ok, okText, noText) {
             const html = ok
                 ? `<span class="status-dot dot-ok"></span>${okText}`
@@ -122,6 +133,16 @@
             }
         }
 
+
+
+        function stopCamera() {
+            if (!streamRef) return;
+            streamRef.getTracks().forEach(track => track.stop());
+            streamRef = null;
+            const video = document.getElementById('camPreview');
+            video.srcObject = null;
+        }
+
         function captureImage() {
             const video = document.getElementById('camPreview');
             const canvas = document.getElementById('captureCanvas');
@@ -137,6 +158,8 @@
             $('#capturedImage').attr('src', dataUrl);
             capturedOk = true;
             setStatus('#statusCapture', true, 'Đã chụp xác nhận', 'Chưa chụp');
+            stopCamera();
+            Swal.fire('Đã chụp xong', 'Camera đã tự tắt sau khi chụp ảnh xác nhận.', 'success');
         }
 
         function startTimer() {
@@ -209,6 +232,7 @@
             timerRef = null;
             lessonStartedAt = null;
             $('#timerBox').text('00:00:00');
+            stopCamera();
             Swal.fire('Đã kết thúc', 'Buổi học đã được kết thúc (demo tĩnh).', 'info');
         });
 
