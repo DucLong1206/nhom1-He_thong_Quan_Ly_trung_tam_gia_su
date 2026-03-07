@@ -52,8 +52,8 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
                 if (username == "admin" && password == "admin")
                 {
                     HttpContext.Session.SetString("IsAdmin", "true");
-                    HttpContext.Session.SetInt32("AdminId", -1);
-                    HttpContext.Session.SetString("AdminName", "admin");
+                    HttpContext.Session.SetInt32("UserId", -1);
+                    HttpContext.Session.SetString("UserName", "admin");
 
                     return RedirectToAction("Index", "MonHoc");
                 }

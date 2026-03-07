@@ -92,5 +92,76 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
                 return Json(new { success = false });
             return Json(new { success = true, data = xa });
         }
+        public JsonResult checkpass(string email)
+        {
+            try
+            {
+                var userId = _user.checkEmailExists(email, 0);
+
+                if (userId <= 0)
+                {
+                    return Json(new { success = false, message = "Email chưa được đăng ký" });
+                }
+
+                // sinh password
+                string newPass = GenerateRandomPassword();
+
+                // băm password
+                string hashPass = BCrypt.Net.BCrypt.HashPassword(newPass);
+
+                // lưu DB
+                var check = _user.changepass(hashPass, userId);
+
+                if (!check)
+                {
+                    return Json(new { success = false, message = "Reset mật khẩu thất bại" });
+                }
+
+                // gửi mail
+                EmailService emailService = new EmailService();
+
+                string subject = "Reset mật khẩu hệ thống gia sư";
+                string body = $@"
+            <h3>Mật khẩu mới của bạn</h3>
+            <p>Password: <b>{newPass}</b></p>
+            <p>Vui lòng đăng nhập và đổi mật khẩu ngay sau khi đăng nhập.</p>
+        ";
+
+                emailService.SendMail(email, subject, body);
+
+                return Json(new { success = true, message = "Mật khẩu mới đã gửi về email của bạn" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+        public JsonResult ChangePass(string pass, int id)
+        {
+            try
+            {
+                // Băm mật khẩu
+                string hashPass = BCrypt.Net.BCrypt.HashPassword(pass);
+
+                var check = _user.changepass(hashPass, id);
+
+                if (check)
+                    return Json(new { success = true, message = "Đổi mật khẩu thành công" });
+
+                return Json(new { success = false, message = "Đổi mật khẩu thất bại" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+        public string GenerateRandomPassword(int length = 8)
+        {
+            const string chars = "ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            Random random = new Random();
+
+            return new string(Enumerable.Repeat(chars, length)
+                .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
     }
 }
