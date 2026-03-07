@@ -86,6 +86,17 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
                     return View("Login");
                 }
 
+                // Nếu tài khoản đang ở trạng thái bắt buộc đổi mật khẩu,
+                // chuyển thẳng sang màn hình đổi mật khẩu trước khi vào hệ thống.
+                if (IsRequireChangePassword(user))
+                {
+                    return RedirectToAction(nameof(ChangePasswordFirstLogin), new
+                    {
+                        idtk = user.ID,
+                        username = user.Name
+                    });
+                }
+
                 // lấy user profile
                 var ur = _db.USER.FirstOrDefault(x => x.IDTK == user.ID);
 
@@ -102,6 +113,27 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
                 ViewBag.Error = "Có lỗi xảy ra khi đăng nhập.";
                 return View("Login");
             }
+        }
+
+        [HttpGet]
+        public IActionResult ChangePasswordFirstLogin(int idtk, string username)
+        {
+            if (idtk <= 0)
+                return RedirectToAction(nameof(login));
+
+            ViewBag.IdTk = idtk;
+            ViewBag.UserName = username;
+            return View();
+        }
+
+        private static bool IsRequireChangePassword(TaiKhoan user)
+        {
+            var prop = user.GetType().GetProperty("ChangePass");
+            if (prop == null)
+                return false;
+
+            var value = prop.GetValue(user);
+            return value is bool boolValue && boolValue;
         }
 
         [HttpGet]
