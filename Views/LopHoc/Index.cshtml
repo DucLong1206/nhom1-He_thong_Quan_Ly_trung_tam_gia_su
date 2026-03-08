@@ -61,6 +61,41 @@
         gap: 12px;
     }
 
+    .my-subjects-box {
+        border: 1px solid #e5e7eb;
+        background: #fff;
+        border-radius: 12px;
+        padding: 12px;
+        margin-bottom: 14px;
+    }
+
+    .subject-check-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 14px;
+    }
+
+    .subject-check-item {
+        font-size: .92rem;
+        color: #111827;
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 999px;
+        padding: 6px 10px;
+    }
+
+    .registered-list {
+        margin-top: 8px;
+        border-top: 1px dashed #e5e7eb;
+        padding-top: 8px;
+    }
+
+    .registered-item {
+        font-size: 0.9rem;
+        color: #374151;
+        padding: 3px 0;
+    }
+
     .schedule-card {
         border: 1px solid #e5e7eb;
         background: #fff;
@@ -128,6 +163,7 @@
     <div class="schedule-header">
         <h1 class="mb-0">Lịch học đã đăng ký</h1>
         <div class="d-flex gap-2">
+            <a class="btn btn-outline-dark" href="/MonHoc/Index">Môn của tôi</a>
             <a class="btn btn-outline-success" href="/LopHoc/LopHoc">▶ Bắt đầu buổi học OFFLINE (Demo)</a>
             <a class="btn btn-outline-primary" href="/MonHoc/Index">+ Đăng ký lịch mới</a>
         </div>
@@ -150,6 +186,11 @@
             <div class="summary-number">1</div>
             <div class="summary-label">Đã hoàn thành</div>
         </div>
+    </div>
+
+    <div class="my-subjects-box">
+        <div class="fw-bold mb-2">Môn của tôi đã tạo</div>
+        <div id="mySubjectChecks" class="subject-check-list text-muted">Đang tải...</div>
     </div>
 
     <div class="schedule-list">
@@ -204,6 +245,7 @@
                 }
 
                 renderSchedule(res.data);
+                renderMySubjects(res.data);
             },
             error: function () {
                 alert("Lỗi gọi dữ liệu");
@@ -218,7 +260,10 @@
             let approved = 0;
             let completed = 0;
 
+            window.__scheduleMap = {};
+
             data.forEach(item => {
+                window.__scheduleMap[item.id] = item;
 
                 let statusClass = '';
                 let statusText = '';
@@ -284,6 +329,7 @@
             </span>
 
             <div class="schedule-detail" style="display:none"></div>
+            <div class="registered-list" style="display:none"></div>
         </article>`;
             });
 
@@ -294,6 +340,35 @@
             $('.summary-number').eq(1).text(pending);
             $('.summary-number').eq(2).text(approved);
             $('.summary-number').eq(3).text(completed);
+        }
+
+        function renderMySubjects(data) {
+            const holder = $('#mySubjectChecks');
+            if (!data || data.length === 0) {
+                holder.html('<span>Chưa có môn nào.</span>');
+                return;
+            }
+
+            const subjects = [...new Set(data.map(x => x.mon).filter(Boolean))];
+            if (subjects.length === 0) {
+                holder.html('<span>Chưa có môn nào.</span>');
+                return;
+            }
+
+            holder.html(subjects.map(mon => `<span class="subject-check-item">✅ ${mon}</span>`).join(''));
+        }
+
+        function getRegisteredStudentsFromItem(item) {
+            const candidates = [
+                item?.hocSinh,
+                item?.hocSinhName,
+                item?.tenHocSinh,
+                item?.studentName,
+                item?.hocSinhDangKy,
+                item?.nguoiDangKy
+            ].filter(Boolean);
+
+            return [...new Set(candidates.map(x => String(x).trim()).filter(Boolean))];
         }
 
         function formatDate(dateString) {
@@ -308,10 +383,13 @@
             const card = $(this);
             const id = card.data('id');
             const detail = card.find('.schedule-detail');
+            const registeredWrap = card.find('.registered-list');
+            const item = window.__scheduleMap?.[id];
 
             // nếu đã mở thì thu lại
             if (detail.is(':visible')) {
                 detail.slideUp(200);
+                registeredWrap.slideUp(200);
                 return;
             }
 
@@ -342,14 +420,23 @@
                         });
 
                         detail.html(html);
+
+                        const regs = getRegisteredStudentsFromItem(item);
+                        const regHtml = regs.length > 0
+                            ? regs.map((name, idx) => `<div class="registered-item">${idx + 1}. ${name}</div>`).join('')
+                            : "<div class='registered-item text-muted'>Chưa có học sinh đăng ký hiển thị cho lịch này.</div>";
+                        registeredWrap.html(`<div class="fw-semibold mb-1">Người đã đăng ký</div>${regHtml}`);
+
                         detail.data('loaded', true);
 
                         detail.slideDown(250);
+                        registeredWrap.slideDown(250);
                     }
                 });
 
             } else {
                 detail.slideDown(250);
+                registeredWrap.slideDown(250);
             }
 
         });
