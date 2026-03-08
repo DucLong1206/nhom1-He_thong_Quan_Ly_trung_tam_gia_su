@@ -106,7 +106,12 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
                 HttpContext.Session.SetInt32("UserId", ur.ID);
                 HttpContext.Session.SetString("UserName", ur?.Name ?? "");
 
-                return RedirectToAction("Index", "LopHoc");
+                if (IsStudentParentAccount(user))
+                {
+                    return RedirectToAction("Index", "LopHoc");
+                }
+
+                return RedirectToAction(nameof(TutorDashboard));
             }
             catch (Exception ex)
             {
@@ -127,6 +132,38 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
         }
 
 
+
+
+        [HttpGet]
+        public IActionResult TutorDashboard()
+        {
+            if (HttpContext.Session.GetInt32("UserId") == null)
+                return RedirectToAction(nameof(login));
+
+            return View();
+        }
+
+        private static bool IsStudentParentAccount(TaiKhoan user)
+        {
+            var prop = user.GetType().GetProperty("TypeUsser");
+            if (prop == null)
+                return false;
+
+            var value = prop.GetValue(user);
+            if (value == null)
+                return false;
+
+            if (value is int intValue)
+                return intValue == 2;
+
+            var text = value.ToString()?.Trim();
+            if (string.IsNullOrEmpty(text))
+                return false;
+
+            return string.Equals(text, "2", StringComparison.OrdinalIgnoreCase)
+                   || string.Equals(text, "StudentParent", StringComparison.OrdinalIgnoreCase)
+                   || string.Equals(text, "Student", StringComparison.OrdinalIgnoreCase);
+        }
 
         [HttpGet]
         public async Task<IActionResult> DbHealth()
