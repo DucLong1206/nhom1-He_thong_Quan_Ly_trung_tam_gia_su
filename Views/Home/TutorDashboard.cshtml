@@ -1,0 +1,24 @@
+@{
+    ViewData["Title"] = "Trang gia sư";
+}
+
+<div class="container py-4" style="max-width: 900px;">
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+            <h3 class="mb-2">Trang riêng cho Gia sư (tạm thời)</h3>
+            <p class="text-muted mb-3">
+                Đây là view tĩnh dành cho tài khoản Gia sư. Tạm thời chưa nối logic dữ liệu.
+            </p>
+
+            <div class="alert alert-info mb-3">
+                <strong>Ghi chú:</strong> Theo yêu cầu hiện tại, tài khoản Học sinh/Phụ huynh có <b>TypeUsser = 2</b>
+                sẽ được điều hướng sang <b>Lịch đã đăng ký</b>. Gia sư sẽ vào trang này.
+            </div>
+
+            <div class="d-flex flex-wrap gap-2">
+                <a class="btn btn-primary" href="/MonHoc/Index">Xem danh sách môn học</a>
+                <a class="btn btn-outline-secondary" href="/LopHoc/Index">Xem lịch đã đăng ký</a>
+            </div>
+        </div>
+    </div>
+</div>
