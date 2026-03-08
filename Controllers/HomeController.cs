@@ -88,7 +88,7 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
 
                 // Nếu tài khoản đang ở trạng thái bắt buộc đổi mật khẩu,
                 // chuyển thẳng sang màn hình đổi mật khẩu trước khi vào hệ thống.
-                if (IsRequireChangePassword(user))
+                if (user.Changepass)
                 {
                     return RedirectToAction(nameof(ChangePasswordFirstLogin), new
                     {
@@ -126,15 +126,7 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
             return View();
         }
 
-        private static bool IsRequireChangePassword(TaiKhoan user)
-        {
-            var prop = user.GetType().GetProperty("ChangePass");
-            if (prop == null)
-                return false;
 
-            var value = prop.GetValue(user);
-            return value is bool boolValue && boolValue;
-        }
 
         [HttpGet]
         public async Task<IActionResult> DbHealth()

@@ -110,7 +110,7 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
                 string hashPass = BCrypt.Net.BCrypt.HashPassword(newPass);
 
                 // lưu DB
-                var check = _user.changepass(hashPass, userId);
+                var check = _user.changepass(hashPass, userId, 0);
 
                 if (!check)
                 {
@@ -136,14 +136,14 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
                 return Json(new { success = false, message = ex.Message });
             }
         }
-        public JsonResult ChangePass(string pass, int id)
+        public JsonResult ChangePass(string pass, int id, int type)
         {
             try
             {
                 // Băm mật khẩu
                 string hashPass = BCrypt.Net.BCrypt.HashPassword(pass);
 
-                var check = _user.changepass(hashPass, id);
+                var check = _user.changepass(hashPass, id, type);
 
                 if (check)
                     return Json(new { success = true, message = "Đổi mật khẩu thành công" });
