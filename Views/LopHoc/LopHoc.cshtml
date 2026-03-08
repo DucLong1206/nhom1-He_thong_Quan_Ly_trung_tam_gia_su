@@ -36,7 +36,7 @@
 
     <section class="start-lesson-card">
         <div class="fw-bold">Luồng bắt đầu buổi học trực tiếp (OFFLINE)</div>
-        <div class="text-muted" style="font-size:0.92rem;">Có chụp xác nhận bằng camera học viên trước khi vào học. Nếu quá giờ sẽ cảnh báo và tạo nhanh nội dung gửi Gmail.</div>
+        <div class="text-muted" style="font-size:0.92rem;">Có chụp xác nhận bằng camera học viên trước khi vào học. Hệ thống sẽ tự gửi Gmail khi đến giờ học, quá giờ chưa bắt đầu và quá giờ chưa kết thúc.</div>
         <div class="flow-row">
             <span class="flow-step">1. Điểm danh</span>
             <span class="flow-step">2. Bật camera học viên</span>
@@ -50,12 +50,16 @@
         <div class="text-muted" style="font-size:0.92rem;">Địa điểm: P. Long Bình (học trực tiếp)</div>
 
         <div class="row mt-2 g-2 align-items-end">
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <label class="form-label mb-1">Giờ bắt đầu dự kiến</label>
                 <input type="datetime-local" id="scheduledStart" class="form-control" />
             </div>
-            <div class="col-md-6">
-                <label class="form-label mb-1">Email nhận báo quá giờ (Gmail)</label>
+            <div class="col-md-4">
+                <label class="form-label mb-1">Giờ kết thúc dự kiến</label>
+                <input type="datetime-local" id="scheduledEnd" class="form-control" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label mb-1">Email nhận thông báo (Gmail)</label>
                 <input type="email" id="alertEmail" class="form-control" placeholder="tenban@gmail.com" />
             </div>
         </div>
@@ -84,7 +88,6 @@
         <div class="timer-box" id="timerBox">00:00:00</div>
 
         <div class="d-flex justify-content-end mt-3 gap-2 flex-wrap">
-            <a id="gmailLink" class="btn btn-outline-danger d-none" target="_blank">Báo quá giờ qua Gmail</a>
             <button class="btn btn-primary" id="btnStartLesson" type="button">Xác nhận bắt đầu OFFLINE</button>
             <button class="btn btn-outline-secondary" id="btnStopLesson" type="button">Kết thúc buổi học</button>
         </div>
@@ -96,13 +99,21 @@
     $(function () {
         const now = new Date();
         now.setSeconds(0, 0);
+        const endDefault = new Date(now.getTime() + 90 * 60000);
         $('#scheduledStart').val(now.toISOString().slice(0, 16));
+        $('#scheduledEnd').val(endDefault.toISOString().slice(0, 16));
 
         let streamRef = null;
         let capturedOk = false;
         let lessonStartedAt = null;
+        let lessonEnded = false;
         let timerRef = null;
-        let overdueNotified = false;
+
+        const notifyState = {
+            startReminderSent: false,
+            overdueStartSent: false,
+            overdueEndSent: false
+        };
 
         function setStatus(selector, ok, okText, noText) {
             const html = ok
@@ -151,36 +162,81 @@
             }, 1000);
         }
 
-        function buildGmailAlertLink() {
-            const email = $('#alertEmail').val()?.trim();
-            if (!email) return null;
-            const subject = encodeURIComponent('[Cảnh báo] Buổi học bị quá giờ bắt đầu');
-            const body = encodeURIComponent('Buổi học OFFLINE hiện tại đã quá giờ bắt đầu dự kiến. Vui lòng kiểm tra ngay.');
-            return `mailto:${email}?subject=${subject}&body=${body}`;
+        function getSchedule() {
+            const startValue = $('#scheduledStart').val();
+            const endValue = $('#scheduledEnd').val();
+            if (!startValue || !endValue) {
+                return null;
+            }
+
+            const start = new Date(startValue);
+            const end = new Date(endValue);
+            if (isNaN(start.getTime()) || isNaN(end.getTime()) || end <= start) {
+                return null;
+            }
+
+            return {
+                start,
+                end,
+                startText: startValue.replace('T', ' '),
+                endText: endValue.replace('T', ' ')
+            };
         }
 
-        function checkOverdue() {
-            const value = $('#scheduledStart').val();
-            if (!value || overdueNotified) return;
-            const scheduled = new Date(value);
-            const now = new Date();
+        function sendEmailAlert(alertType, message) {
+            const email = $('#alertEmail').val()?.trim();
+            const schedule = getSchedule();
 
-            if (now > scheduled && !lessonStartedAt) {
-                overdueNotified = true;
-                Swal.fire('Cảnh báo quá giờ', 'Buổi học chưa bắt đầu và đã quá giờ dự kiến.', 'warning');
+            if (!email || !schedule) {
+                return;
+            }
 
-                if ('Notification' in window) {
-                    if (Notification.permission === 'granted') {
-                        new Notification('Lớp học quá giờ', { body: 'Buổi học OFFLINE chưa bắt đầu.' });
-                    } else if (Notification.permission !== 'denied') {
-                        Notification.requestPermission();
+            $.ajax({
+                url: '/LopHoc/SendLessonAlertEmail',
+                type: 'POST',
+                data: {
+                    email: email,
+                    alertType: alertType,
+                    lessonName: 'Toán 8 - Gia sư Nguyễn Văn A',
+                    scheduledStart: schedule.startText,
+                    scheduledEnd: schedule.endText
+                },
+                success: function (res) {
+                    if (res?.success) {
+                        console.log('Email sent:', alertType);
+                    } else {
+                        console.warn(res?.message || 'Không gửi được email');
                     }
+                },
+                error: function () {
+                    console.warn('Lỗi gửi email cho loại cảnh báo:', alertType);
                 }
+            });
 
-                const link = buildGmailAlertLink();
-                if (link) {
-                    $('#gmailLink').attr('href', link).removeClass('d-none');
-                }
+            Swal.fire('Thông báo', message, 'info');
+        }
+
+        function checkLessonNotifications() {
+            const schedule = getSchedule();
+            if (!schedule) return;
+
+            const nowTime = new Date();
+
+            if (nowTime >= schedule.start && !notifyState.startReminderSent) {
+                notifyState.startReminderSent = true;
+                sendEmailAlert('start-reminder', 'Đã gửi Gmail nhắc đến giờ bắt đầu buổi học.');
+            }
+
+            const startOverdueAt = new Date(schedule.start.getTime() + 15 * 60000);
+            if (nowTime > startOverdueAt && !lessonStartedAt && !notifyState.overdueStartSent) {
+                notifyState.overdueStartSent = true;
+                sendEmailAlert('overdue-start', 'Đã gửi Gmail cảnh báo quá giờ nhưng chưa bắt đầu buổi học.');
+            }
+
+            const endOverdueAt = new Date(schedule.end.getTime() + 15 * 60000);
+            if (nowTime > endOverdueAt && lessonStartedAt && !lessonEnded && !notifyState.overdueEndSent) {
+                notifyState.overdueEndSent = true;
+                sendEmailAlert('overdue-end', 'Đã gửi Gmail cảnh báo quá giờ nhưng chưa kết thúc buổi học.');
             }
         }
 
@@ -193,7 +249,14 @@
                 return;
             }
 
+            const schedule = getSchedule();
+            if (!schedule) {
+                Swal.fire('Sai thời gian', 'Vui lòng kiểm tra giờ bắt đầu/kết thúc dự kiến.', 'warning');
+                return;
+            }
+
             lessonStartedAt = new Date();
+            lessonEnded = false;
             startTimer();
 
             Swal.fire({
@@ -207,12 +270,20 @@
         $('#btnStopLesson').on('click', function () {
             if (timerRef) clearInterval(timerRef);
             timerRef = null;
+            lessonEnded = true;
             lessonStartedAt = null;
             $('#timerBox').text('00:00:00');
-            Swal.fire('Đã kết thúc', 'Buổi học đã được kết thúc (demo tĩnh).', 'info');
+            Swal.fire('Đã kết thúc', 'Buổi học đã được kết thúc.', 'success');
         });
 
-        setInterval(checkOverdue, 30000);
+        $('#scheduledStart, #scheduledEnd').on('change', function () {
+            const schedule = getSchedule();
+            if (!schedule) {
+                Swal.fire('Sai thời gian', 'Giờ kết thúc phải lớn hơn giờ bắt đầu.', 'warning');
+            }
+        });
+
+        setInterval(checkLessonNotifications, 15000);
     });
 </script>
 }
