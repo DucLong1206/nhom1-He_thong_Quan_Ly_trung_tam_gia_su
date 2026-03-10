@@ -188,3 +188,38 @@ body {
 .footer {
   background: #ffffff;
 }
+
+.quick-link-card {
+  display: block;
+  text-decoration: none;
+  background: #fff;
+  border: 1px solid #dce6fa;
+  border-radius: 12px;
+  padding: 1rem;
+  color: #163a85;
+  font-weight: 600;
+  text-align: center;
+}
+
+.quick-link-card:hover {
+  background: #f2f7ff;
+  color: #0d3b8e;
+}
+
+.faq-item {
+  background: #fff;
+  border: 1px solid #dce6fa;
+  border-radius: 12px;
+  padding: 1rem 1.2rem;
+  margin-bottom: 0.85rem;
+}
+
+.faq-item h3 {
+  font-size: 1.05rem;
+  color: #163a85;
+}
+
+.faq-item p {
+  margin-bottom: 0;
+  color: #4e5f80;
+}
