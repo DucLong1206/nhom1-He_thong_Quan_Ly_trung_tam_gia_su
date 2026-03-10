@@ -227,6 +227,36 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
             return View();
         }
 
+        [HttpGet]
+        public IActionResult Services()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult Process()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult FAQ()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult Contact()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult Policy()
+        {
+            return View();
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
