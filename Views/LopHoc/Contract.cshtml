@@ -1,0 +1,24 @@
+@{
+    ViewData["Title"] = "Hợp đồng lớp học";
+    var lopId = ViewBag.LopId;
+}
+
+<div class="container py-4">
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+            <h4 class="mb-3">📄 Hợp đồng lớp học</h4>
+            <p>Đây là trang hợp đồng tĩnh sau khi gia sư đồng ý nhận lớp.</p>
+            <p><b>Lớp ID:</b> @lopId</p>
+
+            <hr />
+            <p><b>Nội dung mẫu:</b></p>
+            <ul>
+                <li>Bên A: Trung tâm gia sư.</li>
+                <li>Bên B: Gia sư nhận lớp.</li>
+                <li>Hai bên thống nhất thực hiện lịch học như đã xác nhận.</li>
+            </ul>
+
+            <a href="/LopHoc/Detail/@lopId" class="btn btn-outline-primary">⬅ Quay lại chi tiết lớp</a>
+        </div>
+    </div>
+</div>

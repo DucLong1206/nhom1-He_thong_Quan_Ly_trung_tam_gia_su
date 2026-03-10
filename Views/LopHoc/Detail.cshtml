@@ -5,7 +5,6 @@
     var dsBuoi = data?.dsBuoi;
     var nguoigui = data?.nguoiGui;
     var tenmon = data?.tenmon;
-   
 }
 
 <div class="container py-4">
@@ -28,7 +27,7 @@
                     <p>
                         <b>Học viên:</b> @nguoigui?.Name
                     </p>
-                    
+
 
                 </div>
 
@@ -78,16 +77,14 @@
 
             <h5 class="mb-3">📅 Lịch học</h5>
 
-            <div class="list-group">
+            <div class="list-group" id="scheduleList">
 
                 @if (dsBuoi != null)
                 {
                     foreach (var b in dsBuoi)
                     {
-                        <div class="list-group-item d-flex justify-content-between align-items-center">
-
-                            <div>
-
+                        <div class="list-group-item schedule-item" data-thu="@b.thu">
+                            <div class="d-flex justify-content-between align-items-center">
                                 <b>
                                     @{
                                         string thu = b.thu switch
@@ -102,16 +99,24 @@
                                             _ => ""
                                         };
                                     }
-
                                     @thu
                                 </b>
 
+                                <span class="badge bg-light text-dark schedule-view-time">
+                                    @b.giobatdau.ToString().Substring(0, 5)-@b.gioketthuc.ToString().Substring(0, 5)
+                                </span>
                             </div>
 
-                            <span class="badge bg-light text-dark">
-                                @b.giobatdau.ToString().Substring(0, 5)-@b.gioketthuc.ToString().Substring(0, 5)
-                            </span>
-
+                            <div class="row g-2 mt-2 schedule-edit d-none">
+                                <div class="col-md-6">
+                                    <label class="form-label mb-1">Giờ bắt đầu</label>
+                                    <input type="time" class="form-control start-time" value="@b.giobatdau.ToString().Substring(0, 5)" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label mb-1">Giờ kết thúc</label>
+                                    <input type="time" class="form-control end-time" value="@b.gioketthuc.ToString().Substring(0, 5)" />
+                                </div>
+                            </div>
                         </div>
                     }
                 }
@@ -120,23 +125,137 @@
 
             <hr />
 
-            <div class="d-flex gap-2 mt-3">
+            <div class="d-flex gap-2 mt-3 flex-wrap">
 
-                <button class="btn btn-success">
+                <button id="btnAccept" class="btn btn-success">
                     ✔ Ký hợp đồng
                 </button>
 
-                <button class="btn btn-danger">
+                <button id="btnReject" class="btn btn-danger">
                     ✖ Từ chối
                 </button>
 
-                <button class="btn btn-warning">
+                <button id="btnEdit" class="btn btn-warning">
                     ✏ Điều chỉnh
                 </button>
 
+                <button id="btnSendAdjust" class="btn btn-primary d-none">
+                    📤 Gửi điều chỉnh
+                </button>
+
             </div>
+
+            <div id="rejectBlock" class="mt-3 d-none">
+                <label for="rejectReason" class="form-label"><b>Lý do không đồng ý</b></label>
+                <textarea id="rejectReason" class="form-control" rows="3" placeholder="Nhập lý do..."></textarea>
+                <button id="btnSendReject" class="btn btn-danger mt-2">Gửi từ chối</button>
+            </div>
+
+            <div id="actionMessage" class="alert mt-3 d-none"></div>
 
         </div>
     </div>
 
 </div>
+
+@section Scripts {
+    <script>
+        const lopId = @lop?.id;
+
+        $(document).ready(function () {
+            $("#btnAccept").on("click", function () {
+                window.location.href = "/LopHoc/Contract?lopId=" + lopId;
+            });
+
+            $("#btnReject").on("click", function () {
+                $("#rejectBlock").removeClass("d-none");
+                $("#actionMessage").addClass("d-none");
+            });
+
+            $("#btnSendReject").on("click", function () {
+                const reason = $("#rejectReason").val().trim();
+
+                if (!reason) {
+                    showMessage("Vui lòng nhập lý do từ chối.", false);
+                    return;
+                }
+
+                const payload = {
+                    lopId: lopId,
+                    action: "reject",
+                    reason: reason,
+                    schedule: []
+                };
+
+                sendResponse(payload, "Đã gửi từ chối kèm lý do và lớp id.");
+            });
+
+            $("#btnEdit").on("click", function () {
+                $(".schedule-edit").removeClass("d-none");
+                $("#btnSendAdjust").removeClass("d-none");
+                $("#actionMessage").addClass("d-none");
+            });
+
+            $("#btnSendAdjust").on("click", function () {
+                const schedule = [];
+                let invalid = false;
+
+                $(".schedule-item").each(function () {
+                    const thu = parseInt($(this).data("thu"));
+                    const gioBatDau = $(this).find(".start-time").val();
+                    const gioKetThuc = $(this).find(".end-time").val();
+
+                    if (!gioBatDau || !gioKetThuc || gioBatDau >= gioKetThuc) {
+                        invalid = true;
+                    }
+
+                    schedule.push({
+                        thu: thu,
+                        gioBatDau: gioBatDau,
+                        gioKetThuc: gioKetThuc
+                    });
+                });
+
+                if (invalid) {
+                    showMessage("Vui lòng kiểm tra lại giờ bắt đầu/kết thúc.", false);
+                    return;
+                }
+
+                const payload = {
+                    lopId: lopId,
+                    action: "adjust",
+                    reason: null,
+                    schedule: schedule
+                };
+
+                sendResponse(payload, "Đã gửi điều chỉnh lịch kèm lớp id.");
+            });
+        });
+
+        function sendResponse(payload, successMessage) {
+            $.ajax({
+                url: "/LopHoc/XuLyPhanHoi",
+                method: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(payload),
+                success: function (res) {
+                    if (res.success) {
+                        showMessage(`${successMessage} (Lớp ID: ${res.lopId})`, true);
+                    } else {
+                        showMessage(res.message || "Gửi thất bại.", false);
+                    }
+                },
+                error: function () {
+                    showMessage("Có lỗi khi gửi dữ liệu.", false);
+                }
+            });
+        }
+
+        function showMessage(message, isSuccess) {
+            const box = $("#actionMessage");
+            box.removeClass("d-none alert-success alert-danger");
+            box.addClass(isSuccess ? "alert-success" : "alert-danger");
+            box.text(message);
+        }
+    </script>
+}

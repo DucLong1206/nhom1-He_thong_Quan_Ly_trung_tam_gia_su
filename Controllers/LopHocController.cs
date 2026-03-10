@@ -27,6 +27,37 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
             return View();
         }
 
+        public IActionResult Contract(int lopId)
+        {
+            ViewBag.LopId = lopId;
+            return View();
+        }
+
+        [HttpPost]
+        public JsonResult XuLyPhanHoi([FromBody] LopHocPhanHoiRequest request)
+        {
+            if (request == null || request.LopId <= 0)
+            {
+                return Json(new { success = false, message = "Dữ liệu không hợp lệ." });
+            }
+
+            if (string.Equals(request.Action, "reject", StringComparison.OrdinalIgnoreCase)
+                && string.IsNullOrWhiteSpace(request.Reason))
+            {
+                return Json(new { success = false, message = "Vui lòng nhập lý do từ chối." });
+            }
+
+            return Json(new
+            {
+                success = true,
+                message = "Đã ghi nhận phản hồi.",
+                lopId = request.LopId,
+                action = request.Action,
+                reason = request.Reason,
+                schedule = request.Schedule
+            });
+        }
+
         [HttpGet]
         public JsonResult Getlistlophocdangkiping(int id)
         {
@@ -111,5 +142,20 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
             return Json(ds);
         }
 
+    }
+
+    public class LopHocPhanHoiRequest
+    {
+        public int LopId { get; set; }
+        public string Action { get; set; } = string.Empty;
+        public string? Reason { get; set; }
+        public List<BuoihocDieuChinhDto> Schedule { get; set; } = new List<BuoihocDieuChinhDto>();
+    }
+
+    public class BuoihocDieuChinhDto
+    {
+        public int Thu { get; set; }
+        public string GioBatDau { get; set; } = string.Empty;
+        public string GioKetThuc { get; set; } = string.Empty;
     }
 }
