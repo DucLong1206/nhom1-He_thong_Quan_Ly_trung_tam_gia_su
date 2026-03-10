@@ -104,12 +104,17 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
                     return RedirectToAction("AddorEdit", "USER", new { idtk = user.ID });
 
                 HttpContext.Session.SetInt32("UserId", ur.ID);
+                HttpContext.Session.SetInt32("TypeUsser", user.TypeUsser);
                 HttpContext.Session.SetString("UserName", ur?.Name ?? "");
 
                 if (IsStudentParentAccount(user))
                 {
-                    return RedirectToAction("Index", "LopHoc");
+                    if (user.TypeUsser == 1)
+                        return RedirectToAction("Index", "LopHoc");
+                    else if (user.TypeUsser == 2)
+                        return RedirectToAction("Index", "MonHoc");
                 }
+
 
                 return RedirectToAction(nameof(TutorDashboard));
             }
@@ -242,5 +247,6 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
             var check = _tk.save(tk, mes);
             return Json(new { success = tk, Mess = mes });
         }
+
     }
 }

@@ -6,113 +6,120 @@
 
     <h3 class="mb-4">Danh sách lớp học của Gia sư</h3>
 
-    <div class="row g-3">
-
-        <!-- LỚP MỚI TẠO -->
-        <div class="col-md-6">
-            <div class="card shadow-sm h-100 schedule-card" onclick="viewDetail(1)">
-                <div class="card-body">
-                    <h5 class="card-title">Toán lớp 10</h5>
-                    <p class="mb-1"><b>Học sinh:</b> Nguyễn Văn A</p>
-                    <p class="mb-1"><b>Thời gian:</b> Thứ 2 - 18:00</p>
-                    <p class="mb-2">
-                        <span class="badge bg-warning text-dark">Mới tạo</span>
-                    </p>
-
-                    <div class="d-flex gap-2">
-                        <button class="btn btn-success btn-sm">Ký hợp đồng</button>
-                        <button class="btn btn-danger btn-sm">Từ chối</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-
-        <!-- TRẠNG THÁI CHẤP NHẬN -->
-        <div class="col-md-6">
-            <div class="card shadow-sm h-100 schedule-card" onclick="viewDetail(2)">
-                <div class="card-body">
-                    <h5 class="card-title">Tiếng Anh lớp 9</h5>
-                    <p class="mb-1"><b>Học sinh:</b> Trần Minh B</p>
-                    <p class="mb-1"><b>Thời gian:</b> Thứ 3 - 19:00</p>
-                    <p class="mb-2">
-                        <span class="badge bg-success">Đã chấp nhận</span>
-                    </p>
-
-                    <button class="btn btn-warning btn-sm">
-                        Điều chỉnh lịch
-                    </button>
-                </div>
-            </div>
-        </div>
-
-
-        <!-- ĐANG DIỄN RA -->
-        <div class="col-md-6">
-            <div class="card shadow-sm h-100 schedule-card" onclick="viewDetail(3)">
-                <div class="card-body">
-                    <h5 class="card-title">Vật lý lớp 11</h5>
-                    <p class="mb-1"><b>Học sinh:</b> Lê Hoàng C</p>
-                    <p class="mb-1"><b>Thời gian:</b> Thứ 4 - 17:00</p>
-                    <p class="mb-2">
-                        <span class="badge bg-primary">Đang diễn ra</span>
-                    </p>
-
-                    <button class="btn btn-info btn-sm">
-                        Xem tiến độ
-                    </button>
-                </div>
-            </div>
-        </div>
-
-
-        <!-- HOÀN THÀNH -->
-        <div class="col-md-6">
-            <div class="card shadow-sm h-100 schedule-card" onclick="viewDetail(4)">
-                <div class="card-body">
-                    <h5 class="card-title">Hóa học lớp 12</h5>
-                    <p class="mb-1"><b>Học sinh:</b> Phạm Văn D</p>
-                    <p class="mb-1"><b>Thời gian:</b> Thứ 6 - 18:00</p>
-                    <p class="mb-2">
-                        <span class="badge bg-success">Hoàn thành</span>
-                    </p>
-
-                    <button class="btn btn-secondary btn-sm">
-                        Xem kết quả
-                    </button>
-                </div>
-            </div>
-        </div>
-
-
-        <!-- HỦY -->
-        <div class="col-md-6">
-            <div class="card shadow-sm h-100 schedule-card" onclick="viewDetail(5)">
-                <div class="card-body">
-                    <h5 class="card-title">Sinh học lớp 10</h5>
-                    <p class="mb-1"><b>Học sinh:</b> Nguyễn Thị E</p>
-                    <p class="mb-1"><b>Thời gian:</b> Thứ 7 - 16:00</p>
-                    <p class="mb-2">
-                        <span class="badge bg-danger">Đã hủy</span>
-                    </p>
-
-                    <button class="btn btn-outline-secondary btn-sm">
-                        Xem lý do
-                    </button>
-                </div>
-            </div>
-        </div>
-
+    <div class="row g-3" id="dsLopHoc">
     </div>
 
 </div>
 
+@section Scripts{
+    <script>
+        $(document).ready(function () {
+            loadDanhSach();
+        });
 
-<script>
-    function viewDetail(id) {
-        window.location.href = "/LopHoc/Detail/" + id;
-    }
-</script>
+        function loadDanhSach() {
+
+            $.get("/LopHoc/GETDANHSACHLICHHOC", function (data) {
+
+                let html = "";
+
+                data.forEach(item => {
+
+                    let lop = item.lop;
+                    let dsBuoi = item.dsBuoi || [];
+
+                    let thoiGian = "";
+
+                    if (dsBuoi.length > 0) {
+
+                        thoiGian = dsBuoi
+                            .slice(0, 2)
+                            .map(b => `${getThu(b.thu)} - ${b.giobatdau.substring(0,5)}`)
+                            .join("<br>");
+
+                        if (dsBuoi.length > 2) {
+                            thoiGian += "<br>...";
+                        }
+                    }
+
+                    let trangthai = renderTrangThai(lop.trangThai);
+
+                    html += `
+                    <div class="col-md-6">
+                        <div class="card shadow-sm h-100 schedule-card" onclick="viewDetail(${lop.id})">
+                            <div class="card-body">
+
+                                <h5 class="card-title">Môn ${item.tenmon}-lớp ${lop.trinhdo}</h5>
+
+                                <p class="mb-1"><b>Tên học viên:</b> ${item.nguoiGui.name ?? ''}</p>
+
+                                <p class="mb-1"><b>Địa chỉ:</b> ${lop.dIaChi ?? ''}</p>
+
+                                <p class="mb-1">
+                                    <b>Thời gian:</b><br>
+                                    ${thoiGian}
+                                </p>
+
+                                <p class="mb-2">
+                                    ${trangthai}
+                                </p>
+
+                            </div>
+                        </div>
+                    </div>
+                    `;
+                });
+
+                $("#dsLopHoc").html(html);
+
+            });
+        }
+
+        function getThu(t) {
+
+            const thu = {
+                2: "Thứ 2",
+                3: "Thứ 3",
+                4: "Thứ 4",
+                5: "Thứ 5",
+                6: "Thứ 6",
+                7: "Thứ 7",
+                8: "Chủ nhật"
+            };
+
+            return thu[t] ?? "";
+        }
+
+        function renderTrangThai(tt) {
+
+            switch (tt) {
+
+                case 1:
+                    return `<span class="badge bg-warning text-dark">Mới tạo</span>`
+
+                case 2:
+                    return `<span class="badge bg-success">Đã chấp nhận</span>`
+
+                case 3:
+                    return `<span class="badge bg-primary">Đang diễn ra</span>`
+
+                case 4:
+                    return `<span class="badge bg-success">Hoàn thành</span>`
+
+                case 5:
+                    return `<span class="badge bg-danger">Đã hủy</span>`
+
+                default:
+                    return `<span class="badge bg-secondary">Không xác định</span>`
+            }
+        }
+
+        function viewDetail(id) {
+            window.location.href = "/LopHoc/Detail/" + id;
+        }
+    </script>
+}
+
 
 
 <style>

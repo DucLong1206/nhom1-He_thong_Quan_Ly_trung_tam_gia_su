@@ -20,8 +20,10 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
         {
             return View();
         }
-        public IActionResult Detail()
+        public IActionResult Detail(int id)
         {
+            var ds = _lh.GETDANHSACHLICHHOC_byidlophoc(id);
+            ViewBag.data = ds;
             return View();
         }
 
@@ -93,6 +95,20 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
             {
                 return Json(new { success = false, message = ex.Message });
             }
+        }
+        [HttpGet]
+        public JsonResult GETDANHSACHLICHHOC()
+        {
+            int? id = HttpContext.Session.GetInt32("UserId");
+
+            if (id == null)
+            {
+                return Json(new { success = false, message = "User chưa đăng nhập" });
+            }
+
+            var ds = _lh.GETDANHSACHLICHHOC(id.Value);
+
+            return Json(ds);
         }
 
     }
