@@ -5,7 +5,7 @@
 <section class="hero-section py-5">
     <div class="row align-items-center g-4">
         <div class="col-lg-6">
-            <span class="hero-badge">Trung tâm gia sư Nhom1</span>
+            <span class="hero-badge">Trung tâm gia sư LQH Eduction</span>
             <h1 class="hero-title mt-3">Kết nối gia sư chất lượng với học viên phù hợp</h1>
             <p class="hero-subtitle mt-3">
                 Nền tảng quản lý lớp học, lịch dạy và theo dõi tiến độ giúp phụ huynh,
@@ -42,7 +42,7 @@
                     <li>✅ Quản lý học phí, lương gia sư theo từng kỳ.</li>
                     <li>✅ Báo cáo tiến độ học tập theo tuần/tháng.</li>
                 </ul>
-                <p class="mb-0 text-muted">* Giao diện mẫu cho trang chủ trung tâm gia sư.</p>
+                <p class="mb-0 text-muted">* Giao diện mẫu cho hệ thống quản lý trung tâm.</p>
             </div>
         </div>
     </div>
@@ -76,40 +76,65 @@
     </div>
 </section>
 
+<section class="process-section py-5">
+    <div class="text-center mb-4">
+        <h2 class="section-title">Luồng xử lý nhanh</h2>
+        <p class="text-muted">Luồng nghiệp vụ rõ ràng để đội ngũ trung tâm dễ theo dõi và xử lý.</p>
+    </div>
+    <div class="row g-3">
+        <div class="col-md-4">
+            <article class="process-card h-100">
+                <span class="step-number">01</span>
+                <h3>Tiếp nhận yêu cầu</h3>
+                <p>Thu thập thông tin học viên, môn học, lịch học mong muốn và khu vực.</p>
+            </article>
+        </div>
+        <div class="col-md-4">
+            <article class="process-card h-100">
+                <span class="step-number">02</span>
+                <h3>Ghép gia sư</h3>
+                <p>Đối chiếu hồ sơ và đề xuất gia sư phù hợp theo chuyên môn và thời gian.</p>
+            </article>
+        </div>
+        <div class="col-md-4">
+            <article class="process-card h-100">
+                <span class="step-number">03</span>
+                <h3>Theo dõi & đánh giá</h3>
+                <p>Quản lý tiến độ theo tuần, phản hồi phụ huynh và tối ưu chất lượng lớp học.</p>
+            </article>
+        </div>
+    </div>
+</section>
+
 <section class="cta-section text-center py-5">
     <h2>Sẵn sàng triển khai hệ thống quản lý cho trung tâm?</h2>
     <p class="mb-4">Bắt đầu từ trang chủ này và mở rộng dần các module nghiệp vụ cốt lõi.</p>
     <a class="btn btn-success btn-lg" asp-controller="Home" asp-action="login">Bắt đầu ngay</a>
 </section>
-<div id="db-status" class="alert d-none mt-4"></div>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
 
-        fetch('@Url.Action("DbHealth", "Home")')
-            .then(response => response.json())
-            .then(data => {
+<div id="db-status" class="alert d-none mt-4" role="status"></div>
 
-                const statusDiv = document.getElementById("db-status");
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", async function () {
+            const statusDiv = document.getElementById("db-status");
+
+            try {
+                const data = await window.appApi.get('@Url.Action("DbHealth", "Home")');
                 statusDiv.classList.remove("d-none");
 
                 if (data.success) {
                     statusDiv.classList.add("alert-success");
-                    statusDiv.innerHTML =
-                        `<strong>${data.message}</strong><br/>
-                         Tổng tài khoản: ${data.totalTaiKhoan}`;
+                    statusDiv.innerHTML = `<strong>${data.message}</strong><br/>Tổng tài khoản: ${data.totalTaiKhoan}`;
                 } else {
                     statusDiv.classList.add("alert-danger");
-                    statusDiv.innerHTML =
-                        `<strong>${data.message}</strong>`;
+                    statusDiv.innerHTML = `<strong>${data.message}</strong>`;
                 }
-            })
-            .catch(error => {
-                const statusDiv = document.getElementById("db-status");
+            } catch {
                 statusDiv.classList.remove("d-none");
                 statusDiv.classList.add("alert-danger");
-                statusDiv.innerHTML =
-                    "Không gọi được API kiểm tra DB.";
-            });
-
-    });
-</script>
+                statusDiv.textContent = "Không gọi được API kiểm tra DB.";
+            }
+        });
+    </script>
+}
