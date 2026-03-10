@@ -136,3 +136,55 @@ body {
 .cta-section p {
   color: #d5def2;
 }
+
+.navbar {
+  border-radius: 12px;
+}
+
+.process-section {
+  background: #f8fbff;
+  border: 1px solid #dce6fa;
+  border-radius: 16px;
+  padding: 2rem;
+}
+
+.process-card {
+  background: #fff;
+  border: 1px solid #dce6fa;
+  border-radius: 14px;
+  padding: 1.25rem;
+  box-shadow: 0 10px 20px rgba(19, 58, 130, 0.05);
+}
+
+.step-number {
+  display: inline-block;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  background: #e6efff;
+  color: #0d3b8e;
+  font-weight: 700;
+  font-size: 0.85rem;
+  margin-bottom: 0.8rem;
+}
+
+.process-card h3 {
+  font-size: 1.1rem;
+  color: #163a85;
+}
+
+.process-card p {
+  color: #4e5f80;
+  margin-bottom: 0;
+}
+
+.intro-panel {
+  background: linear-gradient(145deg, #ffffff, #eef4ff);
+  border: 1px solid #dde8ff;
+  border-radius: 18px;
+  padding: 2rem;
+  margin-bottom: 1.25rem;
+}
+
+.footer {
+  background: #ffffff;
+}
