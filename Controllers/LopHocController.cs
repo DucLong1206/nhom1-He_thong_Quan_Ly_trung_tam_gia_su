@@ -1,4 +1,5 @@
-﻿using He_thong_Quan_Ly_trung_tam_gia_su_Logic.ILogic;
+﻿using He_thong_Quan_Ly_trung_tam_gia_su_Entity.Entity;
+using He_thong_Quan_Ly_trung_tam_gia_su_Logic.ILogic;
 using Microsoft.AspNetCore.Mvc;
 
 namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
@@ -29,35 +30,35 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
 
         public IActionResult Contract(int lopId)
         {
-            ViewBag.LopId = lopId;
+            var ds = _lh.createhopdong(lopId);
+            var DATA = _lh.GETDANHSACHLICHHOC_byidlophoc(lopId);
+            ViewBag.data = DATA;
+            ViewBag.ds = ds;
             return View();
         }
 
         [HttpPost]
-        public JsonResult XuLyPhanHoi([FromBody] LopHocPhanHoiRequest request)
+        public JsonResult XuLyPhanHoi([FromBody] ListLopchange request)
         {
-            if (request == null || request.LopId <= 0)
+            string mess = "";
+            if (request == null || request.lopid <= 0)
             {
                 return Json(new { success = false, message = "Dữ liệu không hợp lệ." });
             }
 
-            if (string.Equals(request.Action, "reject", StringComparison.OrdinalIgnoreCase)
-                && string.IsNullOrWhiteSpace(request.Reason))
-            {
-                return Json(new { success = false, message = "Vui lòng nhập lý do từ chối." });
-            }
-
+            //if (request.loai == "tuchoi" && string.IsNullOrWhiteSpace(request.lydo))
+            //{
+            //    return Json(new { success = false, message = "Vui lòng nhập lý do từ chối." });
+            //}     
+            var change = _lh.changestatus(request, out mess);
             return Json(new
             {
-                success = true,
-                message = "Đã ghi nhận phản hồi.",
-                lopId = request.LopId,
-                action = request.Action,
-                reason = request.Reason,
-                schedule = request.Schedule
+                success = change,
+                message = mess ?? "Đã ghi nhận phản hồi.",
+                lopid = request.lopid,
+                loai = request.loai
             });
         }
-
         [HttpGet]
         public JsonResult Getlistlophocdangkiping(int id)
         {
@@ -83,8 +84,6 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
                 return Json(new { success = false, message = ex.Message });
             }
         }
-
-
         [HttpPost]
         public JsonResult SendLessonAlertEmail(string email, string alertType, string lessonName, string scheduledStart, string scheduledEnd)
         {
@@ -141,21 +140,25 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
 
             return Json(ds);
         }
+        public JsonResult changhopdong(int id, int trangthai)
+        {
+            try
+            {
+                var change = _lh.changeHopDong(id, trangthai);
+                if (change)
+                {
+                    return Json(new { success = true, message = "Đã cập nhật trạng thái hợp đồng." });
+                }
+                else
+                {
+                    return Json(new { success = false, message = "Không tìm thấy hợp đồng hoặc không thể cập nhật." });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
 
-    }
-
-    public class LopHocPhanHoiRequest
-    {
-        public int LopId { get; set; }
-        public string Action { get; set; } = string.Empty;
-        public string? Reason { get; set; }
-        public List<BuoihocDieuChinhDto> Schedule { get; set; } = new List<BuoihocDieuChinhDto>();
-    }
-
-    public class BuoihocDieuChinhDto
-    {
-        public int Thu { get; set; }
-        public string GioBatDau { get; set; } = string.Empty;
-        public string GioKetThuc { get; set; } = string.Empty;
+        }
     }
 }
