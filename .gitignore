@@ -5,10 +5,27 @@
 *.user
 *.userosscache
 *.sln.docstates
+*.suo
+*.userprefs
 
-## SQL Server files
+## NuGet Packages
+*.nupkg
+# Thư mục chứa các gói thư viện tải về, không nên đẩy lên Git vì sẽ làm repo rất nặng
+**/packages/*
+!**/packages/build/
+
+## Publish output
+# Các file khi bạn Build để chạy thực tế
+publish/
+**/App_Data/Jobs/
+
+## Entity Framework / SQL Server
 *.mdf
 *.ldf
+*.sdf
+# Nếu bạn dùng Migration, đôi khi các file log tạm cũng nên được loại bỏ
+*.log
 
-## Others
+## OS Files
 .DS_Store
+Thumbs.db
