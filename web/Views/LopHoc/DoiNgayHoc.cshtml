@@ -1,0 +1,66 @@
+@{
+    ViewData["Title"] = "Điều chỉnh ngày học";
+    var lopHocId = ViewBag.LopHocId ?? 0;
+    var nguon = (ViewBag.Nguon ?? "phu-huynh").ToString();
+    var backUrl = nguon == "gia-su"
+        ? $"/LopHoc/Detail?id={lopHocId}"
+        : $"/LopHoc/LichHocDetail?id={lopHocId}";
+}
+
+<div class="container py-4" style="max-width:720px;">
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+            <h4 class="mb-3">Điều chỉnh ngày học sang ngày khác</h4>
+            <p class="text-muted mb-4">Lớp học #@lopHocId</p>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Ngày học hiện tại</label>
+                    <input id="currentDate" type="date" class="form-control" />
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Ngày học muốn đổi</label>
+                    <input id="newDate" type="date" class="form-control" />
+                </div>
+            </div>
+
+            <div class="d-flex gap-2 mt-4 flex-wrap">
+                <button type="button" id="btnSubmitDateChange" class="btn btn-warning text-white">Gửi yêu cầu đổi ngày</button>
+                <a href="@backUrl" class="btn btn-secondary">Quay lại</a>
+            </div>
+
+            <div id="thongBaoDoiNgay" class="alert mt-3 d-none"></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    $(document).ready(function () {
+        $('#btnSubmitDateChange').click(function () {
+            const currentDate = $('#currentDate').val();
+            const newDate = $('#newDate').val();
+
+            if (!currentDate || !newDate) {
+                hienThongBao('Vui lòng chọn đủ ngày hiện tại và ngày muốn đổi', false);
+                return;
+            }
+
+            if (currentDate === newDate) {
+                hienThongBao('Ngày mới phải khác ngày hiện tại', false);
+                return;
+            }
+
+            hienThongBao(`Đã ghi nhận yêu cầu đổi lịch từ ${currentDate} sang ${newDate}.`, true);
+        });
+    });
+
+    function hienThongBao(message, isSuccess) {
+        const box = $('#thongBaoDoiNgay');
+        box.removeClass('d-none alert-success alert-danger');
+        box.addClass(isSuccess ? 'alert-success' : 'alert-danger');
+        box.text(message);
+    }
+</script>
+}
