@@ -1,0 +1,117 @@
+is_global = true
+build_property.TargetFramework = net8.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.RootNamespace = He_thong_Quan_Ly_trung_tam_gia_su
+build_property.RootNamespace = He_thong_Quan_Ly_trung_tam_gia_su
+build_property.ProjectDir = D:\dnuer\btl\
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
+build_property.RazorLangVersion = 8.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = D:\dnuer\btl
+build_property._RazorSourceGeneratorDebug = 
+build_property.EffectiveAnalysisLevelStyle = 8.0
+build_property.EnableCodeStyleSeverity = 
+
+[D:/dnuer/btl/web/Views/Home/ChangePasswordFirstLogin.cshtml]
+build_metadata.AdditionalFiles.TargetPath = d2ViXFZpZXdzXEhvbWVcQ2hhbmdlUGFzc3dvcmRGaXJzdExvZ2luLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/dnuer/btl/web/Views/Home/Contact.cshtml]
+build_metadata.AdditionalFiles.TargetPath = d2ViXFZpZXdzXEhvbWVcQ29udGFjdC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/dnuer/btl/web/Views/Home/FAQ.cshtml]
+build_metadata.AdditionalFiles.TargetPath = d2ViXFZpZXdzXEhvbWVcRkFRLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/dnuer/btl/web/Views/Home/ForgotPassword.cshtml]
+build_metadata.AdditionalFiles.TargetPath = d2ViXFZpZXdzXEhvbWVcRm9yZ290UGFzc3dvcmQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/dnuer/btl/web/Views/Home/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = d2ViXFZpZXdzXEhvbWVcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/dnuer/btl/web/Views/Home/login.cshtml]
+build_metadata.AdditionalFiles.TargetPath = d2ViXFZpZXdzXEhvbWVcbG9naW4uY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/dnuer/btl/web/Views/Home/Policy.cshtml]
+build_metadata.AdditionalFiles.TargetPath = d2ViXFZpZXdzXEhvbWVcUG9saWN5LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/dnuer/btl/web/Views/Home/Privacy.cshtml]
+build_metadata.AdditionalFiles.TargetPath = d2ViXFZpZXdzXEhvbWVcUHJpdmFjeS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/dnuer/btl/web/Views/Home/Process.cshtml]
+build_metadata.AdditionalFiles.TargetPath = d2ViXFZpZXdzXEhvbWVcUHJvY2Vzcy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/dnuer/btl/web/Views/Home/Register.cshtml]
+build_metadata.AdditionalFiles.TargetPath = d2ViXFZpZXdzXEhvbWVcUmVnaXN0ZXIuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/dnuer/btl/web/Views/Home/Services.cshtml]
+build_metadata.AdditionalFiles.TargetPath = d2ViXFZpZXdzXEhvbWVcU2VydmljZXMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/dnuer/btl/web/Views/Home/TutorDashboard.cshtml]
+build_metadata.AdditionalFiles.TargetPath = d2ViXFZpZXdzXEhvbWVcVHV0b3JEYXNoYm9hcmQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/dnuer/btl/web/Views/LopHoc/Contract.cshtml]
+build_metadata.AdditionalFiles.TargetPath = d2ViXFZpZXdzXExvcEhvY1xDb250cmFjdC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/dnuer/btl/web/Views/LopHoc/Detail.cshtml]
+build_metadata.AdditionalFiles.TargetPath = d2ViXFZpZXdzXExvcEhvY1xEZXRhaWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/dnuer/btl/web/Views/LopHoc/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = d2ViXFZpZXdzXExvcEhvY1xJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/dnuer/btl/web/Views/LopHoc/LopHoc.cshtml]
+build_metadata.AdditionalFiles.TargetPath = d2ViXFZpZXdzXExvcEhvY1xMb3BIb2MuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/dnuer/btl/web/Views/MonHoc/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = d2ViXFZpZXdzXE1vbkhvY1xJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/dnuer/btl/web/Views/MonHoc/TutorDetail.cshtml]
+build_metadata.AdditionalFiles.TargetPath = d2ViXFZpZXdzXE1vbkhvY1xUdXRvckRldGFpbC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/dnuer/btl/web/Views/Shared/Error.cshtml]
+build_metadata.AdditionalFiles.TargetPath = d2ViXFZpZXdzXFNoYXJlZFxFcnJvci5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/dnuer/btl/web/Views/Shared/_ValidationScriptsPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = d2ViXFZpZXdzXFNoYXJlZFxfVmFsaWRhdGlvblNjcmlwdHNQYXJ0aWFsLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/dnuer/btl/web/Views/USER/AddorEdit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = d2ViXFZpZXdzXFVTRVJcQWRkb3JFZGl0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/dnuer/btl/web/Views/_ViewImports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = d2ViXFZpZXdzXF9WaWV3SW1wb3J0cy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/dnuer/btl/web/Views/_ViewStart.cshtml]
+build_metadata.AdditionalFiles.TargetPath = d2ViXFZpZXdzXF9WaWV3U3RhcnQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/dnuer/btl/web/Views/Shared/_Layout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = d2ViXFZpZXdzXFNoYXJlZFxfTGF5b3V0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = b-3on6kch0w3
