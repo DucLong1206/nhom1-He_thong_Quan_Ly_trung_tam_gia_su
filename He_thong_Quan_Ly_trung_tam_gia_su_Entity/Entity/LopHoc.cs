@@ -68,4 +68,22 @@
         public string trangthai { get; set; }
         public int trinhdo { get; set; }
     }
+    public class Lophoc_doilich
+    {
+        public int ID { get; set; }
+        public int idlophoc { get; set; }
+        public DateTime ngaydoi { get; set; }
+        public DateTime ngaygoc { get; set; }
+        public int thu { get; set; }
+        public TimeSpan giobatdau { get; set; }
+        public TimeSpan gioketthuc { get; set; }
+    }
+    public class LopHoc_LichHoc
+    {
+        public int ID { get; set; }
+        public DateTime NgayHoc { get; set; }
+        public int Thu { get; set; }
+        public TimeSpan GioBatDau { get; set; }
+        public TimeSpan GioKetThuc { get; set; }
+    }
 }

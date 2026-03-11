@@ -205,5 +205,40 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
                 return Json(new { success = false, message = ex.Message });
             }
         }
+        [HttpPost]
+        public JsonResult LuuDoiLichHoc([FromBody] Lophoc_doilich lich)
+        {
+            var save = false;
+            if (lich == null)
+            {
+                return Json(new { success = false, message = "Không nhận được dữ liệu." });
+            }
+            if (lich.ID != 0)
+            {
+                save = _lh.editlichbu(lich);
+            }
+            else
+            {
+                save = _lh.savelichbu(lich);
+            }
+
+            return Json(new
+            {
+                success = save,
+                data = lich
+            });
+        }
+        public JsonResult getngaygoc(int idlop)
+        {
+            try
+            {
+                var data = _lh.GetNgayGocHocBu(idlop);
+                return Json(new { success = true, data = data });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
     }
 }

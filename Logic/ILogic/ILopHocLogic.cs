@@ -13,5 +13,8 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su_Logic.ILogic
         HopDong createhopdong(int id);
         bool changeHopDong(int id, int trangthai);
         lophocbyid getlopbyid(int id);
+        bool savelichbu(Lophoc_doilich model);
+        List<LopHoc_LichHoc> GetNgayGocHocBu(int idlop);
+        bool editlichbu(Lophoc_doilich model);
     }
 }

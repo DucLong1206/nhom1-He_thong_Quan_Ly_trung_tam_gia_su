@@ -304,5 +304,65 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su_Logic.Logic
 
             return data;
         }
+        public bool savelichbu(Lophoc_doilich model)
+        {
+            try
+            {
+                if (model == null)
+                {
+                    return false;
+                }
+
+                _context.Lophoc_doilich.Add(model);
+                _context.SaveChanges();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+
+                return false;
+            }
+        }
+        public List<LopHoc_LichHoc> GetNgayGocHocBu(int idlop)
+        {
+            try
+            {
+                var data = _context.Set<LopHoc_LichHoc>()
+                    .FromSqlRaw("EXEC getngaygochocbu @IDLop",
+                        new SqlParameter("@IDLop", idlop))
+                    .ToList();
+
+                return data;
+            }
+            catch (Exception)
+            {
+                return new List<LopHoc_LichHoc>();
+            }
+        }
+        public bool editlichbu(Lophoc_doilich model)
+        {
+            try
+            {
+                var lich = _context.Lophoc_doilich.FirstOrDefault(x => x.ID == model.ID);
+
+                if (lich == null)
+                    return false;
+
+
+                lich.ngaydoi = model.ngaydoi;
+                lich.thu = model.thu;
+                lich.giobatdau = model.giobatdau;
+                lich.gioketthuc = model.gioketthuc;
+
+                _context.SaveChanges();
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
     }
 }
