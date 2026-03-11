@@ -1,191 +1,86 @@
 ﻿@{
     ViewData["Title"] = "Chi tiết lịch học";
+    var lopHocId = ViewBag.LopHocId ?? 0;
 }
 
 <style>
-    .detail-wrap {
-        max-width: 1000px;
-        margin: auto;
-    }
-
-    .detail-card {
-        background: #fff;
-        border: 1px solid #e5e7eb;
-        border-radius: 14px;
-        padding: 20px;
-        margin-bottom: 20px;
-    }
-
-    .detail-title {
-        font-weight: 700;
-        font-size: 1.2rem;
-        margin-bottom: 10px;
-    }
-
-    .meta-grid {
-        display: grid;
-        grid-template-columns: repeat(3,1fr);
-        gap: 10px;
-    }
-
-    .meta-box {
-        border: 1px solid #e5e7eb;
-        border-radius: 10px;
-        padding: 12px;
-        background: #fafafa;
-        text-align: center;
-    }
-
-    .meta-value {
-        font-weight: 700;
-        font-size: 1.1rem;
-    }
-
-    .schedule-list {
-        margin-top: 10px;
-    }
-
-    .schedule-item {
-        padding: 10px;
-        border-bottom: 1px dashed #ddd;
-        font-size: .95rem;
-    }
-
-    .status-badge {
-        font-size: .75rem;
-        padding: 6px 10px;
-        border-radius: 999px;
-        font-weight: 600;
-    }
-
-    .status-pending {
-        background: #fef3c7;
-        color: #92400e;
-    }
-
-    .status-approved {
-        background: #d1fae5;
-        color: #065f46;
-    }
-
-    .status-completed {
-        background: #dbeafe;
-        color: #1d4ed8;
-    }
-
-    .status-cancelled {
-        background: #fee2e2;
-        color: #991b1b;
-    }
-
+    .detail-wrap { max-width: 1000px; margin: auto; }
+    .detail-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 14px; padding: 20px; margin-bottom: 20px; }
+    .detail-title { font-weight: 700; font-size: 1.2rem; margin-bottom: 10px; }
+    .schedule-list { margin-top: 10px; }
+    .schedule-item { padding: 10px; border-bottom: 1px dashed #ddd; font-size: .95rem; }
+    .empty-schedule { color: #6b7280; font-style: italic; }
 </style>
 
-
 <div class="detail-wrap">
-
     <h2 class="mb-4">Chi tiết lịch học</h2>
 
     <div class="detail-card">
-
-        <div class="detail-title">
-            Toán 9 - Gia sư Nguyễn Văn A
-        </div>
-
-        <div class="mb-2">
-            <span class="status-badge status-approved">Đang dạy</span>
-        </div>
-
-        <div class="meta-grid">
-
-            <div class="meta-box">
-                <div class="meta-value">15/10/2026</div>
-                <div>Ngày bắt đầu</div>
-            </div>
-
-            <div class="meta-box">
-                <div class="meta-value">30/11/2026</div>
-                <div>Ngày kết thúc</div>
-            </div>
-
-            <div class="meta-box">
-                <div class="meta-value">150.000đ</div>
-                <div>Học phí / buổi</div>
-            </div>
-
-        </div>
-
+        <div class="detail-title">Thông tin lớp học (tĩnh)</div>
+        <p><b>Mã lớp:</b> #@lopHocId</p>
+        <p><b>Môn học:</b> Toán 9</p>
+        <p><b>Gia sư:</b> Nguyễn Văn A</p>
+        <p><b>Trạng thái:</b> Đang dạy</p>
     </div>
-
 
     <div class="detail-card">
-
-        <div class="detail-title">
-            Thông tin lớp học
+        <div class="detail-title">Lịch học trong tuần</div>
+        <div id="scheduleList" class="schedule-list">
+            <div class="empty-schedule">Đang tải lịch học...</div>
         </div>
-
-        <p><b>Học sinh:</b> Nguyễn Văn B</p>
-        <p><b>Địa chỉ:</b> 123 Nguyễn Văn Linh</p>
-        <p><b>Khu vực:</b> Phường Tân Phong</p>
-        <p><b>Trình độ:</b> Lớp 9</p>
-
     </div>
-
 
     <div class="detail-card">
-
-        <div class="detail-title">
-            Lịch học trong tuần
+        <div class="d-flex gap-2 flex-wrap">
+            <button type="button" class="btn btn-success">Chấp nhận</button>
+            <button type="button" class="btn btn-warning text-white">Điều chỉnh</button>
+            <button type="button" class="btn btn-danger">Hủy</button>
+            <a href="/LopHoc/Index" class="btn btn-secondary">Quay lại</a>
         </div>
-
-        <div class="schedule-list">
-
-            <div class="schedule-item">
-                Thứ 2 • 18:00 - 19:30
-            </div>
-
-            <div class="schedule-item">
-                Thứ 4 • 18:00 - 19:30
-            </div>
-
-            <div class="schedule-item">
-                Thứ 6 • 18:00 - 19:30
-            </div>
-
-        </div>
-
     </div>
-
-
-    <div class="detail-card">
-
-        <div class="detail-title">
-            Trạng thái lớp học
-        </div>
-
-        <p>✔ Gia sư đã nhận lớp</p>
-        <p>✔ Lớp đang diễn ra</p>
-
-    </div>
-
-
-    <div class="detail-card">
-
-        <div class="d-flex gap-2">
-
-            <button class="btn btn-success">
-                Xác nhận bắt đầu buổi học
-            </button>
-
-            <button class="btn btn-danger">
-                Kết thúc buổi học
-            </button>
-
-            <a href="/LopHoc/Index" class="btn btn-secondary">
-                Quay lại
-            </a>
-
-        </div>
-
-    </div>
-
 </div>
+
+@section Scripts {
+<script>
+    $(document).ready(function () {
+        const lopHocId = @lopHocId;
+
+        $.ajax({
+            url: '/LopHoc/LopHoc_Buoihocdangki_GetList_ByIDLopHoc',
+            type: 'GET',
+            data: { id: lopHocId },
+            success: function (res) {
+                if (!res.success) {
+                    $('#scheduleList').html(`<div class="empty-schedule">${res.message || 'Không tải được lịch học.'}</div>`);
+                    return;
+                }
+
+                renderSchedule(res.data || []);
+            },
+            error: function () {
+                $('#scheduleList').html('<div class="empty-schedule">Lỗi gọi dữ liệu lịch học.</div>');
+            }
+        });
+
+        function renderSchedule(data) {
+            if (!data.length) {
+                $('#scheduleList').html('<div class="empty-schedule">Chưa có buổi học đăng ký cho lớp này.</div>');
+                return;
+            }
+
+            const html = data.map(item => `
+                <div class="schedule-item">
+                    Thứ ${item.thu} • ${formatTime(item.giobatdau)} - ${formatTime(item.gioketthuc)}
+                </div>
+            `).join('');
+
+            $('#scheduleList').html(html);
+        }
+
+        function formatTime(timeString) {
+            if (!timeString) return '';
+            return timeString.substring(0, 5);
+        }
+    });
+</script>
+}

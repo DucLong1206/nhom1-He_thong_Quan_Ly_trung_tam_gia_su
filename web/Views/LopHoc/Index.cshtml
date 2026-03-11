@@ -3,18 +3,6 @@
 }
 
 <style>
-    .schedule-detail {
-        width: 100%;
-        border-top: 1px dashed #e5e7eb;
-        margin-top: 10px;
-        padding-top: 10px;
-    }
-
-    .buoi-item {
-        font-size: 0.9rem;
-        color: #374151;
-        padding: 4px 0;
-    }
     .schedule-wrap {
         max-width: 1050px;
         margin: 0 auto;
@@ -84,17 +72,6 @@
         padding: 6px 10px;
     }
 
-    .registered-list {
-        margin-top: 8px;
-        border-top: 1px dashed #e5e7eb;
-        padding-top: 8px;
-    }
-
-    .registered-item {
-        font-size: 0.9rem;
-        color: #374151;
-        padding: 3px 0;
-    }
 
     .schedule-card {
         border: 1px solid #e5e7eb;
@@ -230,22 +207,20 @@
 @section Scripts {
 <script>
     $(document).ready(function () {
-
         const userId = @Context.Session.GetInt32("UserId");
 
         $.ajax({
-                url: '/LopHoc/Getlistlophocdangkiping',
+            url: '/LopHoc/Getlistlophocdangkiping',
             type: 'GET',
             data: { id: userId },
             success: function (res) {
-
                 if (!res.success) {
                     alert(res.message);
                     return;
                 }
 
-                renderSchedule(res.data);
-                renderMySubjects(res.data);
+                renderSchedule(res.data || []);
+                renderMySubjects(res.data || []);
             },
             error: function () {
                 alert("Lỗi gọi dữ liệu");
@@ -253,79 +228,49 @@
         });
 
         function renderSchedule(data) {
-
             let html = '';
             let total = data.length;
             let pending = 0;
             let approved = 0;
             let completed = 0;
 
-            window.__scheduleMap = {};
-
             data.forEach(item => {
-                window.__scheduleMap[item.id] = item;
-
                 let statusClass = '';
 
-                              switch (item.trangThai) {
+                switch (item.trangThai) {
+                    case 1:
+                    case 2:
+                        statusClass = 'status-pending';
+                        pending++;
+                        break;
+                    case 3:
+                        statusClass = 'status-approved';
+                        approved++;
+                        break;
+                    case 4:
+                        statusClass = 'status-completed';
+                        completed++;
+                        break;
+                    case 5:
+                    case 6:
+                        statusClass = 'status-cancelled';
+                        break;
+                    default:
+                        statusClass = 'status-pending';
+                        break;
+                }
 
-            case 1: // Mới tạo
-                statusClass = 'status-pending';
-                pending++;
-                break;
-
-            case 2: // Điều chỉnh
-                statusClass = 'status-pending';
-                pending++;
-                break;
-
-            case 3: // Đang dạy
-                statusClass = 'status-approved';
-                approved++;
-                break;
-
-            case 4: // Kết thúc
-                statusClass = 'status-completed';
-                completed++;
-                break;
-
-            case 5: // Hủy
-                statusClass = 'status-cancelled';
-                break;
-
-            case 6: // Không tiếp nhận
-                statusClass = 'status-cancelled';
-                break;
-
-            default:
-                statusClass = 'status-pending';
-                break;
-        }
-
-                       html += `
-        <article class="schedule-card" data-id="${item.id}">
-            <div>
-                <div class="schedule-title">
-                    ${item.mon} - Gia sư ${item.name}
-                </div>
-                <div class="schedule-meta">
-                    Bắt đầu: ${formatDate(item.ngayBatdau)}
-                    • Khu vực: ${item.xa}
-                </div>
-            </div>
-
-            <span class="status-badge ${statusClass}">
-                ${item.trangthainame ?? "không xác định"}
-            </span>
-
-            <div class="schedule-detail" style="display:none"></div>
-            <div class="registered-list" style="display:none"></div>
-        </article>`;
+                html += `
+                <article class="schedule-card" data-id="${item.id}" style="cursor:pointer">
+                    <div>
+                        <div class="schedule-title">${item.mon} - Gia sư ${item.name}</div>
+                        <div class="schedule-meta">Bắt đầu: ${formatDate(item.ngayBatdau)} • Khu vực: ${item.xa}</div>
+                    </div>
+                    <span class="status-badge ${statusClass}">${item.trangthainame ?? "không xác định"}</span>
+                </article>`;
             });
 
             $('.schedule-list').html(html);
-
-            // Update summary
             $('.summary-number').eq(0).text(total);
             $('.summary-number').eq(1).text(pending);
             $('.summary-number').eq(2).text(approved);
@@ -334,105 +279,28 @@
 
         function renderMySubjects(data) {
             const holder = $('#mySubjectChecks');
-            if (!data || data.length === 0) {
+            if (!data.length) {
                 holder.html('<span>Chưa có môn nào.</span>');
                 return;
             }
 
             const subjects = [...new Set(data.map(x => x.mon).filter(Boolean))];
-            if (subjects.length === 0) {
-                holder.html('<span>Chưa có môn nào.</span>');
-                return;
-            }
-
-            holder.html(subjects.map(mon => `<span class="subject-check-item">✅ ${mon}</span>`).join(''));
+            holder.html(subjects.length
+                ? subjects.map(mon => `<span class="subject-check-item">✅ ${mon}</span>`).join('')
+                : '<span>Chưa có môn nào.</span>');
         }
 
-        function getRegisteredStudentsFromItem(item) {
-            const candidates = [
-                item?.hocSinh,
-                item?.hocSinhName,
-                item?.tenHocSinh,
-                item?.studentName,
-                item?.hocSinhDangKy,
-                item?.nguoiDangKy
-            ].filter(Boolean);
-
-            return [...new Set(candidates.map(x => String(x).trim()).filter(Boolean))];
-        }
+        $(document).on('click', '.schedule-card', function () {
+            const id = $(this).data('id');
+            if (!id) return;
+            window.location.href = `/LopHoc/LichHocDetail/${id}`;
+        });
 
         function formatDate(dateString) {
             if (!dateString) return '';
             const date = new Date(dateString);
             return date.toLocaleDateString('vi-VN');
         }
-
     });
-            $(document).on('click', '.schedule-card', function () {
-
-            const card = $(this);
-            const id = card.data('id');
-            const detail = card.find('.schedule-detail');
-            const registeredWrap = card.find('.registered-list');
-            const item = window.__scheduleMap?.[id];
-
-            // nếu đã mở thì thu lại
-            if (detail.is(':visible')) {
-                detail.slideUp(200);
-                registeredWrap.slideUp(200);
-                return;
-            }
-
-            // nếu chưa load thì gọi API
-            if (!detail.data('loaded')) {
-
-                $.ajax({
-                    url: '/LopHoc/LopHoc_Buoihocdangki_GetList_ByIDLopHoc',
-                    type: 'GET',
-                    data: { id: id },
-                    success: function (res) {
-
-                        if (!res.success) {
-                            alert(res.message);
-                            return;
-                        }
-
-                        let html = '';
-
-                        res.data.forEach(buoi => {
-
-                            html += `
-                            <div class="buoi-item">
-                                Thứ ${buoi.thu}
-                                • ${formatTime(buoi.giobatdau)}
-                                - ${formatTime(buoi.gioketthuc)}
-                            </div>`;
-                        });
-
-                        detail.html(html);
-
-                        const regs = getRegisteredStudentsFromItem(item);
-                        const regHtml = regs.length > 0
-                            ? regs.map((name, idx) => `<div class="registered-item">${idx + 1}. ${name}</div>`).join('')
-                            : "<div class='registered-item text-muted'>Chưa có học sinh đăng ký hiển thị cho lịch này.</div>";
-                        registeredWrap.html(`<div class="fw-semibold mb-1">Người đã đăng ký</div>${regHtml}`);
-
-                        detail.data('loaded', true);
-
-                        detail.slideDown(250);
-                        registeredWrap.slideDown(250);
-                    }
-                });
-
-            } else {
-                detail.slideDown(250);
-                registeredWrap.slideDown(250);
-            }
-
-        });
-                function formatTime(timeString) {
-            if (!timeString) return '';
-            return timeString.substring(0,5);
-        }
 </script>
 }
