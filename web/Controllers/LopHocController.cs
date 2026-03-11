@@ -33,6 +33,13 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
             return View();
         }
 
+        public IActionResult DoiNgayHoc(int lopId, string nguon = "phu-huynh")
+        {
+            ViewBag.LopHocId = lopId;
+            ViewBag.Nguon = nguon;
+            return View();
+        }
+
         public IActionResult Contract(int lopId)
         {
             var ds = _lh.createhopdong(lopId);
