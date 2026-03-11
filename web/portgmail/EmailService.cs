@@ -1,33 +1,14 @@
-﻿using System.Net;
-using System.Net.Mail;
+using He_thong_Quan_Ly_trung_tam_gia_su.Infrastructure.Email;
 
+[Obsolete("Use IEmailService via DI instead")]
 public class EmailService
 {
-    public bool SendMail(string toEmail, string subject, string body)
+    private readonly IEmailService _emailService;
+
+    public EmailService(IEmailService emailService)
     {
-        try
-        {
-            var fromEmail = "lhqeducation@gmail.com";
-            var fromPass = "swpyhvekymdcllkx";
-
-            MailMessage message = new MailMessage();
-            message.From = new MailAddress(fromEmail);
-            message.To.Add(toEmail);
-            message.Subject = subject;
-            message.Body = body;
-            message.IsBodyHtml = true;
-
-            SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587);
-            smtp.Credentials = new NetworkCredential(fromEmail, fromPass);
-            smtp.EnableSsl = true;
-
-            smtp.Send(message);
-
-            return true;
-        }
-        catch (Exception)
-        {
-            return false;
-        }
+        _emailService = emailService;
     }
+
+    public bool SendMail(string toEmail, string subject, string body) => _emailService.SendMail(toEmail, subject, body);
 }

@@ -1,9 +1,13 @@
 using He_thong_Quan_Ly_trung_tam_gia_su_Entity.Entity;
+using He_thong_Quan_Ly_trung_tam_gia_su.Infrastructure.Security;
 using He_thong_Quan_Ly_trung_tam_gia_su_Logic.ILogic;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers;
 
+[Authorize(Roles = AppRoles.Admin + "," + AppRoles.NhanVien + "," + AppRoles.PhuHuynhHocVien)]
 public class MonHocController : Controller
 {
     private readonly IMonhocLogic _mh;
@@ -15,14 +19,7 @@ public class MonHocController : Controller
         _lh = lh;
     }
 
-    public IActionResult Index()
-    {
-        if (HttpContext.Session.GetString("UserId") == null)
-        {
-            return RedirectToAction("login", "Home");
-        }
-        return View();
-    }
+    public IActionResult Index() => View();
     public JsonResult getlist(string? keyword, int? monHocId, int? xaId, string sort = "name_asc")
     {
         var vm = _mh.GetListGiaSu();
@@ -45,11 +42,13 @@ public class MonHocController : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public JsonResult Save([FromBody] SaveLop model)
     {
         string mess = "";
         model.lop.ngaytao = DateTime.Now;
-        model.lop.idnguoitao = HttpContext.Session.GetInt32("UserId");
+        var profileClaim = User.FindFirstValue("ProfileId");
+        model.lop.idnguoitao = int.TryParse(profileClaim, out var id) ? id : null;
         model.lop.isdetele = false;
         model.lop.TrangThai = 1;
 

@@ -1,15 +1,23 @@
 ﻿using He_thong_Quan_Ly_trung_tam_gia_su_Entity.Entity;
+using He_thong_Quan_Ly_trung_tam_gia_su.Infrastructure.Email;
+using He_thong_Quan_Ly_trung_tam_gia_su.Infrastructure.Security;
+using He_thong_Quan_Ly_trung_tam_gia_su.Models;
 using He_thong_Quan_Ly_trung_tam_gia_su_Logic.ILogic;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
 {
+    [Authorize]
     public class LopHocController : Controller
     {
         private readonly ILopHocLogic _lh;
-        public LopHocController(ILopHocLogic lh)
+        private readonly IEmailService _emailService;
+        public LopHocController(ILopHocLogic lh, IEmailService emailService)
         {
             _lh = lh;
+            _emailService = emailService;
         }
 
         public IActionResult Index()
@@ -38,6 +46,7 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public JsonResult XuLyPhanHoi([FromBody] ListLopchange request)
         {
             string mess = "";
@@ -113,8 +122,7 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
                         return Json(new { success = false, message = "Loại thông báo không hợp lệ." });
                 }
 
-                var emailService = new EmailService();
-                var sent = emailService.SendMail(email, subject, body);
+                var sent = _emailService.SendMail(email, subject, body);
 
                 if (!sent)
                     return Json(new { success = false, message = "Gửi email thất bại." });
@@ -129,16 +137,12 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
         [HttpGet]
         public JsonResult GETDANHSACHLICHHOC()
         {
-            int? id = HttpContext.Session.GetInt32("UserId");
+            var profileClaim = User.FindFirstValue("ProfileId");
+            if (!int.TryParse(profileClaim, out var id))
+                return Json(ApiResponse<object>.Fail("User chưa đăng nhập"));
 
-            if (id == null)
-            {
-                return Json(new { success = false, message = "User chưa đăng nhập" });
-            }
-
-            var ds = _lh.GETDANHSACHLICHHOC(id.Value);
-
-            return Json(ds);
+            var ds = _lh.GETDANHSACHLICHHOC(id);
+            return Json(ApiResponse<object>.Ok(ds, "Lấy danh sách thành công"));
         }
         public JsonResult changhopdong(int id, int trangthai)
         {

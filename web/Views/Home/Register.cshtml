@@ -44,6 +44,7 @@
 <body>
     <div class="login-card">
         <h2>Đăng kí</h2>
+        @Html.AntiForgeryToken()
 
         <input type="text" id="Username" placeholder="Tên đăng nhập" required />
 
@@ -51,7 +52,7 @@
 
         <input type="password" id="ConfirmPassword" placeholder="Xác nhận mật khẩu" required />
 
-        <<div class="user-type">
+        <div class="user-type">
             <label class="radio-item">
                 <input type="radio" name="stypeuser" value="Tutor" checked />
                 <span>Gia sư</span>
@@ -83,8 +84,8 @@
         let stypeuser = $("input[name='stypeuser']:checked").val();
 
         // Validate mật khẩu >= 4 ký tự
-        if (password.length < 4) {
-            $("#errorMessage").text("Mật khẩu phải có ít nhất 4 ký tự.");
+        if (password.length < 8) {
+            $("#errorMessage").text("Mật khẩu phải có ít nhất 8 ký tự.");
             return;
         }
 
@@ -97,13 +98,16 @@
         // Clear lỗi
         $("#errorMessage").text("");
 
-           $.ajax({
+           const antiForgery = $('input[name="__RequestVerificationToken"]').val();
+        $.ajax({
         url: '/Home/SaveUser',
         type: 'POST',
+        headers: { 'RequestVerificationToken': antiForgery },
         data: {
-            Name: username,
-            PassWord: password,
-            TypeUsser: stypeuser
+            Username: username,
+            Password: password,
+            TypeUser: stypeuser === 'Tutor' ? 2 : 3,
+            Email: username + '@demo.local'
         },
         success: function (res) {
 

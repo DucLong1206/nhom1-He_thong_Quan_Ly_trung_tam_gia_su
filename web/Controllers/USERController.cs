@@ -1,20 +1,28 @@
 ﻿using He_thong_Quan_Ly_trung_tam_gia_su_Entity.Entity;
+using He_thong_Quan_Ly_trung_tam_gia_su.Application.DTOs;
+using He_thong_Quan_Ly_trung_tam_gia_su.Application.Services;
+using He_thong_Quan_Ly_trung_tam_gia_su.Infrastructure.Email;
+using He_thong_Quan_Ly_trung_tam_gia_su.Infrastructure.Security;
 using He_thong_Quan_Ly_trung_tam_gia_su_Logic.ILogic;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
 {
+    [Authorize]
     public class USERController : Controller
     {
         private readonly IDM_TinhLogic _t;
         private readonly IDM_XaLogic _x;
         private readonly IUSERLogic _user;
+        private readonly IAuthService _authService;
 
-        public USERController(IDM_TinhLogic t, IDM_XaLogic x, IUSERLogic user)
+        public USERController(IDM_TinhLogic t, IDM_XaLogic x, IUSERLogic user, IAuthService authService)
         {
             _t = t;
             _x = x;
             _user = user;
+            _authService = authService;
         }
         public IActionResult Index()
         {
@@ -36,6 +44,7 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
             return Json(new { data = list });
         }
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public JsonResult Save(USER model, IFormFile avatarFile)
         {
             string mes = "";
@@ -94,66 +103,18 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
         }
         public JsonResult checkpass(string email)
         {
-            try
-            {
-                var userId = _user.checkEmailExists(email, 0);
-
-                if (userId <= 0)
-                {
-                    return Json(new { success = false, message = "Email chưa được đăng ký" });
-                }
-
-                // sinh password
-                string newPass = GenerateRandomPassword();
-
-                // băm password
-                string hashPass = BCrypt.Net.BCrypt.HashPassword(newPass);
-
-                // lưu DB
-                var check = _user.changepass(hashPass, userId, 0);
-
-                if (!check)
-                {
-                    return Json(new { success = false, message = "Reset mật khẩu thất bại" });
-                }
-
-                // gửi mail
-                EmailService emailService = new EmailService();
-
-                string subject = "Reset mật khẩu hệ thống gia sư";
-                string body = $@"
-            <h3>Mật khẩu mới của bạn</h3>
-            <p>Password: <b>{newPass}</b></p>
-            <p>Vui lòng đăng nhập và đổi mật khẩu ngay sau khi đăng nhập.</p>
-        ";
-
-                emailService.SendMail(email, subject, body);
-
-                return Json(new { success = true, message = "Mật khẩu mới đã gửi về email của bạn" });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = ex.Message });
-            }
+            var result = _authService.ForgotPassword(email);
+            return Json(result);
         }
         public JsonResult ChangePass(string pass, int id, int type)
         {
-            try
+            var result = _authService.ChangePassword(new ChangePasswordRequest
             {
-                // Băm mật khẩu
-                string hashPass = BCrypt.Net.BCrypt.HashPassword(pass);
-
-                var check = _user.changepass(hashPass, id, type);
-
-                if (check)
-                    return Json(new { success = true, message = "Đổi mật khẩu thành công" });
-
-                return Json(new { success = false, message = "Đổi mật khẩu thất bại" });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = ex.Message });
-            }
+                UserId = id,
+                NewPassword = pass,
+                IsForgotPasswordFlow = type == 0
+            });
+            return Json(result);
         }
         public string GenerateRandomPassword(int length = 8)
         {

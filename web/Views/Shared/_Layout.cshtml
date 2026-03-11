@@ -92,6 +92,7 @@
                                         <form asp-controller="Home"
                                               asp-action="Logout"
                                               method="post">
+                                            @Html.AntiForgeryToken()
                                             <button class="dropdown-item text-danger"
                                                     type="submit">
                                                 Đăng xuất
