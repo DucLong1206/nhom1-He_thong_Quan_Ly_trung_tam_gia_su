@@ -25,6 +25,11 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
             ViewBag.idtk = idtk;
             return View();
         }
+        public IActionResult TutorSubjects(int idtk)
+        {
+            ViewBag.idtk = idtk;
+            return View();
+        }
         public JsonResult getlistxa(int id)
         {
             var list = _x.GetListbbytinh(id);
