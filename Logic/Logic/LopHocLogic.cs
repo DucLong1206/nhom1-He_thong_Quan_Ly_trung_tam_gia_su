@@ -173,8 +173,51 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su_Logic.Logic
                         }
                     }
                 }
+                else if (lop.loai == "dieuchinhph")
+                {
+                    // cập nhật trạng thái
+                    lh.TrangThai = 9;
+
+                    if (!string.IsNullOrWhiteSpace(lop.diaChi))
+                    {
+                        lh.DIaChi = lop.diaChi.Trim();
+                    }
+
+                    // lấy lịch cũ
+                    var lichCu = _context.LopHoc_Buoihocdangki
+                        .Where(x => x.IDlophoc == lop.lopid)
+                        .ToList();
+
+                    // xóa lịch cũ
+                    _context.LopHoc_Buoihocdangki.RemoveRange(lichCu);
+
+                    // thêm lịch mới
+                    if (lop.dsBuoi != null && lop.dsBuoi.Count > 0)
+                    {
+                        foreach (var b in lop.dsBuoi)
+                        {
+                            var buoi = new LopHoc_Buoihocdangki
+                            {
+                                IDlophoc = lop.lopid,
+                                thu = b.thu,
+                                giobatdau = b.giobatdau,
+                                gioketthuc = b.gioketthuc
+                            };
+
+                            _context.LopHoc_Buoihocdangki.Add(buoi);
+                        }
+                    }
+                }
 
                 else if (lop.loai == "tuchoi")
+                {
+                    lh.TrangThai = 6;
+                }
+                else if (lop.loai == "dongy")
+                {
+                    lh.TrangThai = 3;
+                }
+                else if (lop.loai == "huy")
                 {
                     lh.TrangThai = 5;
                 }
@@ -251,6 +294,15 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su_Logic.Logic
             {
                 return false;
             }
+        }
+        public lophocbyid getlopbyid(int id)
+        {
+            var data = _context.Set<lophocbyid>()
+                .FromSqlRaw("EXEC getlopbyid @id", new SqlParameter("@id", id))
+                .AsEnumerable()
+                .FirstOrDefault();
+
+            return data;
         }
     }
 }

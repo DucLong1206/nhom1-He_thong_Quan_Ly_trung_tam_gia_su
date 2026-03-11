@@ -56,8 +56,16 @@
     public class ListLopchange
     {
         public int lopid { get; set; }
-        public List<LopHoc_Buoihocdangki> dsBuoi { get; set; }
+        public List<LopHoc_Buoihocdangki>? dsBuoi { get; set; }
         public string loai { get; set; }
         public string? diaChi { get; set; }
+    }
+    public class lophocbyid
+    {
+        public decimal sotienMotBuoi { get; set; }
+        public string mon { get; set; }
+        public string Name { get; set; }
+        public string trangthai { get; set; }
+        public int trinhdo { get; set; }
     }
 }

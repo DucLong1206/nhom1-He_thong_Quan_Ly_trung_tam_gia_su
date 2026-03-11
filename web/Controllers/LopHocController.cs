@@ -179,5 +179,24 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
             }
 
         }
+        public JsonResult getlopbyid(int id)
+        {
+            try
+            {
+                var data = _lh.getlopbyid(id);
+                if (data != null)
+                {
+                    return Json(new { success = true, data = data });
+                }
+                else
+                {
+                    return Json(new { success = false, message = "Không tìm thấy lớp học." });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
     }
 }

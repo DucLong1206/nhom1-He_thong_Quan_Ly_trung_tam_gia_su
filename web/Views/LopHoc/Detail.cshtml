@@ -46,20 +46,33 @@
                             case 1:
                                 <span class="badge bg-warning text-dark">Mới tạo</span>
                                 break;
+
                             case 2:
-                                <span class="badge bg-success">Đã chấp nhận</span>
+                                <span class="badge bg-info text-dark">Điều chỉnh</span>
                                 break;
+
+                            case 9:
+                                <span class="badge bg-info text-dark">Điều chỉnh phụ huynh</span>
+                                break;
+
                             case 3:
-                                <span class="badge bg-primary">Đang diễn ra</span>
+                                <span class="badge bg-primary">Đang dạy</span>
                                 break;
+
                             case 4:
-                                <span class="badge bg-success">Hoàn thành</span>
+                                <span class="badge bg-success">Kết thúc</span>
                                 break;
+
                             case 5:
-                                <span class="badge bg-danger">Đã hủy</span>
+                                <span class="badge bg-danger">Hủy</span>
                                 break;
+
+                            case 6:
+                                <span class="badge bg-secondary">Không tiếp nhận</span>
+                                break;
+
                             default:
-                                <span class="badge bg-secondary">Không xác định</span>
+                                <span class="badge bg-dark">Không xác định</span>
                                 break;
                         }
 
@@ -155,24 +168,28 @@
             <hr />
 
             <div class="d-flex gap-2 mt-3 flex-wrap">
-                <a href="/LopHoc/Contract?lopId=@lop.ID">
-                    <button id="btnDongY" class="btn btn-success">
-                        ✔ Đồng ý
+               
+
+                @if (lop?.TrangThai == 1 || lop?.TrangThai == 9)
+                {
+                    <a href="/LopHoc/Contract?lopId=@lop.ID">
+                        <button id="btnDongY" class="btn btn-success">
+                            ✔ Đồng ý
+                        </button>
+                    </a>
+                    <button id="btnTuChoi" class="btn btn-danger">
+                        ✖ Từ chối
                     </button>
-                </a>
+
+                    <button id="btnChinhLich" class="btn btn-warning">
+                        ✏ Điều chỉnh lịch
+                    </button>
+
+                    <button id="btnGuiChinhLich" class="btn btn-primary d-none">
+                        📤 Gửi điều chỉnh
+                    </button>
+                }
                 
-
-                <button id="btnTuChoi" class="btn btn-danger">
-                    ✖ Từ chối
-                </button>
-
-                <button id="btnChinhLich" class="btn btn-warning">
-                    ✏ Điều chỉnh lịch
-                </button>
-
-                <button id="btnGuiChinhLich" class="btn btn-primary d-none">
-                    📤 Gửi điều chỉnh
-                </button>
 
             </div>
 

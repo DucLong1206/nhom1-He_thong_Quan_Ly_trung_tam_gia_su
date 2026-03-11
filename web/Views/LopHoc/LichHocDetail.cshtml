@@ -4,43 +4,88 @@
 }
 
 <style>
-    .detail-wrap { max-width: 1000px; margin: auto; }
-    .detail-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 14px; padding: 20px; margin-bottom: 20px; }
-    .detail-title { font-weight: 700; font-size: 1.2rem; margin-bottom: 10px; }
-    .schedule-list { margin-top: 10px; }
-    .schedule-item { padding: 10px; border-bottom: 1px dashed #ddd; font-size: .95rem; }
-    .empty-schedule { color: #6b7280; font-style: italic; }
-    .edit-row { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 10px; margin-bottom: 8px; }
+    .detail-wrap {
+        max-width: 1000px;
+        margin: auto
+    }
 
-    @@media (max-width: 768px) {
-        .edit-row { grid-template-columns: 1fr; }
+    .detail-card {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        padding: 20px;
+        margin-bottom: 20px
+    }
+
+    .detail-title {
+        font-weight: 700;
+        font-size: 1.2rem;
+        margin-bottom: 10px
+    }
+
+    .schedule-list {
+        margin-top: 10px
+    }
+
+    .schedule-item {
+        padding: 10px;
+        border-bottom: 1px dashed #ddd;
+        font-size: .95rem
+    }
+
+    .empty-schedule {
+        color: #6b7280;
+        font-style: italic
+    }
+
+    .edit-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr auto;
+        gap: 10px;
+        margin-bottom: 8px
+    }
+
+    @@media(max-width:768px) {
+        .edit-row {
+            grid-template-columns: 1fr
+        }
     }
 </style>
 
 <div class="detail-wrap">
+
     <h2 class="mb-4">Chi tiết lịch học</h2>
 
     <div class="detail-card">
-        <div class="detail-title">Thông tin lớp học (tĩnh)</div>
+        <div class="detail-title">Thông tin lớp học</div>
+
         <p><b>Mã lớp:</b> #@lopHocId</p>
-        <p><b>Môn học:</b> Toán 9</p>
-        <p><b>Gia sư:</b> Nguyễn Văn A</p>
-        <p><b>Trạng thái:</b> Đang dạy</p>
+        <p><b>Môn học:</b> <span id="monHoc">Đang tải...</span></p>
+        <p><b>Gia sư:</b> <span id="giaSu">Đang tải...</span></p>
+        <p><b>Trình độ:</b> lớp <span id="trinhDo">...</span></p>
+        <p><b>Học phí / buổi:</b> <span id="hocPhi">...</span></p>
+        <p><b>Trạng thái:</b> <span id="trangThai">...</span></p>
+
     </div>
+
 
     <div class="detail-card">
         <div class="detail-title">Lịch học trong tuần</div>
+
         <div id="scheduleList" class="schedule-list">
             <div class="empty-schedule">Đang tải lịch học...</div>
         </div>
+
     </div>
 
-    <div class="detail-card" id="editBox" style="display:none;">
+
+    <div class="detail-card" id="editBox" style="display:none">
+
         <div class="detail-title">Điều chỉnh lịch học</div>
 
         <div class="mb-3">
             <label class="form-label fw-semibold">Địa chỉ / Xã</label>
-            <input id="diaChiInput" type="text" class="form-control" placeholder="Nhập địa chỉ hoặc xã cần điều chỉnh" />
+            <input id="diaChiInput" type="text" class="form-control" />
         </div>
 
         <div id="editRows"></div>
@@ -50,165 +95,304 @@
             <button type="button" id="btnSubmitChange" class="btn btn-primary">Thay đổi</button>
             <button type="button" id="btnCancelEdit" class="btn btn-light border">Hủy chỉnh sửa</button>
         </div>
+
     </div>
+
 
     <div class="detail-card">
+
         <div class="d-flex gap-2 flex-wrap">
-            <button type="button" class="btn btn-success">Chấp nhận</button>
+
+            <button type="button" id="btnDongY" class="btn btn-success">Chấp nhận</button>
             <button type="button" id="btnShowEdit" class="btn btn-warning text-white">Điều chỉnh</button>
-            <button type="button" class="btn btn-danger">Hủy</button>
+            <button type="button" id="btnHuy" class="btn btn-danger">Hủy</button>
+
             <a href="/LopHoc/Index" class="btn btn-secondary">Quay lại</a>
+
         </div>
+
     </div>
+
 </div>
 
+
+
 @section Scripts {
-<script>
-    $(document).ready(function () {
-        const lopHocId = @lopHocId;
-        let currentSchedule = [];
 
-        loadLichHoc();
+    <script>
+
+        $(document).ready(function(){
+
+        const lopHocId=@lopHocId;
+        let currentSchedule=[];
+
         loadLopHocInfo();
+        loadLichHoc();
 
-        function loadLichHoc() {
-            $.ajax({
-                url: '/LopHoc/LopHoc_Buoihocdangki_GetList_ByIDLopHoc',
-                type: 'GET',
-                data: { id: lopHocId },
-                success: function (res) {
-                    if (!res.success) {
-                        $('#scheduleList').html(`<div class="empty-schedule">${res.message || 'Không tải được lịch học.'}</div>`);
-                        return;
-                    }
 
-                    currentSchedule = res.data || [];
-                    renderSchedule(currentSchedule);
-                },
-                error: function () {
-                    $('#scheduleList').html('<div class="empty-schedule">Lỗi gọi dữ liệu lịch học.</div>');
-                }
-            });
-        }
 
-        function loadLopHocInfo() {
-            $.ajax({
-                url: '/LopHoc/GetLopHocDetailById',
-                type: 'GET',
-                data: { id: lopHocId },
-                success: function (res) {
-                    if (res.success && res.data && res.data.lop) {
-                        $('#diaChiInput').val(res.data.lop.dIaChi || '');
-                    }
-                }
-            });
-        }
+        function loadLopHocInfo(){
 
-        function renderSchedule(data) {
-            if (!data.length) {
-                $('#scheduleList').html('<div class="empty-schedule">Chưa có buổi học đăng ký cho lớp này.</div>');
-                return;
+        $.ajax({
+
+        url:'/LopHoc/getlopbyid',
+        type:'GET',
+        data:{id:lopHocId},
+
+        success:function(res){
+
+        if(!res.success)return;
+
+        const d=res.data;
+
+        $('#monHoc').text(d.mon);
+        $('#giaSu').text(d.name);
+        $('#trinhDo').text(d.trinhdo);
+        $('#hocPhi').text(d.sotienMotBuoi+" đ");
+        $('#trangThai').text(d.trangthai);
+        if(d.trangthai === "Điều chỉnh"){
+                $('#btnDongY').show();
+                $('#btnShowEdit').show();
             }
-
-            const html = data.map(item => `
-                <div class="schedule-item">${formatThu(item.thu)} • ${formatTime(item.giobatdau)} - ${formatTime(item.gioketthuc)}</div>
-            `).join('');
-            $('#scheduleList').html(html);
         }
 
-        function addEditRow(thu = 2, start = '18:00', end = '19:30') {
-            const row = `
-                <div class="edit-row">
-                    <select class="form-select edit-thu">
-                        ${[2,3,4,5,6,7,8].map(x => `<option value="${x}" ${String(x) === String(thu) ? 'selected' : ''}>${x === 8 ? "Chủ nhật" : "Thứ " + x}</option>`).join('')}
-                    </select>
-                    <input type="time" class="form-control edit-start" value="${formatTime(start)}" />
-                    <input type="time" class="form-control edit-end" value="${formatTime(end)}" />
-                    <button type="button" class="btn btn-outline-danger btn-remove-row">Xóa</button>
-                </div>`;
-            $('#editRows').append(row);
+        })
+
         }
 
-        function fillEditRowsFromCurrent() {
-            $('#editRows').empty();
-            if (!currentSchedule.length) {
-                addEditRow();
-                return;
-            }
 
-            currentSchedule.forEach(item => addEditRow(item.thu, item.giobatdau, item.gioketthuc));
+
+        function loadLichHoc(){
+
+        $.ajax({
+
+        url:'/LopHoc/LopHoc_Buoihocdangki_GetList_ByIDLopHoc',
+        type:'GET',
+        data:{id:lopHocId},
+
+        success:function(res){
+
+        if(!res.success){
+
+        $('#scheduleList').html('<div class="empty-schedule">Không tải được lịch học</div>');
+        return;
+
         }
 
-        $('#btnShowEdit').on('click', function () {
-            fillEditRowsFromCurrent();
-            $('#editBox').slideDown(200);
-        });
+        currentSchedule=res.data||[];
+        renderSchedule(currentSchedule);
 
-        $('#btnAddRow').on('click', function () {
-            addEditRow();
-        });
-
-        $(document).on('click', '.btn-remove-row', function () {
-            $(this).closest('.edit-row').remove();
-        });
-
-        $('#btnCancelEdit').on('click', function () {
-            $('#editBox').slideUp(200);
-        });
-
-        $('#btnSubmitChange').on('click', function () {
-            const dsBuoi = [];
-            $('#editRows .edit-row').each(function () {
-                const thu = $(this).find('.edit-thu').val();
-                const giobatdau = $(this).find('.edit-start').val();
-                const gioketthuc = $(this).find('.edit-end').val();
-
-                if (thu && giobatdau && gioketthuc) {
-                    dsBuoi.push({ thu: thu, giobatdau: giobatdau, gioketthuc: gioketthuc });
-                }
-            });
-
-            if (!dsBuoi.length) {
-                alert('Vui lòng nhập ít nhất 1 buổi học.');
-                return;
-            }
-
-            const payload = {
-                lopid: lopHocId,
-                loai: 'dieuchinh',
-                diaChi: $('#diaChiInput').val(),
-                dsBuoi: dsBuoi
-            };
-
-            $.ajax({
-                url: '/LopHoc/XuLyPhanHoi',
-                type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify(payload),
-                success: function (res) {
-                    if (!res.success) {
-                        alert(res.message || 'Điều chỉnh thất bại.');
-                        return;
-                    }
-
-                    alert('Điều chỉnh thành công.');
-                    $('#editBox').slideUp(200);
-                    loadLichHoc();
-                },
-                error: function () {
-                    alert('Lỗi gửi yêu cầu điều chỉnh.');
-                }
-            });
-        });
-
-        function formatThu(thu) {
-            return Number(thu) === 8 ? "Chủ nhật" : `Thứ ${thu}`;
         }
 
-        function formatTime(timeString) {
-            if (!timeString) return '';
-            return String(timeString).substring(0, 5);
+        })
+
         }
-    });
-</script>
+
+
+
+        function renderSchedule(data){
+
+        if(!data.length){
+
+        $('#scheduleList').html('<div class="empty-schedule">Chưa có buổi học</div>');
+        return;
+
+        }
+
+        const html=data.map(x=>`
+
+        <div class="schedule-item">
+
+        ${formatThu(x.thu)} • ${formatTime(x.giobatdau)} - ${formatTime(x.gioketthuc)}
+
+        </div>
+
+        `).join('');
+
+        $('#scheduleList').html(html);
+
+        }
+
+
+
+        function addEditRow(thu=2,start='18:00',end='19:30'){
+
+        const row=`
+
+        <div class="edit-row">
+
+        <select class="form-select edit-thu">
+
+        ${[2,3,4,5,6,7,8].map(x=>`<option value="${x}" ${x==thu?'selected':''}>${x==8?'Chủ nhật':'Thứ '+x}</option>`).join('')}
+
+        </select>
+
+        <input type="time" class="form-control edit-start" value="${start}">
+
+        <input type="time" class="form-control edit-end" value="${end}">
+
+        <button type="button" class="btn btn-outline-danger btn-remove-row">Xóa</button>
+
+        </div>
+
+        `;
+
+        $('#editRows').append(row);
+
+        }
+
+
+
+        $('#btnShowEdit').click(function(){
+
+        $('#editRows').empty();
+
+        if(currentSchedule.length){
+
+        currentSchedule.forEach(x=>addEditRow(x.thu,x.giobatdau,x.gioketthuc));
+
+        }else{
+
+        addEditRow();
+
+        }
+
+        $('#editBox').slideDown();
+
+        });
+
+
+
+        $('#btnAddRow').click(()=>addEditRow());
+
+
+
+        $(document).on('click','.btn-remove-row',function(){
+
+        $(this).closest('.edit-row').remove();
+
+        });
+
+
+
+        $('#btnCancelEdit').click(()=>$('#editBox').slideUp());
+
+
+
+        $('#btnSubmitChange').click(function(){
+
+        const dsBuoi=[];
+
+        $('#editRows .edit-row').each(function(){
+
+        const thu=$(this).find('.edit-thu').val();
+        const start=$(this).find('.edit-start').val();
+        const end=$(this).find('.edit-end').val();
+
+        if(thu&&start&&end){
+
+        dsBuoi.push({
+
+        IDlophoc:lopHocId,
+        thu:parseInt(thu),
+        giobatdau:start+":00",
+        gioketthuc:end+":00"
+
+        })
+
+        }
+
+        });
+
+        if(!dsBuoi.length){
+
+        alert("Vui lòng nhập ít nhất 1 buổi học");
+        return;
+
+        }
+
+        const payload={
+
+        lopid:lopHocId,
+        loai:"dieuchinhph",
+        diaChi:$('#diaChiInput').val(),
+        dsBuoi:dsBuoi
+
+        };
+
+        sendPhanHoi(payload);
+
+        });
+
+
+
+        $('#btnDongY').click(function(){
+
+        if(!confirm("Bạn chắc chắn muốn chấp nhận lớp này?"))return;
+
+        sendPhanHoi({lopid:lopHocId,loai:"dongy"});
+
+        });
+
+
+
+        $('#btnHuy').click(function(){
+
+        if(!confirm("Bạn chắc chắn muốn hủy lớp này?"))return;
+
+        sendPhanHoi({lopid:lopHocId,loai:"huy"});
+
+        });
+
+
+
+        function sendPhanHoi(payload){
+
+        $.ajax({
+
+        url:'/LopHoc/XuLyPhanHoi',
+        type:'POST',
+        contentType:'application/json',
+        data:JSON.stringify(payload),
+
+        success:function(res){
+
+        if(!res.success){
+
+        alert(res.message);
+        return;
+
+        }
+
+        alert(res.message||"Thành công");
+        location.reload();
+
+        }
+
+        })
+
+        }
+
+
+
+        function formatThu(thu){
+
+        return Number(thu)==8?"Chủ nhật":"Thứ "+thu;
+
+        }
+
+
+
+        function formatTime(t){
+
+        if(!t)return'';
+
+        return String(t).substring(0,5);
+
+        }
+
+        });
+
+    </script>
+
 }
