@@ -240,5 +240,9 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
                 return Json(new { success = false, message = ex.Message });
             }
         }
+        public IActionResult thongbaolich()
+        {
+            return View();
+        }
     }
 }
