@@ -45,13 +45,13 @@
     <div class="login-card">
         <h2>Đăng kí</h2>
 
-        <input type="text" id="Username" placeholder="Tên đăng nhập" required />
+        <input type="email" id="Email" placeholder="Email" required />
 
         <input type="password" id="Password" placeholder="Mật khẩu" required />
 
         <input type="password" id="ConfirmPassword" placeholder="Xác nhận mật khẩu" required />
 
-        <<div class="user-type">
+        <div class="user-type">
             <label class="radio-item">
                 <input type="radio" name="stypeuser" value="Tutor" checked />
                 <span>Gia sư</span>
@@ -77,10 +77,15 @@
 <script>
     $("#btnSave").click(function () {
 
-        let username = $("#Username").val().trim();
+        let email = $("#Email").val().trim();
         let password = $("#Password").val();
         let confirmPassword = $("#ConfirmPassword").val();
         let stypeuser = $("input[name='stypeuser']:checked").val();
+
+        if (!email || !email.includes("@")) {
+            $("#errorMessage").text("Vui lòng nhập đúng email (có dấu @).");
+            return;
+        }
 
         // Validate mật khẩu >= 4 ký tự
         if (password.length < 4) {
@@ -101,7 +106,7 @@
         url: '/Home/SaveUser',
         type: 'POST',
         data: {
-            Name: username,
+            Name: email,
             PassWord: password,
             TypeUsser: stypeuser
         },

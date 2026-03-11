@@ -1,0 +1,163 @@
+@{
+    ViewData["Title"] = "Môn học gia sư có thể dạy";
+}
+
+<style>
+    .subject-wrapper {
+        max-width: 760px;
+        margin: 30px auto;
+    }
+
+    .subject-card {
+        border-radius: 15px;
+        border: none;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    }
+
+    .subject-header {
+        background: linear-gradient(135deg,#ff6600,#ff8533);
+        color: #fff;
+        border-radius: 15px 15px 0 0;
+        padding: 15px 20px;
+        font-weight: 600;
+    }
+
+    .subject-item {
+        border: 1px solid #f2f2f2;
+        border-radius: 10px;
+        padding: 10px 12px;
+        background: #fffaf5;
+    }
+
+    .subject-badge {
+        font-size: 0.75rem;
+        background: #fff0e6;
+        color: #cc5200;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-weight: 600;
+    }
+
+    .btn-custom {
+        background: #ff6600;
+        color: #fff;
+        font-weight: 600;
+        border-radius: 8px;
+    }
+
+    .btn-custom:hover {
+        background: #e65c00;
+        color: #fff;
+    }
+</style>
+
+<div class="subject-wrapper">
+    <div class="card subject-card">
+        <div class="subject-header d-flex justify-content-between align-items-center">
+            <span>Môn học gia sư có thể dạy</span>
+            <button type="button" class="btn btn-light btn-sm" id="btnAddSubject">+ Thêm môn học</button>
+        </div>
+
+        <div class="card-body">
+            <div id="subjectList" class="d-flex flex-column gap-2"></div>
+
+            <a class="btn btn-outline-secondary mt-3" href='@Url.Action("AddorEdit", "USER", new { idtk = ViewBag.idtk })'>
+                Quay lại thông tin cá nhân
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="subjectModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="subjectModalTitle">Thêm môn học</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Tên môn</label>
+                    <input id="subjectName" class="form-control" placeholder="Ví dụ: Toán" />
+                </div>
+                <div>
+                    <label class="form-label">Khối/Lớp có thể dạy</label>
+                    <input id="subjectGrade" class="form-control" placeholder="Ví dụ: Lớp 6-9" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-custom" id="btnSaveSubject">Lưu môn học</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    $(document).ready(function () {
+        const subjectModal = new bootstrap.Modal(document.getElementById('subjectModal'));
+        let editSubjectIndex = -1;
+        let subjectData = [
+            { mon: "Toán", khoiLop: "Lớp 6-9" },
+            { mon: "Vật lý", khoiLop: "Lớp 10-12" }
+        ];
+
+        function renderSubjectList() {
+            const html = subjectData.map((item, index) => `
+                <div class="subject-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="fw-semibold">${item.mon}</div>
+                        <span class="subject-badge">${item.khoiLop}</span>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="openEditSubject(${index})">
+                        Sửa
+                    </button>
+                </div>
+            `).join('');
+
+            $("#subjectList").html(html || '<div class="text-muted">Chưa có môn học nào.</div>');
+        }
+
+        window.openEditSubject = function (index) {
+            const item = subjectData[index];
+            if (!item) return;
+
+            editSubjectIndex = index;
+            $("#subjectModalTitle").text("Sửa môn học");
+            $("#subjectName").val(item.mon);
+            $("#subjectGrade").val(item.khoiLop);
+            subjectModal.show();
+        };
+
+        $("#btnAddSubject").on("click", function () {
+            editSubjectIndex = -1;
+            $("#subjectModalTitle").text("Thêm môn học");
+            $("#subjectName").val("");
+            $("#subjectGrade").val("");
+            subjectModal.show();
+        });
+
+        $("#btnSaveSubject").on("click", function () {
+            const mon = $("#subjectName").val().trim();
+            const khoiLop = $("#subjectGrade").val().trim();
+
+            if (!mon || !khoiLop) {
+                alert("Vui lòng nhập đầy đủ môn học và khối/lớp");
+                return;
+            }
+
+            if (editSubjectIndex >= 0) {
+                subjectData[editSubjectIndex] = { mon, khoiLop };
+            } else {
+                subjectData.push({ mon, khoiLop });
+            }
+
+            renderSubjectList();
+            subjectModal.hide();
+        });
+
+        renderSubjectList();
+    });
+</script>
+}
