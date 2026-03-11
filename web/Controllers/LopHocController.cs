@@ -27,6 +27,10 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
             ViewBag.data = ds;
             return View();
         }
+        public IActionResult LichHocDetail(int id)
+        {
+            return View();
+        }
 
         public IActionResult Contract(int lopId)
         {

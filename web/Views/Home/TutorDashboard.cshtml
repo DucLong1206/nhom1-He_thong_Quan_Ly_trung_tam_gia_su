@@ -92,26 +92,29 @@
 
         function renderTrangThai(tt) {
 
-            switch (tt) {
+                   switch (tt) {
 
-                case 1:
-                    return `<span class="badge bg-warning text-dark">Mới tạo</span>`
+            case 1:
+                return `<span class="badge bg-warning text-dark">Mới tạo</span>`;
 
-                case 2:
-                    return `<span class="badge bg-success">Đã chấp nhận</span>`
+            case 2:
+                return `<span class="badge bg-info text-dark">Điều chỉnh</span>`;
 
-                case 3:
-                    return `<span class="badge bg-primary">Đang diễn ra</span>`
+            case 3:
+                return `<span class="badge bg-primary">Đang dạy</span>`;
 
-                case 4:
-                    return `<span class="badge bg-success">Hoàn thành</span>`
+            case 4:
+                return `<span class="badge bg-success">Kết thúc</span>`;
 
-                case 5:
-                    return `<span class="badge bg-danger">Đã hủy</span>`
+            case 5:
+                return `<span class="badge bg-danger">Hủy</span>`;
 
-                default:
-                    return `<span class="badge bg-secondary">Không xác định</span>`
-            }
+            case 6:
+                return `<span class="badge bg-dark">Không tiếp nhận</span>`;
+
+            default:
+                return `<span class="badge bg-secondary">Không xác định</span>`;
+        }
         }
 
         function viewDetail(id) {

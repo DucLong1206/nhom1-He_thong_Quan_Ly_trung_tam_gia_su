@@ -266,44 +266,34 @@
                 window.__scheduleMap[item.id] = item;
 
                 let statusClass = '';
-                let statusText = '';
 
-                        switch (item.trangThai) {
+                              switch (item.trangThai) {
 
-            case 1:
+            case 1: // Mới tạo
                 statusClass = 'status-pending';
                 pending++;
                 break;
 
-            case 2:
-                statusClass = 'status-cancelled';
-                break;
-
-            case 3:
+            case 2: // Điều chỉnh
                 statusClass = 'status-pending';
+                pending++;
                 break;
 
-            case 4:
+            case 3: // Đang dạy
                 statusClass = 'status-approved';
                 approved++;
                 break;
 
-            case 5:
-                statusClass = 'status-approved';
-                approved++;
-                break;
-
-            case 6:
-                statusClass = 'status-approved';
-                approved++;
-                break;
-
-            case 7:
+            case 4: // Kết thúc
                 statusClass = 'status-completed';
                 completed++;
                 break;
 
-            case 8:
+            case 5: // Hủy
+                statusClass = 'status-cancelled';
+                break;
+
+            case 6: // Không tiếp nhận
                 statusClass = 'status-cancelled';
                 break;
 

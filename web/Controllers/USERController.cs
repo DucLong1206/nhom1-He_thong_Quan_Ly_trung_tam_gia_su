@@ -9,12 +9,14 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
         private readonly IDM_TinhLogic _t;
         private readonly IDM_XaLogic _x;
         private readonly IUSERLogic _user;
+        private readonly IMonhocLogic _mh;
 
-        public USERController(IDM_TinhLogic t, IDM_XaLogic x, IUSERLogic user)
+        public USERController(IDM_TinhLogic t, IDM_XaLogic x, IUSERLogic user, IMonhocLogic mh)
         {
             _t = t;
             _x = x;
             _user = user;
+            _mh = mh;
         }
         public IActionResult Index()
         {
@@ -39,6 +41,23 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
         {
             var list = _t.GetList();
             return Json(new { data = list });
+        }
+        public JsonResult getlisstmonhoc()
+        {
+            var list = _mh.getlisstmonhoc();
+            return Json(new { data = list });
+        }
+        public JsonResult getlistmonhocbyidgiasu(int id)
+        {
+            var list = _mh.getlistmonhocbyidgiasu(id);
+            return Json(new { data = list });
+        }
+        [HttpPost]
+        public JsonResult SaveMonHocGiaSu(GiaSu_MonHoc model)
+        {
+            var save = _mh.savegiasumonhoc(model);
+
+            return Json(new { success = save });
         }
         [HttpPost]
         public JsonResult Save(USER model, IFormFile avatarFile)

@@ -3,6 +3,7 @@
 }
 
 <style>
+
     .subject-wrapper {
         max-width: 760px;
         margin: 30px auto;
@@ -36,6 +37,7 @@
         padding: 4px 10px;
         border-radius: 999px;
         font-weight: 600;
+        margin-right: 5px;
     }
 
     .btn-custom {
@@ -45,119 +47,251 @@
         border-radius: 8px;
     }
 
-    .btn-custom:hover {
-        background: #e65c00;
-        color: #fff;
-    }
+        .btn-custom:hover {
+            background: #e65c00;
+            color: #fff;
+        }
+
 </style>
 
 <div class="subject-wrapper">
+
     <div class="card subject-card">
+
         <div class="subject-header d-flex justify-content-between align-items-center">
+
             <span>Môn học gia sư có thể dạy</span>
-            <button type="button" class="btn btn-light btn-sm" id="btnAddSubject">+ Thêm môn học</button>
+
+            <button type="button" class="btn btn-light btn-sm" id="btnAddSubject">
+                + Thêm môn học
+            </button>
+
         </div>
 
         <div class="card-body">
+
             <div id="subjectList" class="d-flex flex-column gap-2"></div>
 
-            <a class="btn btn-outline-secondary mt-3" href='@Url.Action("AddorEdit", "USER", new { idtk = ViewBag.idtk })'>
+            <a class="btn btn-outline-secondary mt-3"
+               href='@Url.Action("AddorEdit","USER",new { idtk = ViewBag.idtk })'>
                 Quay lại thông tin cá nhân
             </a>
+
         </div>
     </div>
 </div>
 
-<div class="modal fade" id="subjectModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="subjectModal" tabindex="-1">
+
     <div class="modal-dialog modal-dialog-centered">
+
         <div class="modal-content">
+
             <div class="modal-header">
-                <h5 class="modal-title" id="subjectModalTitle">Thêm môn học</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title">Thêm môn học</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
+
             <div class="modal-body">
+
                 <div class="mb-3">
-                    <label class="form-label">Tên môn</label>
-                    <input id="subjectName" class="form-control" placeholder="Ví dụ: Toán" />
+                    <label class="form-label">Môn học</label>
+
+                    <select id="subjectSelect" class="form-select">
+                        <option value="">-- Chọn môn học --</option>
+                    </select>
                 </div>
-                <div>
-                    <label class="form-label">Khối/Lớp có thể dạy</label>
-                    <input id="subjectGrade" class="form-control" placeholder="Ví dụ: Lớp 6-9" />
+
+                <div class="mb-3">
+                    <label class="form-label">Lớp có thể dạy</label>
+
+                    <select id="gradeSelect" class="form-select">
+
+                        <option value="1">Lớp 1</option>
+                        <option value="2">Lớp 2</option>
+                        <option value="3">Lớp 3</option>
+                        <option value="4">Lớp 4</option>
+                        <option value="5">Lớp 5</option>
+                        <option value="6">Lớp 6</option>
+                        <option value="7">Lớp 7</option>
+                        <option value="8">Lớp 8</option>
+                        <option value="9">Lớp 9</option>
+                        <option value="10">Lớp 10</option>
+                        <option value="11">Lớp 11</option>
+                        <option value="12">Lớp 12</option>
+
+                    </select>
                 </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Giá theo giờ</label>
+
+                    <input id="priceInput"
+                           type="number"
+                           class="form-control"
+                           placeholder="Ví dụ: 150000" />
+
+                </div>
+
             </div>
+
             <div class="modal-footer">
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Hủy</button>
-                <button type="button" class="btn btn-custom" id="btnSaveSubject">Lưu môn học</button>
+
+                <button class="btn btn-light" data-bs-dismiss="modal">
+                    Hủy
+                </button>
+
+                <button class="btn btn-custom" id="btnSaveSubject">
+                    Lưu môn học
+                </button>
+
             </div>
+
         </div>
     </div>
 </div>
 
 @section Scripts {
-<script>
-    $(document).ready(function () {
-        const subjectModal = new bootstrap.Modal(document.getElementById('subjectModal'));
-        let editSubjectIndex = -1;
-        let subjectData = [
-            { mon: "Toán", khoiLop: "Lớp 6-9" },
-            { mon: "Vật lý", khoiLop: "Lớp 10-12" }
-        ];
 
-        function renderSubjectList() {
-            const html = subjectData.map((item, index) => `
-                <div class="subject-item d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="fw-semibold">${item.mon}</div>
-                        <span class="subject-badge">${item.khoiLop}</span>
-                    </div>
-                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="openEditSubject(${index})">
-                        Sửa
-                    </button>
-                </div>
-            `).join('');
+    <script>
 
-            $("#subjectList").html(html || '<div class="text-muted">Chưa có môn học nào.</div>');
-        }
+        $(document).ready(function(){
+        var idtk=@ViewBag.idtk
+       
+        const subjectModal =
+        new bootstrap.Modal(document.getElementById('subjectModal'));
 
-        window.openEditSubject = function (index) {
-            const item = subjectData[index];
-            if (!item) return;
+        loadSubjects();
+        loadSubjectByGiaSu();
 
-            editSubjectIndex = index;
-            $("#subjectModalTitle").text("Sửa môn học");
-            $("#subjectName").val(item.mon);
-            $("#subjectGrade").val(item.khoiLop);
-            subjectModal.show();
+        $("#btnAddSubject").click(function(){
+
+        $("#subjectSelect").val("");
+        $("#gradeSelect").val("1");
+        $("#priceInput").val("");
+
+        subjectModal.show();
+
+        });
+
+        $("#btnSaveSubject").click(function(){
+
+        const data = {
+
+        IDUser:idtk,
+        IDMon:$("#subjectSelect").val(),
+        Trinhdo:$("#gradeSelect").val(),
+        GiaTheoGio:$("#priceInput").val()
+
         };
 
-        $("#btnAddSubject").on("click", function () {
-            editSubjectIndex = -1;
-            $("#subjectModalTitle").text("Thêm môn học");
-            $("#subjectName").val("");
-            $("#subjectGrade").val("");
-            subjectModal.show();
+        if(!data.IDMon || !data.GiaTheoGio){
+
+        alert("Vui lòng nhập đầy đủ thông tin");
+        return;
+
+        }
+
+        $.ajax({
+
+        url:'/USER/SaveMonHocGiaSu',
+        type:'POST',
+        data:data,
+
+        success:function(res){
+
+        loadSubjectByGiaSu();
+        subjectModal.hide();
+
+        }
+
         });
 
-        $("#btnSaveSubject").on("click", function () {
-            const mon = $("#subjectName").val().trim();
-            const khoiLop = $("#subjectGrade").val().trim();
-
-            if (!mon || !khoiLop) {
-                alert("Vui lòng nhập đầy đủ môn học và khối/lớp");
-                return;
-            }
-
-            if (editSubjectIndex >= 0) {
-                subjectData[editSubjectIndex] = { mon, khoiLop };
-            } else {
-                subjectData.push({ mon, khoiLop });
-            }
-
-            renderSubjectList();
-            subjectModal.hide();
         });
 
-        renderSubjectList();
-    });
-</script>
+        });
+
+        function loadSubjects(){
+
+        $.ajax({
+
+        url:'/USER/getlisstmonhoc',
+        type:'GET',
+
+        success:function(res){
+
+        let html='<option value="">-- Chọn môn học --</option>';
+
+        res.data.forEach(function(item){
+
+        html+=`<option value="${item.id}">
+        ${item.name}
+        </option>`;
+
+        });
+
+        $("#subjectSelect").html(html);
+
+        }
+
+        });
+
+        }
+
+        function loadSubjectByGiaSu(){
+
+        $.ajax({
+
+        url:'/USER/getlistmonhocbyidgiasu?id=@ViewBag.idtk',
+        type:'GET',
+
+        success:function(res){
+
+        let html="";
+
+        res.data.forEach(function(item){
+
+        html+=`
+
+        <div class="subject-item
+        d-flex
+        justify-content-between
+        align-items-center">
+
+        <div>
+
+        <div class="fw-semibold">
+        ${item.tenmon}
+        </div>
+
+        <span class="subject-badge">
+        Lớp ${item.giaSu_MonHoc.trinhdo}
+        </span>
+
+        <span class="subject-badge">
+        ${item.giaSu_MonHoc.giaTheoGio} đ/h
+        </span>
+
+        </div>
+
+        </div>
+
+        `;
+
+        });
+
+        if(html===""){
+        html='<div class="text-muted">Chưa có môn học nào.</div>';
+        }
+
+        $("#subjectList").html(html);
+
+        }
+
+        });
+
+        }
+
+    </script>
+
 }

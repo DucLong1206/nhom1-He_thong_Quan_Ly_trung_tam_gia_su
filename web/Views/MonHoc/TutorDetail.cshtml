@@ -9,6 +9,7 @@
     var IDXa = ViewData["IDXa"] as int? ?? -1;
     var ID = ViewData["ID"] as int? ?? -1;
     var IDMon = ViewData["IDMon"] as int? ?? -1;
+    var avata = ViewData["avata"] as string ?? null;
 }
 
 <style>
@@ -46,7 +47,16 @@
         font-weight: 700;
         color: #fff;
         background: linear-gradient(135deg, #6c63ff, #48cfad);
+        overflow: hidden;
+        flex-shrink: 0;
     }
+
+        .detail-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 16px;
+        }
 
     .meta-grid {
         display: grid;
@@ -79,9 +89,9 @@
         border-bottom: 1px dashed #e5e7eb;
     }
 
-    .comment-item:last-child {
-        border-bottom: none;
-    }
+        .comment-item:last-child {
+            border-bottom: none;
+        }
 
     .booking-form .form-control,
     .booking-form .form-select {
@@ -104,16 +114,27 @@
 <div class="detail-wrap">
     <section class="detail-card">
         <div class="detail-head">
-            <div class="detail-avatar" id="avatarName"></div>
+            <!-- Avatar: ảnh hoặc chữ viết tắt -->
+            <div class="detail-avatar" id="avatarEl">
+                @if (!string.IsNullOrWhiteSpace(avata))
+                {
+                    <img src="@avata" alt="@tutorName"
+                         onerror="this.parentElement.innerHTML='<span id=initials-fallback></span>'; setInitials();" />
+                }
+            </div>
+
             <div>
-                <h3 class="mb-1" id="tutorName">@tutorName</h3>
-                <div class="text-muted" id="monHoc">Môn: @mon</div>
-                <div class="text-muted" id="khuVuc">Khu vực: @xa</div>
-                <div class="fw-bold text-success mt-1" id="hocPhi">@giaTheoGio.ToString("N0") VNĐ / giờ</div>
+                <h3 class="mb-1">@tutorName</h3>
+                <div class="text-muted">Môn: @mon</div>
+                <div class="text-muted">Khu vực: @xa</div>
+                <div class="fw-bold text-success mt-1">@giaTheoGio.ToString("N0") VNĐ / giờ</div>
             </div>
         </div>
 
-        <p class="mb-2"><strong>Giới thiệu:</strong> Gia sư có kinh nghiệm dạy kèm 1-1, hỗ trợ lộ trình học theo năng lực học sinh và cập nhật kết quả mỗi buổi.</p>
+        <p class="mb-2">
+            <strong>Giới thiệu:</strong>
+            Gia sư có kinh nghiệm dạy kèm 1-1, hỗ trợ lộ trình học theo năng lực học sinh và cập nhật kết quả mỗi buổi.
+        </p>
 
         <div class="meta-grid">
             <div class="meta-box">
@@ -142,12 +163,14 @@
                 <label class="form-label">Họ tên học sinh</label>
                 <input class="form-control" id="studentName" placeholder="Nhập họ tên" />
             </div>
+
             <div class="mb-3">
                 <label class="form-label">Địa chỉ học</label>
                 <input class="form-control" id="address" placeholder="Nhập địa chỉ học" />
             </div>
+
             <div class="mb-3">
-                Môn học:@mon
+                Môn học: @mon
             </div>
 
             <!-- DANH SÁCH BUỔI HỌC -->
@@ -185,63 +208,91 @@
 </div>
 
 <script>
+    // -------------------------------------------------------
+    // Lấy chữ viết tắt từ tên
+    // -------------------------------------------------------
+    function getInitials(name) {
+        if (!name) return "GS";
+        const parts = name.trim().split(" ").filter(Boolean);
+        if (parts.length >= 2)
+            return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+        return name.substring(0, 2).toUpperCase();
+    }
+
+    const _tutorName = "@tutorName";
+    const _initials  = getInitials(_tutorName);
+    const _avata     = "@(avata ?? "")";   // chuỗi rỗng nếu null
+
+    // -------------------------------------------------------
+    // Xử lý avatar khi DOM sẵn sàng
+    // -------------------------------------------------------
     document.addEventListener("DOMContentLoaded", function () {
-        const name = "@tutorName";
-        const initials = name
-            .split(" ")
-            .filter(Boolean)
-            .map((word, index, arr) => index === 0 || index === arr.length - 1 ? word[0] : "")
-            .join("")
-            .slice(0, 2)
-            .toUpperCase();
 
-        document.getElementById("avatarName").textContent = initials || "GS";
+        const avatarEl = document.getElementById("avatarEl");
 
-        const staticStatsByTutor = {
+        if (!_avata || _avata.trim() === "") {
+            // Không có ảnh → hiển thị chữ viết tắt
+            avatarEl.textContent = _initials;
+        }
+        // Nếu có ảnh, Razor đã render <img> rồi;
+        // onerror trên <img> sẽ fallback về initials nếu ảnh lỗi
+
+        // -------------------------------------------------------
+        // Thống kê & bình luận tĩnh (demo)
+        // -------------------------------------------------------
+        const staticStats = {
             "Nguyễn Văn A": { soMon: 2, soHocSinh: 14, danhGia: "4.7/5" },
-            "Trần Thị B": { soMon: 4, soHocSinh: 23, danhGia: "4.9/5" }
+            "Trần Thị B":   { soMon: 4, soHocSinh: 23, danhGia: "4.9/5" }
         };
 
-        const commentsByTutor = {
+        const staticComments = {
             "Nguyễn Văn A": [
                 { ten: "Phụ huynh bé Minh", noiDung: "Gia sư dạy kỹ, con dễ hiểu bài hơn sau 2 tuần." },
-                { ten: "Phụ huynh bé An", noiDung: "Đúng giờ, có báo cáo tiến độ sau mỗi buổi." }
+                { ten: "Phụ huynh bé An",   noiDung: "Đúng giờ, có báo cáo tiến độ sau mỗi buổi." }
             ],
             default: [
-                { ten: "Phụ huynh lớp 8", noiDung: "Gia sư nhiệt tình, hỗ trợ cả bài tập về nhà." },
-                { ten: "Học viên THPT", noiDung: "Giải thích dễ hiểu, giúp em tự tin hơn khi kiểm tra." }
+                { ten: "Phụ huynh lớp 8",  noiDung: "Gia sư nhiệt tình, hỗ trợ cả bài tập về nhà." },
+                { ten: "Học viên THPT",     noiDung: "Giải thích dễ hiểu, giúp em tự tin hơn khi kiểm tra." }
             ]
         };
 
-        const stats = staticStatsByTutor[name] || { soMon: 3, soHocSinh: 18, danhGia: "4.8/5" };
-        document.getElementById("soMon").textContent = stats.soMon;
-        document.getElementById("soHocSinh").textContent = stats.soHocSinh;
-        document.getElementById("danhGia").textContent = stats.danhGia;
+        const stats = staticStats[_tutorName] || { soMon: 3, soHocSinh: 18, danhGia: "4.8/5" };
+        document.getElementById("soMon").textContent      = stats.soMon;
+        document.getElementById("soHocSinh").textContent  = stats.soHocSinh;
+        document.getElementById("danhGia").textContent    = stats.danhGia;
 
-        const comments = commentsByTutor[name] || commentsByTutor.default;
-        const commentContainer = document.getElementById("commentList");
-        commentContainer.innerHTML = comments
+        const comments = staticComments[_tutorName] || staticComments.default;
+        document.getElementById("commentList").innerHTML  = comments
             .map(c => `<div class="comment-item"><strong>${c.ten}:</strong> ${c.noiDung}</div>`)
             .join("");
     });
-     function generateTimeOptions() {
+
+    // Fallback khi ảnh lỗi (gọi từ onerror trong Razor)
+    function setInitials() {
+        const el = document.getElementById("avatarEl");
+        if (el) el.textContent = _initials;
+    }
+
+    // -------------------------------------------------------
+    // Tạo options giờ
+    // -------------------------------------------------------
+    function generateTimeOptions() {
         let options = '<option value="">Chọn giờ</option>';
         for (let h = 0; h < 24; h++) {
-            let start = String(h).padStart(2, '0') + ":00";
-            let end = String(h + 1).padStart(2, '0') + ":00";
-            options += `<option value="${start} - ${end}">
-                            ${start} - ${end}
-                        </option>`;
+            const start = String(h).padStart(2, '0') + ":00";
+            const end   = String(h + 1).padStart(2, '0') + ":00";
+            options += `<option value="${start} - ${end}">${start} - ${end}</option>`;
         }
         return options;
     }
 
+    // -------------------------------------------------------
+    // Thêm hàng buổi học
+    // -------------------------------------------------------
     function addScheduleRow() {
         const container = document.getElementById("scheduleContainer");
-
         const row = document.createElement("div");
         row.className = "card p-3 mb-2";
-
         row.innerHTML = `
             <div class="row g-2">
                 <div class="col-5">
@@ -256,61 +307,45 @@
                         <option>Chủ nhật</option>
                     </select>
                 </div>
-
                 <div class="col-5">
                     <select class="form-select gio">
                         ${generateTimeOptions()}
                     </select>
                 </div>
-
                 <div class="col-2 d-flex align-items-center">
                     <button type="button" class="btn btn-sm btn-danger w-100"
-                        onclick="this.closest('.card').remove()">
-                        X
-                    </button>
+                            onclick="this.closest('.card').remove()">X</button>
                 </div>
-            </div>
-        `;
-
+            </div>`;
         container.appendChild(row);
     }
 
-
-        function submitBooking() {
-
-        const address = $("#address").val();
+    // -------------------------------------------------------
+    // Submit đặt lịch
+    // -------------------------------------------------------
+    function submitBooking() {
+        const address   = $("#address").val();
         const startDate = $("#startDate").val();
-        const endDate = $("#endDate").val();
-
-        const rows = $("#scheduleContainer .card");
-
-        let dsBuoi = [];
+        const endDate   = $("#endDate").val();
+        const rows      = $("#scheduleContainer .card");
 
         const thuMap = {
-            "Thứ 2": 2,
-            "Thứ 3": 3,
-            "Thứ 4": 4,
-            "Thứ 5": 5,
-            "Thứ 6": 6,
-            "Thứ 7": 7,
-            "Chủ nhật": 8
+            "Thứ 2": 2, "Thứ 3": 3, "Thứ 4": 4,
+            "Thứ 5": 5, "Thứ 6": 6, "Thứ 7": 7, "Chủ nhật": 8
         };
 
+        let dsBuoi = [];
         rows.each(function () {
-
             const thuText = $(this).find(".thu").val();
             const gioText = $(this).find(".gio").val();
-
             if (!thuText || !gioText) return;
-
             const times = gioText.split(" - ");
-
             dsBuoi.push({
-                ID:0,
-                IDlophoc:0,
+                ID: 0,
+                IDlophoc: 0,
                 thu: thuMap[thuText],
-                 giobatdau: times[0] + ":00",
-    gioketthuc: times[1] + ":00"
+                giobatdau:  times[0] + ":00",
+                gioketthuc: times[1] + ":00"
             });
         });
 
@@ -321,26 +356,26 @@
 
         const data = {
             lop: {
-                ID:0,
-                IDxa:@IDXa,
-                idnguoitao:0,
-                idnguoinhan:@ID,
-                DIaChi: address,
-                NgayBatdau: startDate,
+                ID: 0,
+                IDxa:        @IDXa,
+                idnguoitao:  0,
+                idnguoinhan: @ID,
+                DIaChi:      address,
+                NgayBatdau:  startDate,
                 NgayKetthuc: endDate ? endDate : null,
                 sotienMotBuoi: @giaTheoGio,
-                PhiMoiGioi: 0,
-                trinhdo: @Trinhdo,
-                idmon: @IDMon
+                PhiMoiGioi:  0,
+                trinhdo:     @Trinhdo,
+                idmon:       @IDMon
             },
             dsBuoi: dsBuoi
         };
 
         $.ajax({
-            url: '/MonHoc/Save',
-            type: 'POST',
+            url:         '/MonHoc/Save',
+            type:        'POST',
             contentType: 'application/json',
-            data: JSON.stringify(data),
+            data:        JSON.stringify(data),
             success: function (result) {
                 if (result.success) {
                     alert("Lưu thành công!");
@@ -355,5 +390,4 @@
             }
         });
     }
-
 </script>

@@ -30,7 +30,7 @@ public class MonHocController : Controller
         return Json(new { data = vm });
     }
 
-    public IActionResult TutorDetail(string? tutorName, string? mon, string? xa, decimal? giaTheoGio, int? ID, int? IDXa, int? IDMon, int? Trinhdo)
+    public IActionResult TutorDetail(string? tutorName, string? mon, string? xa, decimal? giaTheoGio, int? ID, int? IDXa, int? IDMon, int? Trinhdo, string? avata)
     {
         ViewData["TutorName"] = tutorName;
         ViewData["Mon"] = mon;
@@ -39,6 +39,7 @@ public class MonHocController : Controller
         ViewData["ID"] = ID;
         ViewData["IDXa"] = IDXa;
         ViewData["IDMon"] = IDMon;
+        ViewData["avata"] = avata;
         ViewData["Trinhdo"] = Trinhdo;
 
         return View();

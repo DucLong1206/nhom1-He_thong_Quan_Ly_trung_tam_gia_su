@@ -1,4 +1,3 @@
-
 @{
     ViewData["Title"] = "Danh sách môn học";
 }
@@ -51,6 +50,7 @@
         font-weight: 700;
         color: #fff;
         flex-shrink: 0;
+        object-fit: cover; /* dùng cho thẻ <img> */
     }
 
     .gs-divider {
@@ -107,6 +107,12 @@
         color: #9ca3af;
         font-style: italic;
     }
+
+    .gs-loading {
+        text-align: center;
+        padding: 40px;
+        color: #6c63ff;
+    }
 </style>
 
 <h1 class="mb-3">Danh sách môn học & gia sư</h1>
@@ -121,7 +127,6 @@
         <label class="form-label">Môn học</label>
         <select class="form-select" name="monHocId">
             <option value="">-- Tất cả --</option>
-         
         </select>
     </div>
 
@@ -129,7 +134,6 @@
         <label class="form-label">Khu vực</label>
         <select class="form-select" name="xaId">
             <option value="">-- Tất cả --</option>
-          
         </select>
     </div>
 
@@ -149,32 +153,77 @@
 </form>
 
 <div class="gs-list">
-    <div class="gs-empty">Đang tải dữ liệu...</div>
+    <div class="gs-loading">Đang tải dữ liệu...</div>
 </div>
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
 
+        // Load dữ liệu lần đầu khi trang mở
         loadData();
 
+        // Submit form tìm kiếm
         document.getElementById("filterForm").addEventListener("submit", function (e) {
             e.preventDefault();
             loadData();
         });
 
         function loadData() {
+            const container = document.querySelector(".gs-list");
 
+            // Hiển thị loading
+            container.innerHTML = `<div class="gs-loading">⏳ Đang tải dữ liệu...</div>`;
+
+            // Lấy params từ form
             const formData = new FormData(document.getElementById("filterForm"));
             const queryString = new URLSearchParams(formData).toString();
 
-            fetch(`/MonHoc/getlist?${queryString}`)
-                .then(res => res.json())
-                .then(res => renderList(res.data))
-                .catch(err => console.error(err));
+            // AJAX call
+            $.ajax({
+                url: `/MonHoc/getlist?${queryString}`,
+                type: "GET",
+                dataType: "json",
+                success: function (res) {
+                    renderList(res.data);
+                },
+                error: function (xhr, status, error) {
+                    container.innerHTML = `<div class="gs-empty">❌ Lỗi tải dữ liệu: ${error}</div>`;
+                    console.error("AJAX error:", status, error);
+                }
+            });
         }
 
-        function renderList(data) {
+        function getInitials(tenGiaSu) {
+            if (!tenGiaSu) return "GS";
+            const parts = tenGiaSu.trim().split(" ");
+            if (parts.length >= 2)
+                return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+            if (tenGiaSu.length >= 2)
+                return tenGiaSu.substring(0, 2).toUpperCase();
+            return "GS";
+        }
 
+        function getAvatarHtml(item) {
+            
+            // Nếu có ảnh -> hiển thị ảnh thật
+            if (item.avata && item.avata.trim() !== "") {
+                console.log(item)
+                return `<img src="${item.avata}"
+                             class="gs-avatar"
+                             alt="${item.name ?? 'avatar'}"
+                             onerror="this.outerHTML=getDefaultAvatar('${getInitials(item.name)}')"
+                             style="object-fit:cover;" />`;
+            }
+            // Nếu không có ảnh -> hiển thị chữ viết tắt mặc định
+            return `<div class="gs-avatar">${getInitials(item.name)}</div>`;
+        }
+
+        // Hàm fallback khi ảnh lỗi
+        window.getDefaultAvatar = function(initials) {
+            return `<div class="gs-avatar">${initials}</div>`;
+        };
+
+        function renderList(data) {
             const container = document.querySelector(".gs-list");
             container.innerHTML = "";
 
@@ -184,36 +233,29 @@
             }
 
             data.forEach(item => {
-                console.log(item)
-                let initials = "GS";
-                if (item.tenGiaSu) {
-                    let parts = item.tenGiaSu.trim().split(" ");
-                    if (parts.length >= 2)
-                        initials = parts[0][0] + parts[parts.length - 1][0];
-                    else if (item.tenGiaSu.length >= 2)
-                        initials = item.tenGiaSu.substring(0, 2);
-                }
+                const params = new URLSearchParams({
+                    tutorName: item.name ?? "",
+                    mon:       item.mon ?? "",
+                    xa:        item.xa ?? "",
+                    giaTheoGio: item.giaTheoGio ?? 0,
+                    ID:        item.id ?? 0,
+                    IDXa:      item.idXa ?? 0,
+                    IDMon:     item.idMon ?? 0,
+                    Trinhdo:   item.trinhdo ?? 0,
+                    avata:     item.avata ??""
+                });
 
-        const params = new URLSearchParams({
-        tutorName: item.name ?? "",
-        mon: item.mon ?? "",
-        xa: item.xa ?? "",
-        giaTheoGio: item.giaTheoGio ?? 0,
-        ID: item.id ?? 0,
-        IDXa: item.idXa ?? 0,
-        IDMon: item.idMon ?? 0,
-        Trinhdo: item.trinhdo ?? 0
-    });
+                const detailUrl  = `/MonHoc/TutorDetail?${params.toString()}`;
+                const avatarHtml = getAvatarHtml(item); // ← lấy avatar (ảnh thật hoặc mặc định)
 
-    const detailUrl = `/MonHoc/TutorDetail?${params.toString()}`;
                 const html = `
                 <a class="gs-card text-decoration-none" href="${detailUrl}">
-                    <div class="gs-avatar">${initials.toUpperCase()}</div>
+                    ${avatarHtml}
                     <div class="gs-divider"></div>
                     <div class="gs-info">
                         <div class="gs-name text-dark">${item.name ?? ""}</div>
                         <div class="gs-tags">
-                            <span class="gs-tag subject">${item.mon ?? ""}-lớp ${item.trinhdo ?? ""}</span>
+                            <span class="gs-tag subject">${item.mon ?? ""} - Lớp ${item.trinhdo ?? ""}</span>
                             <span class="gs-tag area">${item.xa ?? ""}</span>
                         </div>
                         <div class="gs-price">

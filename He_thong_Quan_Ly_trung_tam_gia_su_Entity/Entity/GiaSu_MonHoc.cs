@@ -8,4 +8,10 @@
         public int IDMon { get; set; }
         public int Trinhdo { get; set; }
     }
+    public class GiaSu_MonHoc_List
+    {
+        public GiaSu_MonHoc GiaSu_MonHoc { get; set; }
+        public string tenmon { get; set; }
+
+    }
 }
