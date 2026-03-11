@@ -1,0 +1,299 @@
+﻿
+<style>
+    .profile-wrapper {
+        max-width: 750px;
+        margin: 40px auto;
+    }
+
+    .card-custom {
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        border: none;
+    }
+
+    .card-header-custom {
+        background: linear-gradient(135deg,#ff6600,#ff8533);
+        color: white;
+        font-weight: 600;
+        border-radius: 15px 15px 0 0;
+        padding: 15px 20px;
+        font-size: 18px;
+    }
+
+    .avatar-preview {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid #ff6600;
+    }
+
+    .btn-custom {
+        background: #ff6600;
+        color: white;
+        font-weight: 600;
+        border-radius: 8px;
+    }
+
+        .btn-custom:hover {
+            background: #e65c00;
+            color: white;
+        }
+</style>
+
+<div class="profile-wrapper">
+    <div class="card card-custom">
+        <div class="card-header-custom">
+            thông tin cá nhân
+        </div>
+
+        <div class="card-body">
+
+
+            <input hidden id="avata" class="form-control" required />
+            <input hidden id="id" class="form-control" required />
+           
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Họ và tên</label>
+                        <input id="Name" class="form-control" required />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Số điện thoại</label>
+                        <input id="SDT" class="form-control" required />
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Địa chỉ</label>
+                    <input id="DiaChi" class="form-control" required />
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Tỉnh</label>
+                        <select id="TinhSelect" class="form-select select2">
+                            <option value="">-- Chọn tỉnh --</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Xã</label>
+                        <select  id="XaSelect" class="form-select select2">
+                            <option value="">-- Chọn xã --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Số tài khoản</label>
+                        <input id="STK" class="form-control" />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Ngân hàng</label>
+                        <input id="NganHang" class="form-control" type="number" />
+                    </div>
+                </div>
+
+                <div class="text-center mb-3">
+                    <img id="preview" class="avatar-preview mb-2" src="~/images/default-avatar.png" />
+                    <input type="file" name="avatarFile" id="avatarFile" class="form-control" accept="image/*" />
+                </div>
+
+                <div class="text-end">
+                    <button id="save" class="btn btn-custom px-4">
+                        Lưu thông tin
+                    </button>
+                </div>
+
+         
+
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script>
+
+        $(document).ready(function () {
+
+            let currentXaId = null;
+            let idtk = @ViewBag.idtk || 0;
+
+            $('.select2').select2({ width: '100%' });
+
+            /* ================================
+               LOAD DANH SÁCH TỈNH
+            ==================================*/
+            function loadTinh(selectedTinhId = null) {
+                return $.get('/USER/getlisttinh')
+                    .done(function (res) {
+                        let tinhSelect = $("#TinhSelect");
+                        tinhSelect.empty().append('<option value="">-- Chọn tỉnh --</option>');
+
+                        $.each(res.data, function (i, item) {
+                            tinhSelect.append(`<option value="${item.id}">${item.name}</option>`);
+                        });
+
+                        if (selectedTinhId) {
+                            tinhSelect.val(selectedTinhId).trigger('change');
+                        }
+                    });
+            }
+
+            /* ================================
+               LOAD DANH SÁCH XÃ THEO TỈNH
+            ==================================*/
+            function loadXa(idTinh, selectedXaId = null) {
+                if (!idTinh) return;
+
+                return $.get('/USER/getlistxa', { id: idTinh })
+                    .done(function (res) {
+                        let xaSelect = $("#XaSelect");
+                        xaSelect.empty().append('<option value="">-- Chọn xã --</option>');
+
+                        $.each(res.data, function (i, item) {
+                            xaSelect.append(`<option value="${item.id}">${item.name}</option>`);
+                        });
+
+                        if (selectedXaId) {
+                            xaSelect.val(selectedXaId).trigger('change');
+                        }
+                    });
+            }
+
+            /* ================================
+               KHI CHỌN TỈNH → LOAD XÃ
+            ==================================*/
+            $("#TinhSelect").on("change", function () {
+                let idTinh = $(this).val();
+                loadXa(idTinh);
+            });
+
+            /* ================================
+               PREVIEW ẢNH
+            ==================================*/
+            $("#avatarFile").on("change", function (e) {
+                let reader = new FileReader();
+                reader.onload = function (event) {
+                    $("#preview").attr("src", event.target.result);
+                };
+                reader.readAsDataURL(e.target.files[0]);
+            });
+
+            /* ================================
+               LOAD USER (EDIT MODE)
+            ==================================*/
+            function loadUser() {
+                if (!idtk || idtk <= 0) return;
+
+                $.get('/USER/GETUSER', { IDTK: idtk })
+                    .done(function (res) {
+
+                        if (!res.success) return;
+
+                        let user = res.data;
+
+                        $("#Name").val(user.name);
+                        $("#SDT").val(user.sdt);
+                        $("#DiaChi").val(user.diaChi);
+                        $("#STK").val(user.stk);
+                        $("#NganHang").val(user.nganHang);
+                        $("#avata").val(user.avata);
+                        $("#id").val(user.id);
+
+                        if (user.avata) {
+                            $("#preview").attr("src", user.avata);
+                        }
+
+                        if (user.idXa) {
+
+                            // Lấy tỉnh từ xã
+                            $.get('/USER/GETXABYID', { IDXA: user.idXa })
+                                .done(function (xaRes) {
+
+                                    if (!xaRes.success) return;
+
+                                    let idTinh = xaRes.data.idtInh;
+                                  
+                                    // Load tỉnh → sau đó load xã → set xã
+                                    loadTinh(idTinh).then(function () {
+                                        loadXa(idTinh, user.idXa);
+                                    });
+
+                                });
+                        }
+                    });
+            }
+
+            /* ================================
+               SAVE USER
+            ==================================*/
+            $("#save").click(function () {
+
+                if ($("#Name").val().trim() === "") {
+                    alert("Vui lòng nhập họ tên");
+                    return;
+                }
+
+                if ($("#SDT").val().trim() === "") {
+                    alert("Vui lòng nhập số điện thoại");
+                    return;
+                }
+
+                if ($("#XaSelect").val() === "") {
+                    alert("Vui lòng chọn xã");
+                    return;
+                }
+
+                let formData = new FormData();
+
+                formData.append("ID", $("#id").val());
+                formData.append("IDTK", idtk);
+                formData.append("Name", $("#Name").val());
+                formData.append("DiaChi", $("#DiaChi").val());
+                formData.append("SDT", $("#SDT").val());
+                formData.append("IDXa", $("#XaSelect").val());
+                formData.append("STK", $("#STK").val());
+                formData.append("NganHang", $("#NganHang").val());
+                formData.append("avata", $("#avata").val());
+
+                let file = $("#avatarFile")[0].files[0];
+                if (file) {
+                    formData.append("avatarFile", file);
+                }
+
+                $.ajax({
+                    url: '/USER/Save',
+                    type: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (res) {
+                        if (res.success) {
+                            alert(res.message);
+                            location.reload();
+                        } else {
+                            alert(res.message);
+                        }
+                    },
+                    error: function () {
+                        alert("Có lỗi xảy ra");
+                    }
+                });
+            });
+
+            /* ================================
+               INIT
+            ==================================*/
+            loadTinh().then(function () {
+                loadUser();
+            });
+
+        });
+
+    </script>
+}

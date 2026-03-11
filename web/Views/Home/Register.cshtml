@@ -1,0 +1,143 @@
+﻿@{
+    Layout = null;
+}
+<style>
+    /* Radio nằm cùng 1 hàng */
+    .user-type {
+        display: flex;
+        gap: 25px;
+    
+    }
+
+    /* Style từng radio */
+    .radio-item {
+        display: flex;
+      
+        gap: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        color: #ffff; /* chữ đậm hơn */
+    }
+
+        /* Đổi màu khi chọn */
+        .radio-item input[type="radio"] {
+            accent-color: #ff6600;
+        }
+
+    /* Nếu nền đang đen */
+    .login-card {
+        background: #ffffff; /* nền trắng */
+        color: #333; /* chữ tối */
+    }
+
+    /* Nếu body nền đen */
+    body {
+        background: linear-gradient(135deg, #1e1e1e, #2c2c2c);
+    }
+</style>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register</title>
+    <link rel="stylesheet" href="~/css/login.css" />
+</head>
+<body>
+    <div class="login-card">
+        <h2>Đăng kí</h2>
+
+        <input type="text" id="Username" placeholder="Tên đăng nhập" required />
+
+        <input type="password" id="Password" placeholder="Mật khẩu" required />
+
+        <input type="password" id="ConfirmPassword" placeholder="Xác nhận mật khẩu" required />
+
+        <<div class="user-type">
+            <label class="radio-item">
+                <input type="radio" name="stypeuser" value="Tutor" checked />
+                <span>Gia sư</span>
+            </label>
+
+            <label class="radio-item">
+                <input type="radio" name="stypeuser" value="StudentParent" />
+                <span>Học sinh / Phụ huynh</span>
+            </label>
+        </div>
+
+        <button type="button" id="btnSave">Lưu</button>
+
+        <a asp-action="Login">Quay lại đăng nhập</a>
+
+        <p class="error" id="errorMessage" style="color:red;"></p>
+    </div>
+</body>
+</html>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/sweetalert2/sweetalert2.all.min.js"></script>
+<script>
+    $("#btnSave").click(function () {
+
+        let username = $("#Username").val().trim();
+        let password = $("#Password").val();
+        let confirmPassword = $("#ConfirmPassword").val();
+        let stypeuser = $("input[name='stypeuser']:checked").val();
+
+        // Validate mật khẩu >= 4 ký tự
+        if (password.length < 4) {
+            $("#errorMessage").text("Mật khẩu phải có ít nhất 4 ký tự.");
+            return;
+        }
+
+        // Validate mật khẩu trùng nhau
+        if (password !== confirmPassword) {
+            $("#errorMessage").text("Mật khẩu xác nhận không khớp.");
+            return;
+        }
+
+        // Clear lỗi
+        $("#errorMessage").text("");
+
+           $.ajax({
+        url: '/Home/SaveUser',
+        type: 'POST',
+        data: {
+            Name: username,
+            PassWord: password,
+            TypeUsser: stypeuser
+        },
+        success: function (res) {
+
+            if (res.success) {
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Đăng ký thành công!',
+                    text: 'Chuyển về trang đăng nhập...',
+                    confirmButtonColor: '#ff6600',
+                    timer: 2000,
+                    showConfirmButton: false
+                }).then(() => {
+                    window.location.href = '/Home/Login';
+                });
+
+            } else {
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: res.message,
+                    confirmButtonColor: '#ff6600'
+                });
+
+            }
+        },
+        error: function () {
+            Swal.fire({
+                icon: 'error',
+                title: 'Có lỗi xảy ra',
+                text: 'Vui lòng thử lại sau.'
+            });
+        }
+    });
+    });
+</script>

@@ -1,0 +1,346 @@
+﻿@{
+    ViewData["Title"] = "Chi tiết lịch học";
+    var data = ViewBag.data;
+    var lop = data?.lop;
+    var dsBuoi = data?.dsBuoi;
+    var nguoigui = data?.nguoiGui;
+    var tenmon = data?.tenmon;
+}
+
+<div class="container py-4">
+
+    <div class="card shadow-lg border-0">
+        <div class="card-body p-4">
+
+            <h4 class="mb-3">📚 Chi tiết lớp học</h4>
+
+            <hr />
+
+            <div class="row">
+
+                <div class="col-md-6">
+
+                    <p>
+                        <b>Môn học:</b>
+                        <span class="text-primary">Môn @tenmon - lớp @lop?.trinhdo</span>
+                    </p>
+
+                    <p>
+                        <b>Học viên:</b> @nguoigui?.Name
+                    </p>
+
+                </div>
+
+                <div class="col-md-6">
+
+                    <p>
+                        <b>Địa điểm:</b>
+                        @lop?.DIaChi
+                    </p>
+
+                    <p>
+                        <b>Trạng thái:</b>
+
+                        @switch (lop?.TrangThai)
+                        {
+                            case 1:
+                                <span class="badge bg-warning text-dark">Mới tạo</span>
+                                break;
+                            case 2:
+                                <span class="badge bg-success">Đã chấp nhận</span>
+                                break;
+                            case 3:
+                                <span class="badge bg-primary">Đang diễn ra</span>
+                                break;
+                            case 4:
+                                <span class="badge bg-success">Hoàn thành</span>
+                                break;
+                            case 5:
+                                <span class="badge bg-danger">Đã hủy</span>
+                                break;
+                            default:
+                                <span class="badge bg-secondary">Không xác định</span>
+                                break;
+                        }
+
+                    </p>
+
+                </div>
+
+            </div>
+
+            <hr />
+
+            <h5 class="mb-3">📅 Lịch học</h5>
+
+            <div class="list-group">
+
+                @if (dsBuoi != null)
+                {
+                    foreach (var b in dsBuoi)
+                    {
+                        string thu = b.thu switch
+                        {
+                            2 => "Thứ 2",
+                            3 => "Thứ 3",
+                            4 => "Thứ 4",
+                            5 => "Thứ 5",
+                            6 => "Thứ 6",
+                            7 => "Thứ 7",
+                            8 => "Chủ nhật",
+                            _ => ""
+                        };
+
+                        <div class="list-group-item buoi-hoc">
+
+                            <div class="d-flex justify-content-between">
+
+                                <b>@thu</b>
+
+                                <span class="badge bg-light text-dark">
+                                    @b.giobatdau.ToString().Substring(0,5) -
+                                    @b.gioketthuc.ToString().Substring(0,5)
+                                </span>
+
+                            </div>
+
+                            <div class="row mt-2 form-chinh-sua d-none">
+
+                                <div class="col-md-4">
+
+                                    <label>Thứ</label>
+
+                                    <select class="form-select thu">
+
+                                        <option value="2" selected="@(b.thu==2)">Thứ 2</option>
+                                        <option value="3" selected="@(b.thu==3)">Thứ 3</option>
+                                        <option value="4" selected="@(b.thu==4)">Thứ 4</option>
+                                        <option value="5" selected="@(b.thu==5)">Thứ 5</option>
+                                        <option value="6" selected="@(b.thu==6)">Thứ 6</option>
+                                        <option value="7" selected="@(b.thu==7)">Thứ 7</option>
+                                        <option value="8" selected="@(b.thu==8)">Chủ nhật</option>
+
+                                    </select>
+
+                                </div>
+
+                                <div class="col-md-4">
+
+                                    <label>Giờ bắt đầu</label>
+
+                                    <input type="time"
+                                           class="form-control gio-bat-dau"
+                                           value="@b.giobatdau.ToString().Substring(0,5)" />
+
+                                </div>
+
+                                <div class="col-md-4">
+
+                                    <label>Giờ kết thúc</label>
+
+                                    <input type="time"
+                                           class="form-control gio-ket-thuc"
+                                           value="@b.gioketthuc.ToString().Substring(0,5)" />
+
+                                </div>
+
+                            </div>
+
+                        </div>
+                    }
+                }
+
+            </div>
+
+            <hr />
+
+            <div class="d-flex gap-2 mt-3 flex-wrap">
+                <a href="/LopHoc/Contract?lopId=@lop.ID">
+                    <button id="btnDongY" class="btn btn-success">
+                        ✔ Đồng ý
+                    </button>
+                </a>
+                
+
+                <button id="btnTuChoi" class="btn btn-danger">
+                    ✖ Từ chối
+                </button>
+
+                <button id="btnChinhLich" class="btn btn-warning">
+                    ✏ Điều chỉnh lịch
+                </button>
+
+                <button id="btnGuiChinhLich" class="btn btn-primary d-none">
+                    📤 Gửi điều chỉnh
+                </button>
+
+            </div>
+
+            <div id="khoiTuChoi" class="mt-3 d-none">
+
+                <label><b>Lý do từ chối</b></label>
+
+<textarea id="lyDoTuChoi"
+          class="form-control"
+          rows="3"></textarea>
+
+                <button id="btnGuiTuChoi"
+                        class="btn btn-danger mt-2">
+                    Gửi từ chối
+                </button>
+
+            </div>
+
+            <div id="thongBao"
+                 class="alert mt-3 d-none"></div>
+
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+
+    <script>
+
+        const lopId = @(lop?.ID ?? 0);
+
+        $(document).ready(function () {
+
+        $("#btnChinhLich").click(function () {
+
+        $(".form-chinh-sua").removeClass("d-none");
+
+        $("#btnGuiChinhLich").removeClass("d-none");
+
+        });
+
+        $("#btnTuChoi").click(function () {
+
+        $("#khoiTuChoi").removeClass("d-none");
+
+        });
+
+        $("#btnGuiTuChoi").click(function () {
+
+        const lyDo = $("#lyDoTuChoi").val().trim();
+
+        if (!lyDo) {
+
+        hienThongBao("Vui lòng nhập lý do từ chối", false);
+        return;
+
+        }
+
+        const payload = {
+
+        lopid: lopId,
+        loai: "tuchoi",
+        lydo: lyDo,
+        dsBuoi: []
+
+        };
+
+        guiPhanHoi(payload);
+
+        });
+
+        $("#btnGuiChinhLich").click(function () {
+
+        const dsBuoi = [];
+
+        let loi = false;
+
+        $(".buoi-hoc").each(function () {
+
+        const thu = parseInt($(this).find(".thu").val());
+        const gioBatDau = $(this).find(".gio-bat-dau").val();
+        const gioKetThuc = $(this).find(".gio-ket-thuc").val();
+
+        if (!gioBatDau || !gioKetThuc || gioBatDau >= gioKetThuc)
+        {
+        loi = true;
+        }
+
+        dsBuoi.push({
+
+        thu: thu,
+        giobatdau: gioBatDau + ":00",
+        gioketthuc: gioKetThuc + ":00"
+
+        });
+
+        });
+
+        if (loi)
+        {
+        hienThongBao("Thời gian không hợp lệ", false);
+        return;
+        }
+
+        const payload = {
+
+        lopid: lopId,
+        loai: "dieuchinh",
+        dsBuoi: dsBuoi
+
+        };
+
+        guiPhanHoi(payload);
+
+        });
+
+        });
+
+        function guiPhanHoi(payload)
+        {
+
+        $.ajax({
+
+        url: "/LopHoc/XuLyPhanHoi",
+
+        method: "POST",
+
+        contentType: "application/json",
+
+        data: JSON.stringify(payload),
+
+        success: function (res) {
+
+        if (res.success)
+        {
+        hienThongBao("Gửi phản hồi thành công", true);
+        }
+        else
+        {
+        hienThongBao(res.message, false);
+        }
+
+        },
+
+        error: function () {
+
+        hienThongBao("Lỗi server", false);
+
+        }
+
+        });
+
+        }
+
+        function hienThongBao(msg, ok)
+        {
+
+        const box = $("#thongBao");
+
+        box.removeClass("d-none alert-success alert-danger");
+
+        box.addClass(ok ? "alert-success" : "alert-danger");
+
+        box.text(msg);
+
+        }
+
+    </script>
+
+}

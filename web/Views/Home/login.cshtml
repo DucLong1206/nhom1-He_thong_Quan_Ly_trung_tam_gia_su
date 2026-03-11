@@ -1,0 +1,71 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Sign In</title>
+    <link rel="stylesheet" href="~/css/login.css" />
+</head>
+<body>
+    <div class="background" id="bgGrid"></div>
+
+    <div class="login-card">
+        <h2>SIGN IN</h2>
+
+        <form method="post" asp-action="Login">
+            @* <p class="text-muted" style="font-size:0.9rem;">Đăng nhập bằng tài khoản Admin để vào danh sách môn học.</p> *@
+            <input type="text" name="username" placeholder="Username" required />
+            <input type="password" name="password" placeholder="Password" required />
+
+            <div class="extras">
+                <a asp-action="ForgotPassword">Quên mật khẩu?</a>
+                <a asp-action="Register" class="signup">Đăng kí</a>
+            </div>
+
+            <button type="submit">Login</button>
+
+            @if (ViewBag.Error != null)
+            {
+                <p class="error">@ViewBag.Error</p>
+            }
+        </form>
+    </div>
+
+    <script>
+        const bg = document.getElementById("bgGrid");
+        const rows = 10;
+        const cols = 20;
+        const total = rows * cols;
+
+        for (let i = 0; i < total; i++) {
+            const cell = document.createElement("div");
+            cell.classList.add("cell");
+            bg.appendChild(cell);
+        }
+
+        const cells = document.querySelectorAll(".cell");
+        let rafID;
+
+        document.addEventListener("mousemove", e => {
+            cancelAnimationFrame(rafID);
+            rafID = requestAnimationFrame(() => {
+                const rect = bg.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+
+                cells.forEach(cell => {
+                    const cRect = cell.getBoundingClientRect();
+                    const cx = cRect.left + cRect.width / 2;
+                    const cy = cRect.top + cRect.height / 2;
+                    const dist = Math.hypot(cx - e.clientX, cy - e.clientY);
+                    const intensity = Math.max(0, 1 - dist / 200);
+                    cell.style.backgroundColor = `rgba(255,102,0,${intensity * 0.6})`;
+                });
+            });
+        });
+    </script>
+</body>
+</html>
