@@ -58,5 +58,6 @@
         public int lopid { get; set; }
         public List<LopHoc_Buoihocdangki> dsBuoi { get; set; }
         public string loai { get; set; }
+        public string? diaChi { get; set; }
     }
 }

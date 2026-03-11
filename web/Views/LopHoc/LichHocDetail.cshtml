@@ -10,6 +10,11 @@
     .schedule-list { margin-top: 10px; }
     .schedule-item { padding: 10px; border-bottom: 1px dashed #ddd; font-size: .95rem; }
     .empty-schedule { color: #6b7280; font-style: italic; }
+    .edit-row { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 10px; margin-bottom: 8px; }
+
+    @@media (max-width: 768px) {
+        .edit-row { grid-template-columns: 1fr; }
+    }
 </style>
 
 <div class="detail-wrap">
@@ -30,10 +35,27 @@
         </div>
     </div>
 
+    <div class="detail-card" id="editBox" style="display:none;">
+        <div class="detail-title">Điều chỉnh lịch học</div>
+
+        <div class="mb-3">
+            <label class="form-label fw-semibold">Địa chỉ / Xã</label>
+            <input id="diaChiInput" type="text" class="form-control" placeholder="Nhập địa chỉ hoặc xã cần điều chỉnh" />
+        </div>
+
+        <div id="editRows"></div>
+
+        <div class="d-flex gap-2 flex-wrap mt-2">
+            <button type="button" id="btnAddRow" class="btn btn-outline-primary">+ Thêm buổi</button>
+            <button type="button" id="btnSubmitChange" class="btn btn-primary">Thay đổi</button>
+            <button type="button" id="btnCancelEdit" class="btn btn-light border">Hủy chỉnh sửa</button>
+        </div>
+    </div>
+
     <div class="detail-card">
         <div class="d-flex gap-2 flex-wrap">
             <button type="button" class="btn btn-success">Chấp nhận</button>
-            <button type="button" class="btn btn-warning text-white">Điều chỉnh</button>
+            <button type="button" id="btnShowEdit" class="btn btn-warning text-white">Điều chỉnh</button>
             <button type="button" class="btn btn-danger">Hủy</button>
             <a href="/LopHoc/Index" class="btn btn-secondary">Quay lại</a>
         </div>
@@ -44,23 +66,43 @@
 <script>
     $(document).ready(function () {
         const lopHocId = @lopHocId;
+        let currentSchedule = [];
 
-        $.ajax({
-            url: '/LopHoc/LopHoc_Buoihocdangki_GetList_ByIDLopHoc',
-            type: 'GET',
-            data: { id: lopHocId },
-            success: function (res) {
-                if (!res.success) {
-                    $('#scheduleList').html(`<div class="empty-schedule">${res.message || 'Không tải được lịch học.'}</div>`);
-                    return;
+        loadLichHoc();
+        loadLopHocInfo();
+
+        function loadLichHoc() {
+            $.ajax({
+                url: '/LopHoc/LopHoc_Buoihocdangki_GetList_ByIDLopHoc',
+                type: 'GET',
+                data: { id: lopHocId },
+                success: function (res) {
+                    if (!res.success) {
+                        $('#scheduleList').html(`<div class="empty-schedule">${res.message || 'Không tải được lịch học.'}</div>`);
+                        return;
+                    }
+
+                    currentSchedule = res.data || [];
+                    renderSchedule(currentSchedule);
+                },
+                error: function () {
+                    $('#scheduleList').html('<div class="empty-schedule">Lỗi gọi dữ liệu lịch học.</div>');
                 }
+            });
+        }
 
-                renderSchedule(res.data || []);
-            },
-            error: function () {
-                $('#scheduleList').html('<div class="empty-schedule">Lỗi gọi dữ liệu lịch học.</div>');
-            }
-        });
+        function loadLopHocInfo() {
+            $.ajax({
+                url: '/LopHoc/GetLopHocDetailById',
+                type: 'GET',
+                data: { id: lopHocId },
+                success: function (res) {
+                    if (res.success && res.data && res.data.lop) {
+                        $('#diaChiInput').val(res.data.lop.dIaChi || '');
+                    }
+                }
+            });
+        }
 
         function renderSchedule(data) {
             if (!data.length) {
@@ -69,17 +111,103 @@
             }
 
             const html = data.map(item => `
-                <div class="schedule-item">
-                    Thứ ${item.thu} • ${formatTime(item.giobatdau)} - ${formatTime(item.gioketthuc)}
-                </div>
+                <div class="schedule-item">${formatThu(item.thu)} • ${formatTime(item.giobatdau)} - ${formatTime(item.gioketthuc)}</div>
             `).join('');
-
             $('#scheduleList').html(html);
+        }
+
+        function addEditRow(thu = 2, start = '18:00', end = '19:30') {
+            const row = `
+                <div class="edit-row">
+                    <select class="form-select edit-thu">
+                        ${[2,3,4,5,6,7,8].map(x => `<option value="${x}" ${String(x) === String(thu) ? 'selected' : ''}>${x === 8 ? "Chủ nhật" : "Thứ " + x}</option>`).join('')}
+                    </select>
+                    <input type="time" class="form-control edit-start" value="${formatTime(start)}" />
+                    <input type="time" class="form-control edit-end" value="${formatTime(end)}" />
+                    <button type="button" class="btn btn-outline-danger btn-remove-row">Xóa</button>
+                </div>`;
+            $('#editRows').append(row);
+        }
+
+        function fillEditRowsFromCurrent() {
+            $('#editRows').empty();
+            if (!currentSchedule.length) {
+                addEditRow();
+                return;
+            }
+
+            currentSchedule.forEach(item => addEditRow(item.thu, item.giobatdau, item.gioketthuc));
+        }
+
+        $('#btnShowEdit').on('click', function () {
+            fillEditRowsFromCurrent();
+            $('#editBox').slideDown(200);
+        });
+
+        $('#btnAddRow').on('click', function () {
+            addEditRow();
+        });
+
+        $(document).on('click', '.btn-remove-row', function () {
+            $(this).closest('.edit-row').remove();
+        });
+
+        $('#btnCancelEdit').on('click', function () {
+            $('#editBox').slideUp(200);
+        });
+
+        $('#btnSubmitChange').on('click', function () {
+            const dsBuoi = [];
+            $('#editRows .edit-row').each(function () {
+                const thu = $(this).find('.edit-thu').val();
+                const giobatdau = $(this).find('.edit-start').val();
+                const gioketthuc = $(this).find('.edit-end').val();
+
+                if (thu && giobatdau && gioketthuc) {
+                    dsBuoi.push({ thu: thu, giobatdau: giobatdau, gioketthuc: gioketthuc });
+                }
+            });
+
+            if (!dsBuoi.length) {
+                alert('Vui lòng nhập ít nhất 1 buổi học.');
+                return;
+            }
+
+            const payload = {
+                lopid: lopHocId,
+                loai: 'dieuchinh',
+                diaChi: $('#diaChiInput').val(),
+                dsBuoi: dsBuoi
+            };
+
+            $.ajax({
+                url: '/LopHoc/XuLyPhanHoi',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(payload),
+                success: function (res) {
+                    if (!res.success) {
+                        alert(res.message || 'Điều chỉnh thất bại.');
+                        return;
+                    }
+
+                    alert('Điều chỉnh thành công.');
+                    $('#editBox').slideUp(200);
+                    loadLichHoc();
+                },
+                error: function () {
+                    alert('Lỗi gửi yêu cầu điều chỉnh.');
+                }
+            });
+        });
+
+        function formatThu(thu) {
+            return Number(thu) === 8 ? "Chủ nhật" : `Thứ ${thu}`;
         }
 
         function formatTime(timeString) {
             if (!timeString) return '';
-            return timeString.substring(0, 5);
+            return String(timeString).substring(0, 5);
         }
     });
 </script>

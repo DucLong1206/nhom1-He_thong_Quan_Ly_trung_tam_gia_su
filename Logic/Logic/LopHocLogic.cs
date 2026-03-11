@@ -143,6 +143,11 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su_Logic.Logic
                     // cập nhật trạng thái
                     lh.TrangThai = 2;
 
+                    if (!string.IsNullOrWhiteSpace(lop.diaChi))
+                    {
+                        lh.DIaChi = lop.diaChi.Trim();
+                    }
+
                     // lấy lịch cũ
                     var lichCu = _context.LopHoc_Buoihocdangki
                         .Where(x => x.IDlophoc == lop.lopid)

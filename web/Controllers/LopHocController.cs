@@ -65,6 +65,20 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
             });
         }
         [HttpGet]
+        public JsonResult GetLopHocDetailById(int id)
+        {
+            try
+            {
+                var data = _lh.GETDANHSACHLICHHOC_byidlophoc(id);
+                return Json(new { success = true, data = data });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpGet]
         public JsonResult Getlistlophocdangkiping(int id)
         {
             try
