@@ -86,4 +86,15 @@
         public TimeSpan GioBatDau { get; set; }
         public TimeSpan GioKetThuc { get; set; }
     }
+    public class LichHomNayModel
+    {
+        public int ID { get; set; }
+        public DateTime NgayHoc { get; set; }
+        public int Thu { get; set; }
+        public string GioBatDau { get; set; }
+        public string GioKetThuc { get; set; }
+        public string TrinhDo { get; set; }
+        public string Mon { get; set; }
+        public string TenNguoiTao { get; set; }
+    }
 }

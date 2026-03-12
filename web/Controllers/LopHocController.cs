@@ -244,5 +244,18 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
         {
             return View();
         }
+        public JsonResult getlichhomnay()
+        {
+            var iduser = HttpContext.Session.GetInt32("UserId");
+
+            if (iduser == null)
+            {
+                return Json(new List<LichHomNayModel>());
+            }
+
+            var data = _lh.LichHomNay(iduser.Value);
+
+            return Json(data);
+        }
     }
 }

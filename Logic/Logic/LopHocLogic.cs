@@ -364,5 +364,21 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su_Logic.Logic
                 return false;
             }
         }
+        public List<LichHomNayModel> LichHomNay(int id)
+        {
+            try
+            {
+                var data = _context.Set<LichHomNayModel>()
+                    .FromSqlRaw("EXEC getlichhomnay @UserID",
+                        new SqlParameter("@UserID", id))
+                    .ToList();
+
+                return data;
+            }
+            catch (Exception)
+            {
+                return new List<LichHomNayModel>();
+            }
+        }
     }
 }
