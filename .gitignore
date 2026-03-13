@@ -1,31 +1,77 @@
-﻿## Visual Studio Temp Files
+﻿############################
+# Visual Studio
+############################
 .vs/
-[Bb]in/
-[Oo]bj/
 *.user
 *.userosscache
-*.sln.docstates
 *.suo
+*.sln.docstates
 *.userprefs
 
-## NuGet Packages
+############################
+# Build folders
+############################
+[Bb]in/
+[Oo]bj/
+
+############################
+# Specific project folders
+############################
+Logic/bin/
+Logic/obj/
+
+He_thong_Quan_Ly_trung_tam_gia_su_Entity/bin/
+He_thong_Quan_Ly_trung_tam_gia_su_Entity/obj/
+
+############################
+# NuGet
+############################
 *.nupkg
-# Thư mục chứa các gói thư viện tải về, không nên đẩy lên Git vì sẽ làm repo rất nặng
-**/packages/*
-!**/packages/build/
+packages/
+!packages/build/
 
-## Publish output
-# Các file khi bạn Build để chạy thực tế
+############################
+# Publish
+############################
 publish/
-**/App_Data/Jobs/
+*.publishsettings
 
-## Entity Framework / SQL Server
+############################
+# Database
+############################
 *.mdf
 *.ldf
 *.sdf
-# Nếu bạn dùng Migration, đôi khi các file log tạm cũng nên được loại bỏ
+
+############################
+# Logs
+############################
 *.log
 
-## OS Files
+############################
+# Test results
+############################
+TestResults/
+
+############################
+# Node (nếu có frontend)
+############################
+node_modules/
+
+############################
+# OS files
+############################
 .DS_Store
 Thumbs.db
+
+############################
+# Rider / VSCode
+############################
+.idea/
+.vscode/
+
+############################
+# Temp files
+############################
+*.tmp
+*.temp
