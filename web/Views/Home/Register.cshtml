@@ -75,37 +75,44 @@
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/lib/sweetalert2/sweetalert2.all.min.js"></script>
 <script>
-    $("#btnSave").click(function () {
+   $("#btnSave").click(function () {
 
-        let username = $("#Username").val().trim();
-        let Email = $("#Email").val().trim();
-        let password = $("#Password").val();
-        let confirmPassword = $("#ConfirmPassword").val();
-        let stypeuser = $("input[name='stypeuser']:checked").val();
+    let username = $("#Username").val().trim();
+    let Email = $("#Email").val().trim();
+    let password = $("#Password").val();
+    let confirmPassword = $("#ConfirmPassword").val();
+    let stypeuser = $("input[name='stypeuser']:checked").val();
 
-        // Validate mật khẩu >= 4 ký tự
-        if (password.length < 4) {
-            $("#errorMessage").text("Mật khẩu phải có ít nhất 4 ký tự.");
-            return;
-        }
+    let emailRegex = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/;
 
-        // Validate mật khẩu trùng nhau
-        if (password !== confirmPassword) {
-            $("#errorMessage").text("Mật khẩu xác nhận không khớp.");
-            return;
-        }
+    // Validate email
+    if (!emailRegex.test(Email)) {
+        $("#errorMessage").text("Email không đúng định dạng.");
+        return;
+    }
 
-        // Clear lỗi
-        $("#errorMessage").text("");
+    // Validate mật khẩu >= 4 ký tự
+    if (password.length < 4) {
+        $("#errorMessage").text("Mật khẩu phải có ít nhất 4 ký tự.");
+        return;
+    }
 
-           $.ajax({
+    // Validate mật khẩu trùng nhau
+    if (password !== confirmPassword) {
+        $("#errorMessage").text("Mật khẩu xác nhận không khớp.");
+        return;
+    }
+
+    $("#errorMessage").text("");
+
+    $.ajax({
         url: '/Home/SaveUser',
         type: 'POST',
         data: {
             Name: username,
             PassWord: password,
             TypeUsser: stypeuser,
-            Email:Email
+            Email: Email
         },
         success: function (res) {
 
