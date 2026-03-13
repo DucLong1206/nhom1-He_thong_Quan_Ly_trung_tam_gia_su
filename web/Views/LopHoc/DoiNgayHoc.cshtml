@@ -2,7 +2,10 @@
     ViewData["Title"] = "Điều chỉnh buổi học";
     var lopHocId = ViewBag.LopHocId ?? 0;
 }
-
+@{
+    
+    var TypeUsser = Context.Session.GetInt32("TypeUsser");
+}
 <link href="~/lib/select2/select2.min.css" rel="stylesheet" />
 <style>
     /* Select2 khớp Bootstrap */
@@ -60,10 +63,19 @@
                 <button id="btnSave" class="btn btn-warning text-white">
                     Lưu thay đổi
                 </button>
-
-                <a href="/LopHoc/LichHocDetail?id=@lopHocId" class="btn btn-secondary">
-                    Quay lại
-                </a>
+                @if (TypeUsser == 2)
+                {
+                    <a href="/LopHoc/LichHocDetail?id=@lopHocId" class="btn btn-secondary">
+                        Quay lại
+                    </a>
+                }
+                @if (TypeUsser == 1)
+                {
+                    <a href="/LopHoc/Detail?id=@lopHocId" class="btn btn-secondary">
+                        Quay lại
+                    </a>
+                }
+               
             </div>
 
             <div id="alertBox" class="alert mt-3 d-none"></div>
