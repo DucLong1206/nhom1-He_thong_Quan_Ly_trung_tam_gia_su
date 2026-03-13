@@ -109,6 +109,8 @@
     }
 </style>
 
+<link rel="stylesheet" href="~/lib/flatpickr/flatpickr.min.css" />
+
 <h1 class="mb-4">Chi tiết gia sư</h1>
 
 <div class="detail-wrap">
@@ -207,8 +209,8 @@
     </aside>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.js"></script>
+<script src="~/lib/flatpickr/flatpickr.js"></script>
+<script src="~/lib/flatpickr/vn.js"></script>
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
@@ -226,6 +228,14 @@
             });
         }
     });
+
+    function notify(icon, title, text) {
+        if (window.Swal) {
+            Swal.fire({ icon, title, text, confirmButtonColor: "#2563eb" });
+            return;
+        }
+        alert(text || title);
+    }
 
     // -------------------------------------------------------
     // Lấy chữ viết tắt từ tên
@@ -369,7 +379,7 @@
         });
 
         if (dsBuoi.length === 0) {
-            alert("Phải thêm ít nhất một buổi học");
+            notify("warning", "Thiếu dữ liệu", "Phải thêm ít nhất một buổi học");
             return;
         }
 
@@ -397,15 +407,15 @@
             data:        JSON.stringify(data),
             success: function (result) {
                 if (result.success) {
-                    alert("Lưu thành công!");
-                    location.reload();
+                    notify("success", "Thành công", "Đã gửi yêu cầu đặt lịch thành công.");
+                    setTimeout(() => location.reload(), 800);
                 } else {
-                    alert(result.message);
+                    notify("error", "Không thể lưu", result.message || "Vui lòng kiểm tra lại dữ liệu.");
                 }
             },
             error: function (err) {
                 console.error(err);
-                alert("Có lỗi xảy ra");
+                notify("error", "Lỗi hệ thống", "Có lỗi xảy ra, vui lòng thử lại.");
             }
         });
     }

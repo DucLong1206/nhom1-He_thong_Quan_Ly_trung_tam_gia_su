@@ -1,0 +1,5 @@
+/* local fallback style for date/time inputs */
+input[type="date"],
+input[type="time"] {
+  min-height: 38px;
+}

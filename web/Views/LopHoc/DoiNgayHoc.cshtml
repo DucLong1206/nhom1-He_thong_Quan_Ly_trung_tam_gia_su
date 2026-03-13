@@ -4,6 +4,7 @@
 }
 
 <link href="~/lib/select2/select2.min.css" rel="stylesheet" />
+<link href="~/lib/flatpickr/flatpickr.min.css" rel="stylesheet" />
 <style>
     /* Select2 khớp Bootstrap */
     .select2-container .select2-selection--single {
@@ -41,17 +42,17 @@
 
                 <div class="col-md-4">
                     <label class="form-label">Ngày mới</label>
-                    <input id="newDate" type="date" class="form-control">
+                    <input id="newDate" type="text" class="form-control" placeholder="Chọn ngày mới">
                 </div>
 
                 <div class="col-md-4">
                     <label class="form-label">Giờ bắt đầu</label>
-                    <input id="startTime" type="time" class="form-control">
+                    <input id="startTime" type="text" class="form-control" placeholder="Chọn giờ bắt đầu">
                 </div>
 
                 <div class="col-md-4">
                     <label class="form-label">Giờ kết thúc</label>
-                    <input id="endTime" type="time" class="form-control" readonly>
+                    <input id="endTime" type="text" class="form-control" readonly placeholder="Giờ kết thúc">
                 </div>
 
             </div>
@@ -66,7 +67,7 @@
                 </a>
             </div>
 
-            <div id="alertBox" class="alert mt-3 d-none"></div>
+            
 
         </div>
     </div>
@@ -76,6 +77,8 @@
 @section Scripts {
 
     <script src="~/lib/select2/select2.min.js"></script>
+    <script src="~/lib/flatpickr/flatpickr.js"></script>
+    <script src="~/lib/flatpickr/vn.js"></script>
     <script>
 
         $(document).ready(function () {
@@ -84,6 +87,34 @@
             let durationMinutes = 0;
             let selectedThu = 0;
             let selectedNgayGoc = null; // DateTime gốc từ server
+            let endPicker = null;
+
+            if (window.flatpickr) {
+                flatpickr('#newDate', {
+                    dateFormat: 'Y-m-d',
+                    locale: 'vn',
+                    minDate: 'today'
+                });
+
+                flatpickr('#startTime', {
+                    enableTime: true,
+                    noCalendar: true,
+                    dateFormat: 'H:i',
+                    time_24hr: true,
+                    locale: 'vn',
+                    minuteIncrement: 5
+                });
+
+                endPicker = flatpickr('#endTime', {
+                    enableTime: true,
+                    noCalendar: true,
+                    dateFormat: 'H:i',
+                    time_24hr: true,
+                    locale: 'vn',
+                    clickOpens: false,
+                    allowInput: false
+                });
+            }
 
             // ─── Khởi tạo Select2 ─────────────────────────────────────────
             $('#selectBuoiHoc').select2({
@@ -156,7 +187,12 @@
             $('#startTime').on('change', function () {
                 const start = $(this).val();
                 if (!start || durationMinutes === 0) return;
-                $('#endTime').val(addMinutes(start, durationMinutes));
+                const endValue = addMinutes(start, durationMinutes);
+                if (endPicker) {
+                    endPicker.setDate(endValue, true, 'H:i');
+                } else {
+                    $('#endTime').val(endValue);
+                }
             });
 
 
@@ -230,10 +266,17 @@
             }
 
             function showMessage(msg, ok) {
-                const box = $('#alertBox');
-                box.removeClass('d-none alert-success alert-danger');
-                box.addClass(ok ? 'alert-success' : 'alert-danger');
-                box.text(msg);
+                if (window.Swal) {
+                    Swal.fire({
+                        icon: ok ? 'success' : 'error',
+                        title: ok ? 'Thành công' : 'Thông báo',
+                        text: msg,
+                        confirmButtonColor: ok ? '#f59e0b' : '#dc2626'
+                    });
+                    return;
+                }
+
+                alert(msg);
             }
 
         });

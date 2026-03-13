@@ -203,7 +203,7 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
         [HttpGet]
         public IActionResult AccessDenied()
         {
-            return Content("Bạn không có quyền truy cập chức năng này.");
+            return View();
         }
 
         public IActionResult Privacy()

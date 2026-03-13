@@ -3,6 +3,8 @@
     var lopHocId = ViewBag.LopHocId ?? 0;
 }
 
+<link href="~/lib/flatpickr/flatpickr.min.css" rel="stylesheet" />
+
 <style>
     .detail-wrap {
         max-width: 1000px;
@@ -122,12 +124,58 @@
 
 @section Scripts {
 
+    <script src="~/lib/flatpickr/flatpickr.js"></script>
+    <script src="~/lib/flatpickr/vn.js"></script>
     <script>
 
         $(document).ready(function(){
 
         const lopHocId=@lopHocId;
         let currentSchedule=[];
+
+        function showToast(icon, text) {
+            if (window.Swal) {
+                Swal.fire({
+                    icon: icon,
+                    title: icon === "success" ? "Thành công" : "Thông báo",
+                    text: text,
+                    confirmButtonColor: icon === "success" ? "#16a34a" : "#2563eb"
+                });
+                return;
+            }
+            alert(text);
+        }
+
+        function confirmAction(text, callback) {
+            if (!window.Swal) {
+                if (confirm(text)) callback();
+                return;
+            }
+
+            Swal.fire({
+                icon: "question",
+                title: "Xác nhận",
+                text: text,
+                showCancelButton: true,
+                confirmButtonText: "Đồng ý",
+                cancelButtonText: "Hủy",
+                confirmButtonColor: "#2563eb"
+            }).then((result) => {
+                if (result.isConfirmed) callback();
+            });
+        }
+
+        function initTimePickerFor(el) {
+            if (!window.flatpickr) return;
+            flatpickr(el, {
+                enableTime: true,
+                noCalendar: true,
+                dateFormat: "H:i",
+                time_24hr: true,
+                minuteIncrement: 5,
+                locale: "vn"
+            });
+        }
 
         loadLopHocInfo();
         loadLichHoc();
@@ -230,9 +278,9 @@
 
         </select>
 
-        <input type="time" class="form-control edit-start" value="${start}">
+        <input type="text" class="form-control edit-start" value="${start}" placeholder="Giờ bắt đầu">
 
-        <input type="time" class="form-control edit-end" value="${end}">
+        <input type="text" class="form-control edit-end" value="${end}" placeholder="Giờ kết thúc">
 
         <button type="button" class="btn btn-outline-danger btn-remove-row">Xóa</button>
 
@@ -241,6 +289,10 @@
         `;
 
         $('#editRows').append(row);
+
+        const latestRow = $('#editRows .edit-row').last();
+        initTimePickerFor(latestRow.find('.edit-start')[0]);
+        initTimePickerFor(latestRow.find('.edit-end')[0]);
 
         }
 
@@ -307,7 +359,7 @@
 
         if(!dsBuoi.length){
 
-        alert("Vui lòng nhập ít nhất 1 buổi học");
+        showToast("warning", "Vui lòng nhập ít nhất 1 buổi học");
         return;
 
         }
@@ -329,9 +381,9 @@
 
         $('#btnDongY').click(function(){
 
-        if(!confirm("Bạn chắc chắn muốn chấp nhận lớp này?"))return;
-
-        sendPhanHoi({lopid:lopHocId,loai:"dongy"});
+        confirmAction("Bạn chắc chắn muốn chấp nhận lớp này?", function(){
+            sendPhanHoi({lopid:lopHocId,loai:"dongy"});
+        });
 
         });
 
@@ -339,9 +391,9 @@
 
         $('#btnHuy').click(function(){
 
-        if(!confirm("Bạn chắc chắn muốn hủy lớp này?"))return;
-
-        sendPhanHoi({lopid:lopHocId,loai:"huy"});
+        confirmAction("Bạn chắc chắn muốn hủy lớp này?", function(){
+            sendPhanHoi({lopid:lopHocId,loai:"huy"});
+        });
 
         });
 
@@ -360,12 +412,12 @@
 
         if(!res.success){
 
-        alert(res.message);
+        showToast("error", res.message || "Có lỗi xảy ra");
         return;
 
         }
 
-        alert(res.message||"Thành công");
+        showToast("success", res.message||"Thành công");
         location.reload();
 
         }
