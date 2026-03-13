@@ -45,6 +45,8 @@
 
         <input type="text" id="Username" placeholder="Tên đăng nhập" required />
 
+        <input type="email" id="Email" placeholder="Email" required />
+
         <input type="password" id="Password" placeholder="Mật khẩu" required />
 
         <input type="password" id="ConfirmPassword" placeholder="Xác nhận mật khẩu" required />
@@ -76,6 +78,7 @@
     $("#btnSave").click(function () {
 
         let username = $("#Username").val().trim();
+        let Email = $("#Email").val().trim();
         let password = $("#Password").val();
         let confirmPassword = $("#ConfirmPassword").val();
         let stypeuser = $("input[name='stypeuser']:checked").val();
@@ -101,7 +104,8 @@
         data: {
             Name: username,
             PassWord: password,
-            TypeUsser: stypeuser
+            TypeUsser: stypeuser,
+            Email:Email
         },
         success: function (res) {
 

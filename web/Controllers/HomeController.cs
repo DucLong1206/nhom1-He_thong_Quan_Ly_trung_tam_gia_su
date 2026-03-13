@@ -1,6 +1,6 @@
-﻿using He_thong_Quan_Ly_trung_tam_gia_su_Entity;
+﻿using He_thong_Quan_Ly_trung_tam_gia_su.Infrastructure.Security;
+using He_thong_Quan_Ly_trung_tam_gia_su_Entity;
 using He_thong_Quan_Ly_trung_tam_gia_su_Entity.Entity;
-using He_thong_Quan_Ly_trung_tam_gia_su.Infrastructure.Security;
 using He_thong_Quan_Ly_trung_tam_gia_su_Logic.ILogic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,12 +12,14 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly Appdbcontext _db;
         private readonly ITaiKhoanLogic _tk;
+        private readonly IUSERLogic _ur;
 
-        public HomeController(ILogger<HomeController> logger, Appdbcontext db, ITaiKhoanLogic tk)
+        public HomeController(ILogger<HomeController> logger, Appdbcontext db, ITaiKhoanLogic tk, IUSERLogic ur)
         {
             _logger = logger;
             _db = db;
             _tk = tk;
+            _ur = ur;
         }
 
         public IActionResult Index()
@@ -272,9 +274,15 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
         public JsonResult SaveUser(TaiKhoan tk)
         {
             string mes = "";
+
             if (string.IsNullOrEmpty(tk.Name) || string.IsNullOrEmpty(tk.PassWord))
             {
                 return Json(new { success = false, message = "Thiếu thông tin." });
+            }
+            var checkemail = _ur.checkEmailExists(tk.Email, 0);
+            if (checkemail != 0)
+            {
+                return Json(new { success = false, message = "Email dã được sử dụng vui lòng dùng email khác" });
             }
             var check = _tk.save(tk, mes);
             return Json(new { success = tk, Mess = mes });
