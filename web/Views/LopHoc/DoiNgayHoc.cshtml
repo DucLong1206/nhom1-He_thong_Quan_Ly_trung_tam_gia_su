@@ -1,0 +1,243 @@
+@{
+    ViewData["Title"] = "Điều chỉnh buổi học";
+    var lopHocId = ViewBag.LopHocId ?? 0;
+}
+
+<link href="~/lib/select2/select2.min.css" rel="stylesheet" />
+<style>
+    /* Select2 khớp Bootstrap */
+    .select2-container .select2-selection--single {
+        height: 38px;
+        border: 1px solid #ced4da;
+        border-radius: 6px;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 36px;
+        padding-left: 12px;
+        color: #212529;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 36px;
+    }
+</style>
+
+<div class="container py-4" style="max-width:720px;">
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+
+            <h4 class="mb-3">Điều chỉnh buổi học</h4>
+            <p class="text-muted">Lớp học #@lopHocId</p>
+
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Chọn buổi học cần đổi</label>
+                <select id="selectBuoiHoc" style="width:100%">
+                    <option value="">-- Chọn buổi học --</option>
+                </select>
+            </div>
+
+            <div class="row g-3">
+
+                <div class="col-md-4">
+                    <label class="form-label">Ngày mới</label>
+                    <input id="newDate" type="date" class="form-control">
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Giờ bắt đầu</label>
+                    <input id="startTime" type="time" class="form-control">
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Giờ kết thúc</label>
+                    <input id="endTime" type="time" class="form-control" readonly>
+                </div>
+
+            </div>
+
+            <div class="mt-4 d-flex gap-2">
+                <button id="btnSave" class="btn btn-warning text-white">
+                    Lưu thay đổi
+                </button>
+
+                <a href="/LopHoc/LichHocDetail?id=@lopHocId" class="btn btn-secondary">
+                    Quay lại
+                </a>
+            </div>
+
+            <div id="alertBox" class="alert mt-3 d-none"></div>
+
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+
+    <script src="~/lib/select2/select2.min.js"></script>
+    <script>
+
+        $(document).ready(function () {
+
+            const lopHocId = @lopHocId;
+            let durationMinutes = 0;
+            let selectedThu = 0;
+            let selectedNgayGoc = null; // DateTime gốc từ server
+
+            // ─── Khởi tạo Select2 ─────────────────────────────────────────
+            $('#selectBuoiHoc').select2({
+                placeholder: '-- Chọn buổi học --',
+                allowClear: true,
+                width: '100%'
+            });
+
+            loadBuoiHoc();
+
+
+            // ─── Load danh sách buổi học từ getngaygoc ────────────────────
+            function loadBuoiHoc() {
+                $.ajax({
+                    url: '/LopHoc/getngaygoc',
+                    type: 'GET',
+                    data: { idlop: lopHocId },
+                    success: function (res) {
+                        if (!res.success) return;
+
+                        $('#selectBuoiHoc').empty().append('<option value="">-- Chọn buổi học --</option>');
+
+                        (res.data || []).forEach(function (x) {
+                            const ngay = new Date(x.ngayHoc);
+                            const ngayStr = ngay.toLocaleDateString('vi-VN');
+                            const thu = x.thu === 8 ? 'Chủ nhật' : 'Thứ ' + x.thu;
+                            const batdau = String(x.gioBatDau).substring(0, 5);
+                            const ketthuc = String(x.gioKetThuc).substring(0, 5);
+                            const label = `${thu} - ${ngayStr}  •  ${batdau} - ${ketthuc}`;
+
+                            // Lưu ngayHoc gốc dưới dạng ISO string vào data-ngaygoc
+                            $('#selectBuoiHoc').append(
+                                $('<option>', {
+                                    value: x.id,
+                                    text: label,
+                                    'data-thu': x.thu,
+                                    'data-start': batdau,
+                                    'data-end': ketthuc,
+                                    'data-ngaygoc': x.ngayHoc  // ISO: "2026-03-06T00:00:00"
+                                })
+                            );
+                        });
+
+                        $('#selectBuoiHoc').trigger('change');
+                    },
+                    error: function () {
+                        showMessage('Không tải được danh sách buổi học', false);
+                    }
+                });
+            }
+
+
+            // ─── Khi chọn buổi học → cập nhật state ──────────────────────
+            $('#selectBuoiHoc').on('change', function () {
+                const opt = $(this).find('option:selected');
+
+                const start = opt.data('start');
+                const end   = opt.data('end');
+
+                selectedThu     = opt.data('thu') || 0;
+                selectedNgayGoc = opt.data('ngaygoc') || null;
+
+                durationMinutes = (start && end) ? getMinutes(start, end) : 0;
+
+                clearInputFields();
+            });
+
+
+            // ─── Tự tính giờ kết thúc khi nhập giờ bắt đầu ──────────────
+            $('#startTime').on('change', function () {
+                const start = $(this).val();
+                if (!start || durationMinutes === 0) return;
+                $('#endTime').val(addMinutes(start, durationMinutes));
+            });
+
+
+            // ─── Lưu thay đổi ─────────────────────────────────────────────
+            $('#btnSave').click(function () {
+                const buoiId = $('#selectBuoiHoc').val();
+                const ngay   = $('#newDate').val();
+                const start  = $('#startTime').val();
+                const end    = $('#endTime').val();
+
+                if (!buoiId || !ngay || !start || !end) {
+                    showMessage('Vui lòng nhập đầy đủ dữ liệu', false);
+                    return;
+                }
+
+                if (!selectedNgayGoc) {
+                    showMessage('Không xác định được ngày gốc, vui lòng chọn lại buổi học', false);
+                    return;
+                }
+
+                // Lấy phần date từ ISO string (yyyy-MM-dd)
+                const ngayGocFormatted = selectedNgayGoc.substring(0, 10);
+
+                const payload = {
+                    ID:buoiId,
+                    idlophoc:   lopHocId,
+                    ngaygoc:    ngayGocFormatted,   // lấy từ data thực, không hardcode
+                    thu:        selectedThu,
+                    ngaydoi:    ngay,
+                    giobatdau:  start + ":00",
+                    gioketthuc: end   + ":00"
+                };
+
+                $.ajax({
+                    url:         '/LopHoc/LuuDoiLichHoc',
+                    type:        'POST',
+                    contentType: 'application/json',
+                    data:        JSON.stringify(payload),
+                    success: function (res) {
+                        if (!res.success) {
+                            showMessage(res.message, false);
+                            return;
+                        }
+                        showMessage('Lưu thay đổi thành công', true);
+                        clearInputFields();
+                    }
+                });
+            });
+
+
+            // ─── Helpers ──────────────────────────────────────────────────
+            function clearInputFields() {
+                $('#newDate').val('');
+                $('#startTime').val('');
+                $('#endTime').val('');
+            }
+
+            function addMinutes(time, minutes) {
+                const parts = time.split(':');
+                let total = parseInt(parts[0]) * 60 + parseInt(parts[1]);
+                total += minutes;
+                const h = Math.floor(total / 60);
+                const m = total % 60;
+                return String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
+            }
+
+            function getMinutes(start, end) {
+                const s = start.split(':');
+                const e = end.split(':');
+                return (parseInt(e[0]) * 60 + parseInt(e[1])) - (parseInt(s[0]) * 60 + parseInt(s[1]));
+            }
+
+            function showMessage(msg, ok) {
+                const box = $('#alertBox');
+                box.removeClass('d-none alert-success alert-danger');
+                box.addClass(ok ? 'alert-success' : 'alert-danger');
+                box.text(msg);
+            }
+
+        });
+
+    </script>
+
+}

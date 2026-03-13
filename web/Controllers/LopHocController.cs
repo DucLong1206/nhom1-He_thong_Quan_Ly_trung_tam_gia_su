@@ -17,8 +17,10 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
             return View();
         }
 
-        public IActionResult LopHoc()
+        public IActionResult LopHoc(int id, int iddk)
         {
+            ViewBag.id = id;
+            ViewBag.iddk = iddk;
             return View();
         }
         public IActionResult Detail(int id)
@@ -30,6 +32,13 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
         public IActionResult LichHocDetail(int id)
         {
             ViewBag.LopHocId = id;
+            return View();
+        }
+
+        public IActionResult DoiNgayHoc(int lopId, string nguon = "phu-huynh")
+        {
+            ViewBag.LopHocId = lopId;
+            ViewBag.Nguon = nguon;
             return View();
         }
 
@@ -197,6 +206,109 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
             {
                 return Json(new { success = false, message = ex.Message });
             }
+        }
+        [HttpPost]
+        public JsonResult LuuDoiLichHoc([FromBody] Lophoc_doilich lich)
+        {
+            var save = false;
+            if (lich == null)
+            {
+                return Json(new { success = false, message = "Không nhận được dữ liệu." });
+            }
+            if (lich.ID != 0)
+            {
+                save = _lh.editlichbu(lich);
+            }
+            else
+            {
+                save = _lh.savelichbu(lich);
+            }
+
+            return Json(new
+            {
+                success = save,
+                data = lich
+            });
+        }
+        public JsonResult getngaygoc(int idlop)
+        {
+            try
+            {
+                var data = _lh.GetNgayGocHocBu(idlop);
+                return Json(new { success = true, data = data });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+        public IActionResult thongbaolich()
+        {
+            return View();
+        }
+        public JsonResult getlichhomnay(int Mode)
+        {
+            var iduser = HttpContext.Session.GetInt32("UserId");
+
+            if (iduser == null)
+            {
+                return Json(new List<LichHomNayModel>());
+            }
+
+            var data = _lh.LichHomNay(iduser.Value, Mode);
+
+            return Json(data);
+        }
+        public JsonResult GetThongTinBuoiHoc(int idlop, int iddk)
+        {
+            try
+            {
+                var data = _lh.GetThongTinBuoiHoc(idlop, iddk);
+                return Json(new { success = true, data = data });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+        public JsonResult StartLesson(int idlop)
+        {
+            var idbuoi = _lh.luuthongtinbuoihoc(idlop);
+            return Json(new { success = idbuoi });
+        }
+        public JsonResult GetTrangThaiBuoiHoc(int buoiHocID)
+        {
+            try
+            {
+                var data = _lh.GetTrangThaiBuoiHoc(buoiHocID);
+                if (data != null)
+                {
+                    return Json(new { success = true, data = data });
+                }
+                else
+                {
+                    return Json(new { success = false, message = "Không tìm thấy buổi học." });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+
+
+            return Json(new { success = true });
+        }
+        public JsonResult StopLesson(int ID)
+        {
+
+            var result = _lh.StopLesson(ID);
+            if (!result)
+            {
+                return Json(new { success = false, message = "Không thể dừng buổi học. Vui lòng thử lại." });
+            }
+
+
+            return Json(new { success = true });
         }
     }
 }

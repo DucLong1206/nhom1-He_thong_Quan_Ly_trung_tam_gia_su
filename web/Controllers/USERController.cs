@@ -10,13 +10,15 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
         private readonly IDM_XaLogic _x;
         private readonly IUSERLogic _user;
         private readonly IMonhocLogic _mh;
+        private readonly IDM_NganHangLogic _nh;
 
-        public USERController(IDM_TinhLogic t, IDM_XaLogic x, IUSERLogic user, IMonhocLogic mh)
+        public USERController(IDM_TinhLogic t, IDM_XaLogic x, IUSERLogic user, IMonhocLogic mh, IDM_NganHangLogic nh)
         {
             _t = t;
             _x = x;
             _user = user;
             _mh = mh;
+            _nh = nh;
         }
         public IActionResult Index()
         {
@@ -40,6 +42,11 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
         public JsonResult getlisttinh()
         {
             var list = _t.GetList();
+            return Json(new { data = list });
+        }
+        public JsonResult getlistnganhang()
+        {
+            var list = _nh.getlist();
             return Json(new { data = list });
         }
         public JsonResult getlisstmonhoc()

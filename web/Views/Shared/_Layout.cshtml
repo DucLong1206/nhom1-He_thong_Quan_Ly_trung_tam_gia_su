@@ -13,6 +13,7 @@
 
     @{
         var userId = Context.Session.GetInt32("UserId");
+        var TypeUsser = Context.Session.GetInt32("TypeUsser");
         var userName = Context.Session.GetString("UserName");
     }
     <header>
@@ -40,17 +41,31 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="FAQ">FAQ</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="MonHoc" asp-action="Index">Danh sách môn học</a>
-                        </li>
+                        
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Contact">Liên hệ</a>
                         </li>
                          @if (!string.IsNullOrEmpty(userName))
                         {
+                            if (TypeUsser == 2)
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="MonHoc" asp-action="Index">Danh sách môn học</a>
+                                </li>
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="LopHoc" asp-action="Index">Lịch đã đăng ký</a>
                             </li>
+                            }
+                            if (TypeUsser==1)
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="home" asp-action="TutorDashboard">Dach sách lớp học</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="LopHoc" asp-action="thongbaolich">Lịch dậy</a>
+                                </li>
+                            }
+                           
                         }
                     </ul>
 

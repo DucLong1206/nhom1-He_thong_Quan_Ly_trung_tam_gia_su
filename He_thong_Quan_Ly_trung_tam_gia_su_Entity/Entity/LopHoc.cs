@@ -68,4 +68,54 @@
         public string trangthai { get; set; }
         public int trinhdo { get; set; }
     }
+    public class Lophoc_doilich
+    {
+        public int ID { get; set; }
+        public int idlophoc { get; set; }
+        public DateTime ngaydoi { get; set; }
+        public DateTime ngaygoc { get; set; }
+        public int thu { get; set; }
+        public TimeSpan giobatdau { get; set; }
+        public TimeSpan gioketthuc { get; set; }
+    }
+    public class LopHoc_LichHoc
+    {
+        public int ID { get; set; }
+        public DateTime NgayHoc { get; set; }
+        public int Thu { get; set; }
+        public TimeSpan GioBatDau { get; set; }
+        public TimeSpan GioKetThuc { get; set; }
+    }
+    public class LichHomNayModel
+    {
+        public int ID { get; set; }
+        public int iddk { get; set; }
+        public int TrangThai { get; set; }
+        public DateTime NgayHoc { get; set; }
+        public int Thu { get; set; }
+        public TimeSpan GioBatDau { get; set; }
+        public TimeSpan GioKetThuc { get; set; }
+        public int TrinhDo { get; set; }
+        public string Mon { get; set; }
+        public string Name { get; set; }
+    }
+    public class ThongTinBuoiHocModel
+    {
+        public int ID { get; set; }
+        public int? BuoiHocID { get; set; }
+        public DateTime NgayHoc { get; set; }
+        public int Thu { get; set; }
+        public TimeSpan GioBatDau { get; set; }
+        public TimeSpan GioKetThuc { get; set; }
+
+        public int trinhdo { get; set; }
+        public string mon { get; set; }
+
+        public string Name { get; set; }
+        public string Email { get; set; }
+
+        public string Giasu { get; set; }
+        public string Email_Giasu { get; set; }
+        public string DIaChi { get; set; }
+    }
 }
