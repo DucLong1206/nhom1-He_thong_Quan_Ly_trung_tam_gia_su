@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="utf-8" />
@@ -151,6 +151,28 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/lib/sweetalert2/sweetalert2.all.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
+    <script>
+        (function () {
+            const accessDeniedMessage = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["AccessDeniedMessage"]?.ToString()));
+
+            if (!accessDeniedMessage) return;
+
+            Swal.fire({
+                icon: 'warning',
+                title: 'Không thể truy cập',
+                text: accessDeniedMessage,
+                confirmButtonText: 'Đã hiểu',
+                confirmButtonColor: '#0d6efd',
+                background: '#fff',
+                color: '#1f2937',
+                customClass: {
+                    popup: 'shadow rounded-4 border-0',
+                    title: 'fw-bold',
+                    confirmButton: 'px-4 py-2 rounded-pill'
+                }
+            });
+        })();
+    </script>
     <script>
         console.log("UserID:", "@userId");
         console.log("UserName:", "@userName");

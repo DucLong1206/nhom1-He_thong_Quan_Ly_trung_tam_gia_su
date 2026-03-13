@@ -1,4 +1,5 @@
-using He_thong_Quan_Ly_trung_tam_gia_su_Entity.Entity;
+﻿using He_thong_Quan_Ly_trung_tam_gia_su_Entity.Entity;
+using He_thong_Quan_Ly_trung_tam_gia_su.Infrastructure.Security;
 using He_thong_Quan_Ly_trung_tam_gia_su_Logic.ILogic;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,10 +18,10 @@ public class MonHocController : Controller
 
     public IActionResult Index()
     {
-        if (HttpContext.Session.GetString("UserId") == null)
-        {
-            return RedirectToAction("login", "Home");
-        }
+        var guardResult = SessionAccessGuard.EnsureUserType(this, 2);
+        if (guardResult != null)
+            return guardResult;
+
         return View();
     }
     public JsonResult getlist(string? keyword, int? monHocId, int? xaId, string sort = "name_asc")
