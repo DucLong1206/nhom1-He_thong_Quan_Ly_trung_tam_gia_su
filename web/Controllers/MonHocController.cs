@@ -26,6 +26,10 @@ public class MonHocController : Controller
     }
     public JsonResult getlist(string? keyword, int? monHocId, int? xaId, string sort = "name_asc")
     {
+        var guardResult = SessionAccessGuard.EnsureUserType(this, 2);
+        if (guardResult != null)
+            return Json(new { success = false, message = "Bạn không có quyền truy cập vào khu vực này." });
+
         var vm = _mh.GetListGiaSu();
 
         return Json(new { data = vm });
@@ -33,6 +37,10 @@ public class MonHocController : Controller
 
     public IActionResult TutorDetail(string? tutorName, string? mon, string? xa, decimal? giaTheoGio, int? ID, int? IDXa, int? IDMon, int? Trinhdo, string? avata)
     {
+        var guardResult = SessionAccessGuard.EnsureUserType(this, 2);
+        if (guardResult != null)
+            return guardResult;
+
         ViewData["TutorName"] = tutorName;
         ViewData["Mon"] = mon;
         ViewData["Xa"] = xa;
@@ -49,6 +57,10 @@ public class MonHocController : Controller
     [HttpPost]
     public JsonResult Save([FromBody] SaveLop model)
     {
+        var guardResult = SessionAccessGuard.EnsureUserType(this, 2);
+        if (guardResult != null)
+            return Json(new { success = false, message = "Bạn không có quyền truy cập vào khu vực này." });
+
         string mess = "";
         model.lop.ngaytao = DateTime.Now;
         model.lop.idnguoitao = HttpContext.Session.GetInt32("UserId");

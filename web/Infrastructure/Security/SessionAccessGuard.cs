@@ -1,3 +1,4 @@
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 
 namespace He_thong_Quan_Ly_trung_tam_gia_su.Infrastructure.Security;
@@ -16,6 +17,11 @@ public static class SessionAccessGuard
 
     public static IActionResult? EnsureUserType(Controller controller, int requiredType)
     {
+        return EnsureUserTypes(controller, requiredType);
+    }
+
+    public static IActionResult? EnsureUserTypes(Controller controller, params int[] allowedTypes)
+    {
         var loginResult = EnsureLoggedIn(controller);
         if (loginResult != null)
         {
@@ -23,7 +29,7 @@ public static class SessionAccessGuard
         }
 
         var typeUsser = controller.HttpContext.Session.GetInt32("TypeUsser");
-        if (typeUsser == requiredType)
+        if (typeUsser.HasValue && allowedTypes.Contains(typeUsser.Value))
         {
             return null;
         }
