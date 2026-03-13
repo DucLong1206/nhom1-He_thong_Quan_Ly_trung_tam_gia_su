@@ -1,9 +1,11 @@
 using He_thong_Quan_Ly_trung_tam_gia_su_Entity.Entity;
 using He_thong_Quan_Ly_trung_tam_gia_su_Logic.ILogic;
 using Microsoft.AspNetCore.Mvc;
+using He_thong_Quan_Ly_trung_tam_gia_su.Infrastructure.Security;
 
 namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers;
 
+[SessionAuthorize(AppRoles.PhuHuynhHocVienType)]
 public class MonHocController : Controller
 {
     private readonly IMonhocLogic _mh;
@@ -17,10 +19,6 @@ public class MonHocController : Controller
 
     public IActionResult Index()
     {
-        if (HttpContext.Session.GetString("UserId") == null)
-        {
-            return RedirectToAction("login", "Home");
-        }
         return View();
     }
     public JsonResult getlist(string? keyword, int? monHocId, int? xaId, string sort = "name_asc")

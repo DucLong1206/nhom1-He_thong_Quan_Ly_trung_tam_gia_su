@@ -10,9 +10,12 @@ public static class AppRoles
     public static string FromTypeUser(int typeUser) => typeUser switch
     {
         0 => Admin,
-        1 => NhanVien,
-        2 => GiaSu,
-        3 => PhuHuynhHocVien,
+        1 => GiaSu,
+        2 => PhuHuynhHocVien,
+        3 => NhanVien,
         _ => PhuHuynhHocVien
     };
+
+    public const int GiaSuType = 1;
+    public const int PhuHuynhHocVienType = 2;
 }

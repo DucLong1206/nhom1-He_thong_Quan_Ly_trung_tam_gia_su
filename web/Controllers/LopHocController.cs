@@ -1,10 +1,12 @@
 ﻿using He_thong_Quan_Ly_trung_tam_gia_su_Entity.Entity;
 using He_thong_Quan_Ly_trung_tam_gia_su_Logic.ILogic;
 using Microsoft.AspNetCore.Mvc;
+using He_thong_Quan_Ly_trung_tam_gia_su.Infrastructure.Security;
 
 namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
 {
-    public class LopHocController : Controller
+    [SessionAuthorize(AppRoles.GiaSuType)]
+public class LopHocController : Controller
     {
         private readonly ILopHocLogic _lh;
         public LopHocController(ILopHocLogic lh)

@@ -161,7 +161,7 @@
 
             <div class="mb-3">
                 <label class="form-label">Họ tên học sinh</label>
-                <input class="form-control" id="studentName" placeholder="Nhập họ tên" />
+                <input class="form-control" id="studentName" placeholder="Ví dụ: Nguyễn Văn A" maxlength="100" autocomplete="name" />
             </div>
 
             <div class="mb-3">
@@ -186,13 +186,13 @@
             <!-- NGÀY BẮT ĐẦU -->
             <div class="mb-3 mt-3">
                 <label class="form-label">Ngày bắt đầu</label>
-                <input type="date" class="form-control" id="startDate" />
+                <input type="text" class="form-control" id="startDate" placeholder="Chọn ngày bắt đầu" />
             </div>
 
             <!-- NGÀY KẾT THÚC -->
             <div class="mb-3">
                 <label class="form-label">Ngày kết thúc</label>
-                <input type="date" class="form-control" id="endDate" />
+                <input type="text" class="form-control" id="endDate" placeholder="Chọn ngày kết thúc" />
             </div>
 
             <button type="button" class="btn btn-primary w-100" onclick="submitBooking()">
@@ -207,7 +207,26 @@
     </aside>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.js"></script>
+
 <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        if (window.flatpickr) {
+            flatpickr("#startDate", {
+                dateFormat: "Y-m-d",
+                locale: "vn",
+                minDate: "today"
+            });
+
+            flatpickr("#endDate", {
+                dateFormat: "Y-m-d",
+                locale: "vn",
+                minDate: "today"
+            });
+        }
+    });
+
     // -------------------------------------------------------
     // Lấy chữ viết tắt từ tên
     // -------------------------------------------------------

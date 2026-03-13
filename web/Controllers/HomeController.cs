@@ -4,6 +4,7 @@ using He_thong_Quan_Ly_trung_tam_gia_su_Logic.ILogic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Data.Common;
+using He_thong_Quan_Ly_trung_tam_gia_su.Infrastructure.Security;
 namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
 {
     public class HomeController : Controller
@@ -53,6 +54,7 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
                 {
                     HttpContext.Session.SetString("IsAdmin", "true");
                     HttpContext.Session.SetInt32("UserId", -1);
+                    HttpContext.Session.SetInt32("TypeUsser", 0);
                     HttpContext.Session.SetString("UserName", "admin");
 
                     return RedirectToAction("Index", "MonHoc");
@@ -107,18 +109,15 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
                 HttpContext.Session.SetInt32("TypeUsser", user.TypeUsser);
                 HttpContext.Session.SetString("UserName", ur?.Name ?? "");
 
-                if (IsStudentParentAccount(user))
-                {
-                    if (user.TypeUsser == 1)
-                        return RedirectToAction("Index", "LopHoc");
-                    else if (user.TypeUsser == 2)
-                        return RedirectToAction("Index", "MonHoc");
-                }
+                if (user.TypeUsser == AppRoles.PhuHuynhHocVienType)
+                    return RedirectToAction("Index", "MonHoc");
 
+                if (user.TypeUsser == AppRoles.GiaSuType)
+                    return RedirectToAction(nameof(TutorDashboard));
 
-                return RedirectToAction(nameof(TutorDashboard));
+                return RedirectToAction("Index", "Home");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 ViewBag.Error = "Có lỗi xảy ra khi đăng nhập.";
                 return View("Login");
@@ -140,34 +139,13 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
 
 
         [HttpGet]
+        [SessionAuthorize(AppRoles.GiaSuType)]
         public IActionResult TutorDashboard()
         {
             if (HttpContext.Session.GetInt32("UserId") == null)
                 return RedirectToAction(nameof(login));
 
             return View();
-        }
-
-        private static bool IsStudentParentAccount(TaiKhoan user)
-        {
-            var prop = user.GetType().GetProperty("TypeUsser");
-            if (prop == null)
-                return false;
-
-            var value = prop.GetValue(user);
-            if (value == null)
-                return false;
-
-            if (value is int intValue)
-                return intValue == 2;
-
-            var text = value.ToString()?.Trim();
-            if (string.IsNullOrEmpty(text))
-                return false;
-
-            return string.Equals(text, "2", StringComparison.OrdinalIgnoreCase)
-                   || string.Equals(text, "StudentParent", StringComparison.OrdinalIgnoreCase)
-                   || string.Equals(text, "Student", StringComparison.OrdinalIgnoreCase);
         }
 
         [HttpGet]
@@ -222,6 +200,12 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
             return RedirectToAction(nameof(login));
         }
 
+        [HttpGet]
+        public IActionResult AccessDenied()
+        {
+            return Content("Bạn không có quyền truy cập chức năng này.");
+        }
+
         public IActionResult Privacy()
         {
             return View();
@@ -267,15 +251,20 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
         {
             return View();
         }
-        public JsonResult SaveUser(TaiKhoan tk)
+        public JsonResult SaveUser(TaiKhoan tk, string? stypeuser)
         {
             string mes = "";
             if (string.IsNullOrEmpty(tk.Name) || string.IsNullOrEmpty(tk.PassWord))
             {
                 return Json(new { success = false, message = "Thiếu thông tin." });
             }
+
+            tk.TypeUsser = string.Equals(stypeuser, "Tutor", StringComparison.OrdinalIgnoreCase)
+                ? AppRoles.GiaSuType
+                : AppRoles.PhuHuynhHocVienType;
+
             var check = _tk.save(tk, mes);
-            return Json(new { success = tk, Mess = mes });
+            return Json(new { success = check, message = mes });
         }
 
     }

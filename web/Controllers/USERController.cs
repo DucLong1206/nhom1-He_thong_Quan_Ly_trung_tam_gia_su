@@ -1,10 +1,12 @@
 ﻿using He_thong_Quan_Ly_trung_tam_gia_su_Entity.Entity;
 using He_thong_Quan_Ly_trung_tam_gia_su_Logic.ILogic;
 using Microsoft.AspNetCore.Mvc;
+using He_thong_Quan_Ly_trung_tam_gia_su.Infrastructure.Security;
 
 namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
 {
-    public class USERController : Controller
+    [SessionAuthorize]
+public class USERController : Controller
     {
         private readonly IDM_TinhLogic _t;
         private readonly IDM_XaLogic _x;
