@@ -1,6 +1,7 @@
 ﻿using He_thong_Quan_Ly_trung_tam_gia_su_Entity;
 using He_thong_Quan_Ly_trung_tam_gia_su_Logic.ILogic;
 using He_thong_Quan_Ly_trung_tam_gia_su_Logic.Logic;
+using He_thong_Quan_Ly_trung_tam_gia_su.Infrastructure.BackgroundJobs;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,6 +23,7 @@ builder.Services.AddScoped<IDM_XaLogic, DM_XaLogic>();
 builder.Services.AddScoped<IUSERLogic, USERLogic>();
 builder.Services.AddScoped<ILopHocLogic, LopHocLogic>();
 builder.Services.AddScoped<IDM_NganHangLogic, DM_NganHangLogic>();
+builder.Services.AddHostedService<LessonAlertBackgroundService>();
 
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>

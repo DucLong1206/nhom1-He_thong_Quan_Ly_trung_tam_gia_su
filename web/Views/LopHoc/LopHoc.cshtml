@@ -223,9 +223,6 @@
         let capturedOk=false
         let lessonStartedAt=null
         let timerRef=null
-        let scheduleStartDate=null
-        let scheduleEndDate=null
-        let alertCheckerRef=null
         let hasStartedLesson=false
 
         $(function(){
@@ -264,9 +261,6 @@
                     $("#scheduledStart").text(start)
                     $("#scheduledEnd").text(end)
 
-                    scheduleStartDate = buildTodayTime(start)
-                    scheduleEndDate = buildTodayTime(end)
-                    startLessonAlertWatcher(item.email_Giasu, item.mon, start, end)
 
                     // kiểm tra buổi học
                     if(item.buoiHocID == null || item.buoiHocID == 0){
@@ -520,6 +514,7 @@
             checkAndNotify()
             alertCheckerRef = setInterval(checkAndNotify, 60 * 1000)
         }
+
 
     </script>
 
