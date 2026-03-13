@@ -1,4 +1,5 @@
 ﻿using He_thong_Quan_Ly_trung_tam_gia_su_Entity.Entity;
+using He_thong_Quan_Ly_trung_tam_gia_su.Infrastructure.Security;
 using He_thong_Quan_Ly_trung_tam_gia_su_Logic.ILogic;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,29 +15,49 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
 
         public IActionResult Index()
         {
+            var guardResult = SessionAccessGuard.EnsureUserType(this, 2);
+            if (guardResult != null)
+                return guardResult;
+
             return View();
         }
 
         public IActionResult LopHoc(int id, int iddk)
         {
+            var guardResult = SessionAccessGuard.EnsureUserType(this, 1);
+            if (guardResult != null)
+                return guardResult;
+
             ViewBag.id = id;
             ViewBag.iddk = iddk;
             return View();
         }
         public IActionResult Detail(int id)
         {
+            var guardResult = SessionAccessGuard.EnsureUserType(this, 1);
+            if (guardResult != null)
+                return guardResult;
+
             var ds = _lh.GETDANHSACHLICHHOC_byidlophoc(id);
             ViewBag.data = ds;
             return View();
         }
         public IActionResult LichHocDetail(int id)
         {
+            var guardResult = SessionAccessGuard.EnsureUserType(this, 2);
+            if (guardResult != null)
+                return guardResult;
+
             ViewBag.LopHocId = id;
             return View();
         }
 
         public IActionResult DoiNgayHoc(int lopId, string nguon = "phu-huynh")
         {
+            var guardResult = SessionAccessGuard.EnsureUserTypes(this, 1, 2);
+            if (guardResult != null)
+                return guardResult;
+
             ViewBag.LopHocId = lopId;
             ViewBag.Nguon = nguon;
             return View();
@@ -44,6 +65,10 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
 
         public IActionResult Contract(int lopId)
         {
+            var guardResult = SessionAccessGuard.EnsureUserType(this, 1);
+            if (guardResult != null)
+                return guardResult;
+
             var ds = _lh.createhopdong(lopId);
             var DATA = _lh.GETDANHSACHLICHHOC_byidlophoc(lopId);
             ViewBag.data = DATA;
@@ -90,6 +115,10 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
         [HttpGet]
         public JsonResult Getlistlophocdangkiping(int id)
         {
+            var guardResult = SessionAccessGuard.EnsureUserType(this, 2);
+            if (guardResult != null)
+                return Json(new { success = false, message = "Bạn không có quyền truy cập vào khu vực này." });
+
             try
             {
                 var data = _lh.GetLopHocPing(id);
@@ -157,6 +186,10 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
         [HttpGet]
         public JsonResult GETDANHSACHLICHHOC()
         {
+            var guardResult = SessionAccessGuard.EnsureUserType(this, 1);
+            if (guardResult != null)
+                return Json(new { success = false, message = "Bạn không có quyền truy cập vào khu vực này." });
+
             int? id = HttpContext.Session.GetInt32("UserId");
 
             if (id == null)
@@ -244,10 +277,18 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
         }
         public IActionResult thongbaolich()
         {
+            var guardResult = SessionAccessGuard.EnsureUserType(this, 1);
+            if (guardResult != null)
+                return guardResult;
+
             return View();
         }
         public JsonResult getlichhomnay(int Mode)
         {
+            var guardResult = SessionAccessGuard.EnsureUserType(this, 1);
+            if (guardResult != null)
+                return Json(new { success = false, message = "Bạn không có quyền truy cập vào khu vực này." });
+
             var iduser = HttpContext.Session.GetInt32("UserId");
 
             if (iduser == null)
@@ -261,6 +302,10 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
         }
         public JsonResult GetThongTinBuoiHoc(int idlop, int iddk)
         {
+            var guardResult = SessionAccessGuard.EnsureUserType(this, 1);
+            if (guardResult != null)
+                return Json(new { success = false, message = "Bạn không có quyền truy cập vào khu vực này." });
+
             try
             {
                 var data = _lh.GetThongTinBuoiHoc(idlop, iddk);
@@ -273,11 +318,19 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
         }
         public JsonResult StartLesson(int idlop)
         {
+            var guardResult = SessionAccessGuard.EnsureUserType(this, 1);
+            if (guardResult != null)
+                return Json(new { success = false, message = "Bạn không có quyền truy cập vào khu vực này." });
+
             var idbuoi = _lh.luuthongtinbuoihoc(idlop);
             return Json(new { success = idbuoi });
         }
         public JsonResult GetTrangThaiBuoiHoc(int buoiHocID)
         {
+            var guardResult = SessionAccessGuard.EnsureUserType(this, 1);
+            if (guardResult != null)
+                return Json(new { success = false, message = "Bạn không có quyền truy cập vào khu vực này." });
+
             try
             {
                 var data = _lh.GetTrangThaiBuoiHoc(buoiHocID);
@@ -300,6 +353,10 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
         }
         public JsonResult StopLesson(int ID)
         {
+            var guardResult = SessionAccessGuard.EnsureUserType(this, 1);
+            if (guardResult != null)
+                return Json(new { success = false, message = "Bạn không có quyền truy cập vào khu vực này." });
+
 
             var result = _lh.StopLesson(ID);
             if (!result)
