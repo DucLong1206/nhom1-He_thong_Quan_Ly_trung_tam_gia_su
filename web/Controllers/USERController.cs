@@ -1,4 +1,5 @@
 ﻿using He_thong_Quan_Ly_trung_tam_gia_su_Entity.Entity;
+using He_thong_Quan_Ly_trung_tam_gia_su.Infrastructure.Security;
 using He_thong_Quan_Ly_trung_tam_gia_su_Logic.ILogic;
 using Microsoft.AspNetCore.Mvc;
 
@@ -26,11 +27,19 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
         }
         public IActionResult AddorEdit(int idtk)
         {
+            var guardResult = SessionAccessGuard.EnsureLoggedIn(this);
+            if (guardResult != null)
+                return guardResult;
+
             ViewBag.idtk = idtk;
             return View();
         }
         public IActionResult TutorSubjects(int idtk)
         {
+            var guardResult = SessionAccessGuard.EnsureUserType(this, 1);
+            if (guardResult != null)
+                return guardResult;
+
             ViewBag.idtk = idtk;
             return View();
         }
@@ -69,6 +78,10 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
         [HttpPost]
         public JsonResult Save(USER model, IFormFile avatarFile)
         {
+            var guardResult = SessionAccessGuard.EnsureLoggedIn(this);
+            if (guardResult != null)
+                return Json(new { success = false, message = "Vui lòng đăng nhập." });
+
             string mes = "";
 
 

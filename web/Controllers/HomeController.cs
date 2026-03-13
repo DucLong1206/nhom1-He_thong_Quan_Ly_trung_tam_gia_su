@@ -1,5 +1,6 @@
 ﻿using He_thong_Quan_Ly_trung_tam_gia_su_Entity;
 using He_thong_Quan_Ly_trung_tam_gia_su_Entity.Entity;
+using He_thong_Quan_Ly_trung_tam_gia_su.Infrastructure.Security;
 using He_thong_Quan_Ly_trung_tam_gia_su_Logic.ILogic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -142,8 +143,9 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
         [HttpGet]
         public IActionResult TutorDashboard()
         {
-            if (HttpContext.Session.GetInt32("UserId") == null)
-                return RedirectToAction(nameof(login));
+            var guardResult = SessionAccessGuard.EnsureUserType(this, 1);
+            if (guardResult != null)
+                return guardResult;
 
             return View();
         }

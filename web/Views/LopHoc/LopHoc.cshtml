@@ -1,4 +1,4 @@
-@{
+﻿@{
     ViewData["Title"] = "Bắt đầu buổi học OFFLINE";
 }
 
@@ -223,6 +223,7 @@
         let capturedOk=false
         let lessonStartedAt=null
         let timerRef=null
+        let hasStartedLesson=false
 
         $(function(){
 
@@ -260,6 +261,7 @@
                     $("#scheduledStart").text(start)
                     $("#scheduledEnd").text(end)
 
+
                     // kiểm tra buổi học
                     if(item.buoiHocID == null || item.buoiHocID == 0){
 
@@ -296,7 +298,8 @@
                     $("#btnOpenCam").hide()
 
                     if(res.data.trangThai==1){
-                          idbuoihoc=res.data.id
+                        hasStartedLesson = true
+                        idbuoihoc=res.data.id
                         $("#btnStopLesson").show()
                         // lấy giờ bắt đầu từ server
                              let time = res.data.gioBatDau.split('.')[0]   // bỏ mili giây
@@ -391,6 +394,8 @@
                     }
 
                     $("#btnStopLesson").show()
+                    hasStartedLesson = true
+                    idbuoihoc = Number(res.success) || 0
 
                     lessonStartedAt=new Date()
 
@@ -430,6 +435,7 @@
 
                     if(res.success){
 
+                        hasStartedLesson = false
                         $("#timerBox").text("00:00:00")
 
                         Swal.fire({
@@ -450,6 +456,7 @@
             })
 
         })
+
 
     </script>
 
