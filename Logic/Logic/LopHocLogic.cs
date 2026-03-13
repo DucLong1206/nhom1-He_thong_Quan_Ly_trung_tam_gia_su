@@ -364,13 +364,14 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su_Logic.Logic
                 return false;
             }
         }
-        public List<LichHomNayModel> LichHomNay(int id)
+        public List<LichHomNayModel> LichHomNay(int id, int Mode)
         {
             try
             {
                 var data = _context.Set<LichHomNayModel>()
-                    .FromSqlRaw("EXEC getlichhomnay @UserID",
-                        new SqlParameter("@UserID", id))
+                    .FromSqlRaw("EXEC getlichhomnay @UserID, @Mode",
+                        new SqlParameter("@UserID", id),
+                        new SqlParameter("@Mode", Mode))
                     .ToList();
 
                 return data;
@@ -379,6 +380,62 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su_Logic.Logic
             {
                 return new List<LichHomNayModel>();
             }
+        }
+        public List<ThongTinBuoiHocModel> GetThongTinBuoiHoc(int idlop, int iddk)
+        {
+            try
+            {
+                var data = _context.Set<ThongTinBuoiHocModel>()
+                    .FromSqlRaw(
+                        "EXEC getthongtinbuoihoc @idlop, @iddk",
+                        new SqlParameter("@idlop", idlop),
+                        new SqlParameter("@iddk", iddk)
+                    )
+                    .ToList();
+
+                return data;
+            }
+            catch
+            {
+                return new List<ThongTinBuoiHocModel>();
+            }
+        }
+        public int luuthongtinbuoihoc(int idlop)
+        {
+            try
+            {
+                var param = new SqlParameter("@idlop", idlop);
+
+                var id = _context.Database
+                    .SqlQuery<int>($"EXEC luuthongtinbuoihoc @idlop={param}")
+                    .AsEnumerable()
+                    .FirstOrDefault();
+
+                return id;
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+        public LopHoc_BuoiHoc GetTrangThaiBuoiHoc(int ID)
+        {
+            var data = _context.LopHoc_BuoiHoc.FirstOrDefault(x => x.ID == ID);
+            return data;
+        }
+        public bool StopLesson(int ID)
+        {
+            var data = _context.LopHoc_BuoiHoc.FirstOrDefault(x => x.ID == ID);
+
+            if (data == null)
+                return false;
+
+            data.TrangThai = 2;
+            data.GioKetThuc = DateTime.Now.TimeOfDay;
+
+            _context.SaveChanges();
+
+            return true;
         }
     }
 }

@@ -30,6 +30,7 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su_Entity
         public DbSet<Lophoc_doilich> Lophoc_doilich { get; set; }
         public DbSet<LopHoc_LichHoc> LopHoc_LichHoc { get; set; }
         public DbSet<LichHomNayModel> LichHomNayModel { get; set; }
+        public DbSet<ThongTinBuoiHocModel> ThongTinBuoiHocModel { get; set; }
 
 
 
@@ -40,6 +41,7 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su_Entity
             builder.Entity<lophocbyid>().HasNoKey();
             builder.Entity<LopHoc_LichHoc>().HasNoKey();
             builder.Entity<LichHomNayModel>().HasNoKey();
+            builder.Entity<ThongTinBuoiHocModel>().HasNoKey();
             //builder.Entity<TrangThaiDuAn>().HasKey(tt => tt.IdTrangThaiDuAn);
             //builder.Entity<DuAn>().HasKey(tt => tt.IdDuAn);
             //builder.Entity<DuAn_Extend_GetList>().HasNoKey();

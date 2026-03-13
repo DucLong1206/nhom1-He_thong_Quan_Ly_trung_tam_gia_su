@@ -3,29 +3,38 @@
 }
 
 <div class="container py-4">
+
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h4 class="mb-0">Thông báo lịch học</h4>
         <span class="badge bg-primary-subtle text-primary-emphasis">Lịch dạy</span>
     </div>
 
     <ul class="nav nav-tabs">
+
         <li class="nav-item">
-            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#homnay">
+            <button class="nav-link active"
+                    data-bs-toggle="tab"
+                    data-bs-target="#homnay">
                 Hôm nay
             </button>
         </li>
 
         <li class="nav-item">
-            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#ngaymai">
+            <button class="nav-link"
+                    data-bs-toggle="tab"
+                    data-bs-target="#ngaymai">
                 Ngày mai
             </button>
         </li>
 
         <li class="nav-item">
-            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#homqua">
+            <button class="nav-link"
+                    data-bs-toggle="tab"
+                    data-bs-target="#homqua">
                 Hôm qua
             </button>
         </li>
+
     </ul>
 
     <div class="tab-content border border-top-0 rounded-bottom p-3">
@@ -41,103 +50,192 @@
 
         <!-- NGÀY MAI -->
         <div class="tab-pane fade" id="ngaymai">
-            <div class="list-group">
-                <div class="list-group-item">
-                    <div class="fw-semibold">09:00 - Lớp Vật lý 10</div>
-                    <small class="text-muted">Giáo viên: Nguyễn Văn A</small>
-                </div>
-
-                <div class="list-group-item">
-                    <div class="fw-semibold">19:30 - Lớp Hóa 11</div>
-                    <small class="text-muted">Giáo viên: Trần Thị B</small>
+            <div class="list-group" id="listlichngaymai">
+                <div class="text-center text-muted">
+                    Đang tải lịch học...
                 </div>
             </div>
         </div>
 
         <!-- HÔM QUA -->
         <div class="tab-pane fade" id="homqua">
-            <div class="list-group">
-                <div class="list-group-item">
-                    <div class="fw-semibold">07:30 - Lớp Văn 12</div>
-                    <small class="text-muted">Đã hoàn thành</small>
-                </div>
-
-                <div class="list-group-item">
-                    <div class="fw-semibold">16:00 - Lớp Sinh học 8</div>
-                    <small class="text-muted">Đã hoàn thành</small>
+            <div class="list-group" id="listlichhomqua">
+                <div class="text-center text-muted">
+                    Đang tải lịch học...
                 </div>
             </div>
         </div>
 
     </div>
+
 </div>
 
-@section Scripts{
+
+@section Scripts {
 
     <script>
 
         $(document).ready(function () {
 
-            loadLichHomNay();
+            loadLich(0)
 
-        });
+            $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
+
+                let target = $(e.target).data("bs-target")
+
+                if(target=="#homnay") loadLich(0)
+                if(target=="#ngaymai") loadLich(1)
+                if(target=="#homqua") loadLich(2)
+
+            })
+
+        })
 
 
-        function loadLichHomNay() {
+
+        function loadLich(mode){
 
             $.ajax({
 
-                url: '@Url.Action("getlichhomnay", "Lophoc")',
-                type: 'GET',
+                url:'@Url.Action("getlichhomnay", "Lophoc")',
+                type:'GET',
+                data:{Mode:mode},
 
-                success: function (data) {
+                success:function(data){
 
-                    let html = '';
+                    let html=""
+                    let target="#listlichhomnay"
 
-                    if (!data || data.length === 0) {
+                    if(mode==1) target="#listlichngaymai"
+                    if(mode==2) target="#listlichhomqua"
 
-                        html = `<div class="list-group-item text-muted">
-                                    Hôm nay không có lịch học
-                                </div>`;
+                    if(!data || data.length==0){
+
+                        html=`<div class="list-group-item text-muted">
+                                Không có lịch học
+                              </div>`
+
                     }
 
-                    else {
+                    else{
 
-                        data.forEach(function (item) {
+                        data.forEach(function(item){
 
-                            html += `
-                                <a href="@Url.Action("lophoc", "LopHoc")"
+                            let trangThaiText=""
+                            let badge=""
+
+                            if(item.trangThai==0){
+                                trangThaiText="Chưa dạy"
+                                badge="bg-secondary"
+                            }
+
+                            if(item.trangThai==1){
+                                trangThaiText="Đang dạy"
+                                badge="bg-warning"
+                            }
+
+                            if(item.trangThai==2){
+                                trangThaiText="Hoàn thành"
+                                badge="bg-success"
+                            }
+
+                            let content=`
+
+                                <div class="fw-semibold">
+
+                                    ${formatTime(item.gioBatDau)} - ${formatTime(item.gioKetThuc)}
+
+                                    | ${item.mon} lớp ${item.trinhDo}
+
+                                </div>
+
+                                <small class="text-muted">
+
+                                    Người tạo lớp: ${item.name}
+
+                                </small>
+
+                                <span class="badge ${badge} float-end">
+
+                                    ${trangThaiText}
+
+                                </span>
+
+                            `
+
+                            // HÔM NAY → click được
+                            if(mode==0){
+
+                                html+=`
+
+                                <a href="/lophoc/lophoc?id=${item.id}&iddk=${item.iddk}"
+
                                    class="list-group-item list-group-item-action">
 
-                                    <div class="fw-semibold">
-                                        ${item.gioBatDau} - ${item.gioKetThuc}
-                                        | ${item.mon} ${item.trinhdo}
-                                    </div>
-
-                                    <small class="text-muted">
-                                        Người tạo lớp: ${item.name}
-                                    </small>
+                                   ${content}
 
                                 </a>
-                            `;
-                        });
+
+                                `
+
+                            }
+
+                            // NGÀY MAI + HÔM QUA → không click
+                            else{
+
+                                html+=`
+
+                                <div class="list-group-item">
+
+                                    ${content}
+
+                                </div>
+
+                                `
+
+                            }
+
+                        })
+
                     }
 
-                    $("#listlichhomnay").html(html);
+                    $(target).html(html)
+
                 },
 
-                error: function () {
+                error:function(){
 
-                    $("#listlichhomnay").html(`
+                    $(target).html(`
+
                         <div class="list-group-item text-danger">
-                            Không tải được dữ liệu lịch học
+
+                            Không tải được dữ liệu
+
                         </div>
-                    `);
+
+                    `)
+
                 }
 
-            });
+            })
+
+        }
+
+
+
+        function formatTime(time){
+
+            if(!time) return ""
+
+            let t=new Date("1970-01-01T"+time)
+
+            let h=t.getHours().toString().padStart(2,'0')
+            let m=t.getMinutes().toString().padStart(2,'0')
+
+            return h+":"+m
 
         }
 
     </script>
+
 }

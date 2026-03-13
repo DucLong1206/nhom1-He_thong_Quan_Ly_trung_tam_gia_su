@@ -17,8 +17,10 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
             return View();
         }
 
-        public IActionResult LopHoc()
+        public IActionResult LopHoc(int id, int iddk)
         {
+            ViewBag.id = id;
+            ViewBag.iddk = iddk;
             return View();
         }
         public IActionResult Detail(int id)
@@ -244,7 +246,7 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
         {
             return View();
         }
-        public JsonResult getlichhomnay()
+        public JsonResult getlichhomnay(int Mode)
         {
             var iduser = HttpContext.Session.GetInt32("UserId");
 
@@ -253,9 +255,60 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
                 return Json(new List<LichHomNayModel>());
             }
 
-            var data = _lh.LichHomNay(iduser.Value);
+            var data = _lh.LichHomNay(iduser.Value, Mode);
 
             return Json(data);
+        }
+        public JsonResult GetThongTinBuoiHoc(int idlop, int iddk)
+        {
+            try
+            {
+                var data = _lh.GetThongTinBuoiHoc(idlop, iddk);
+                return Json(new { success = true, data = data });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+        public JsonResult StartLesson(int idlop)
+        {
+            var idbuoi = _lh.luuthongtinbuoihoc(idlop);
+            return Json(new { success = idbuoi });
+        }
+        public JsonResult GetTrangThaiBuoiHoc(int buoiHocID)
+        {
+            try
+            {
+                var data = _lh.GetTrangThaiBuoiHoc(buoiHocID);
+                if (data != null)
+                {
+                    return Json(new { success = true, data = data });
+                }
+                else
+                {
+                    return Json(new { success = false, message = "Không tìm thấy buổi học." });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+
+
+            return Json(new { success = true });
+        }
+        public JsonResult StopLesson(int ID)
+        {
+
+            var result = _lh.StopLesson(ID);
+            if (!result)
+            {
+                return Json(new { success = false, message = "Không thể dừng buổi học. Vui lòng thử lại." });
+            }
+
+
+            return Json(new { success = true });
         }
     }
 }

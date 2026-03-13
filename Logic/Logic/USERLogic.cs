@@ -32,7 +32,7 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su_Logic.Logic
 
                 var user = _context.USER
                                    .AsNoTracking()
-                                   .FirstOrDefault(x => x.IDTK == IDTK);
+                                   .FirstOrDefault(x => x.ID == IDTK);
 
                 return user;
             }

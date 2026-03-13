@@ -16,6 +16,10 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su_Logic.ILogic
         bool savelichbu(Lophoc_doilich model);
         List<LopHoc_LichHoc> GetNgayGocHocBu(int idlop);
         bool editlichbu(Lophoc_doilich model);
-        List<LichHomNayModel> LichHomNay(int id);
+        List<LichHomNayModel> LichHomNay(int id, int Mode);
+        List<ThongTinBuoiHocModel> GetThongTinBuoiHoc(int idlop, int iddk);
+        int luuthongtinbuoihoc(int idlop);
+        LopHoc_BuoiHoc GetTrangThaiBuoiHoc(int ID);
+        bool StopLesson(int ID);
     }
 }

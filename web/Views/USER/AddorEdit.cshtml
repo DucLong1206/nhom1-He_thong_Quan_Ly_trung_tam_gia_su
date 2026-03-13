@@ -40,8 +40,21 @@
         color: white;
     }
 
-</style>
+    .form-control,
+    .select2-container .select2-selection--single {
+        height: 38px;
+    }
 
+    .select2-container .select2-selection--single {
+        display: flex;
+        align-items: center;
+    }
+
+   
+</style>
+@{
+    var TypeUsser = Context.Session.GetInt32("TypeUsser");
+}
 <div class="profile-wrapper">
     <div class="card card-custom">
         <div class="card-header-custom">
@@ -96,7 +109,9 @@
 
                     <div class="col-md-6">
                         <label class="form-label">Ngân hàng</label>
-                        <input id="NganHang" class="form-control" type="number" />
+                    <select id="NganHang" class="form-select select2">
+                        <option value="">-- Chọn ngân hàng --</option>
+                    </select>
                     </div>
                 </div>
 
@@ -106,9 +121,13 @@
                 </div>
 
                 <div class="d-flex justify-content-end gap-2">
+                @if (TypeUsser == 1)
+                {
                     <a class="btn btn-outline-secondary" href='@Url.Action("TutorSubjects", "USER", new { idtk = ViewBag.idtk })'>
                         Môn học có thể dạy
                     </a>
+                }
+               
                     <button id="save" class="btn btn-custom px-4">
                         Lưu thông tin
                     </button>
@@ -123,14 +142,20 @@
 
 @section Scripts {
     <script>
-
+        let loadingUser = true;
         $(document).ready(function () {
 
             let currentXaId = null;
             let idtk = @ViewBag.idtk || 0;
-
+            loadNganHang();
             $('.select2').select2({ width: '100%' });
+                           $("#NganHang").on("change", function () {
 
+            if (!loadingUser) {
+                $("#STK").val("");
+            }
+
+        });
             /* ================================
                LOAD DANH SÁCH TỈNH
             ==================================*/
@@ -201,14 +226,20 @@
                     .done(function (res) {
 
                         if (!res.success) return;
-
+                        console.log(res)
                         let user = res.data;
 
                         $("#Name").val(user.name);
                         $("#SDT").val(user.sdt);
                         $("#DiaChi").val(user.diaChi);
+
+                        loadNganHang(user.nganHang).then(function(){
+
                         $("#STK").val(user.stk);
-                        $("#NganHang").val(user.nganHang);
+
+                        loadingUser = false;
+
+                    });
                         $("#avata").val(user.avata);
                         $("#id").val(user.id);
 
@@ -299,7 +330,31 @@
             loadTinh().then(function () {
                 loadUser();
             });
+                    function loadNganHang(selectedId = null) {
 
+            return $.get('/USER/getlistnganhang')
+
+                .done(function (res) {
+
+                    let select = $("#NganHang");
+
+                    select.empty().append('<option value="">-- Chọn ngân hàng --</option>');
+
+                    $.each(res.data, function (i, item) {
+
+                        select.append(`<option value="${item.id}">${item.name}</option>`);
+
+                    });
+
+                    if (selectedId) {
+
+                        select.val(selectedId).trigger('change');
+
+                    }
+
+                });
+
+        }
         });
 
     </script>
