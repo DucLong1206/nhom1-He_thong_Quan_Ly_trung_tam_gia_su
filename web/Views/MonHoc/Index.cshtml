@@ -306,59 +306,37 @@
 
 
     function renderList(data){
+        const container=document.querySelector(".gs-list")
+        container.innerHTML=""
 
-    const container=document.querySelector(".gs-list")
+        if(!data || data.length===0){
+            container.innerHTML='<div class="gs-empty">Không có dữ liệu</div>'
+            return
+        }
 
-    container.innerHTML=""
+        data.forEach(item=>{
+            const avatar=getAvatar(item)
 
-    if(!data || data.length===0){
-
-    container.innerHTML='<div class="gs-empty">Không có dữ liệu</div>'
-
-    return
-
-    }
-
-    data.forEach(item=>{
-
-    const avatar=getAvatar(item)
-
-    const html=`
-
-    <a class="gs-card text-decoration-none" href="/MonHoc/TutorDetail?id=${item.id}">
-
-    ${avatar}
-
-    <div class="gs-divider"></div>
-
-    <div class="gs-info">
-
-    <div class="gs-name">${item.name}</div>
-
-    <div class="gs-tags">
-
-    <span class="gs-tag subject">${item.mon} - Lớp ${item.trinhdo}</span>
-
-    <span class="gs-tag area">${item.xa}</span>
-
-    </div>
-
-    <div class="gs-price">
-
-    ${Number(item.giaTheoGio).toLocaleString()} VNĐ / giờ
-
-    </div>
-
-    </div>
-
-    </a>
-
-    `
-
-    container.insertAdjacentHTML("beforeend",html)
-
-    })
-
+            // ĐIỂM QUAN TRỌNG NHẤT LÀ DÒNG DƯỚI ĐÂY:
+            // Đã thêm tham số &idmon=${item.idMon} vào URL để phân biệt môn học
+            const html=`
+            <a class="gs-card text-decoration-none" href="/MonHoc/TutorDetail?id=${item.id}&idmon=${item.idMon}">
+                ${avatar}
+                <div class="gs-divider"></div>
+                <div class="gs-info">
+                    <div class="gs-name">${item.name}</div>
+                    <div class="gs-tags">
+                        <span class="gs-tag subject">${item.mon} - Lớp ${item.trinhdo}</span>
+                        <span class="gs-tag area">${item.xa}</span>
+                    </div>
+                    <div class="gs-price">
+                        ${Number(item.giaTheoGio).toLocaleString()} VNĐ / giờ
+                    </div>
+                </div>
+            </a>
+            `
+            container.insertAdjacentHTML("beforeend",html)
+        })
     }
 
 </script>
