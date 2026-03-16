@@ -127,4 +127,13 @@
         public int SoBuoiDaHoc { get; set; }
         public decimal SoTienHoan { get; set; }
     }
+
+    public class KiemTraDieuKienHoanPhiResult
+    {
+        public bool CoTheHoanPhi { get; set; }
+        public string Message { get; set; }
+        public int? IDHopDong { get; set; }
+        public int SoBuoiDaHoc { get; set; }
+        public decimal SoTienDuKienHoan { get; set; }
+    }
 }
