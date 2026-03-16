@@ -368,6 +368,22 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
             return Json(new { success = true });
         }
 
+        [HttpGet]
+        public JsonResult KiemTraDieuKienHoanPhi(int lopId)
+        {
+            var guardResult = SessionAccessGuard.EnsureUserType(this, 2);
+            if (guardResult != null)
+                return Json(new { success = false, message = "Bạn không có quyền truy cập vào khu vực này." });
+
+            var result = _lh.KiemTraDieuKienHoanPhi(lopId);
+
+            return Json(new
+            {
+                success = true,
+                data = result
+            });
+        }
+
         [HttpPost]
         public JsonResult XuLyHoanPhiKhiLopHong2BuoiDau(int lopId)
         {

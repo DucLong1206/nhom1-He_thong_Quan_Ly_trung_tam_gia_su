@@ -49,3 +49,17 @@ Yêu cầu bắt buộc:
 - Commit thay đổi với message rõ nghĩa.
 - Tạo PR title/body nêu rõ business rule, endpoint, và công thức.
 ```
+
+## 4) Người dùng bấm ở đâu để hoàn phí? Làm sao biết đủ điều kiện?
+
+- Màn hình: `LopHoc/LichHocDetail`.
+- Nút bấm: **"Yêu cầu hoàn phí"**.
+- Khi mở trang, hệ thống tự gọi API `GET /LopHoc/KiemTraDieuKienHoanPhi?lopId=...` để hiển thị:
+  - Số buổi đã học.
+  - Thông báo đủ/không đủ điều kiện hoàn phí.
+  - Số tiền dự kiến hoàn (nếu đủ điều kiện).
+- Nếu đủ điều kiện, nút hoàn phí bật lên để bấm.
+- Nếu không đủ điều kiện, nút bị disable và hiện rõ lý do.
+
+API xử lý thật khi bấm nút:
+- `POST /LopHoc/XuLyHoanPhiKhiLopHong2BuoiDau?lopId=...`
