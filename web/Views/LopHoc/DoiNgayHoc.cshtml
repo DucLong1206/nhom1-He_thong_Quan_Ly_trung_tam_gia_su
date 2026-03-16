@@ -95,9 +95,8 @@
             const lopHocId = @lopHocId;
             let durationMinutes = 0;
             let selectedThu = 0;
-            let selectedNgayGoc = null; // DateTime gốc từ server
+            let selectedNgayGoc = null;
 
-            // ─── Khởi tạo Select2 ─────────────────────────────────────────
             $('#selectBuoiHoc').select2({
                 placeholder: '-- Chọn buổi học --',
                 allowClear: true,
@@ -106,8 +105,6 @@
 
             loadBuoiHoc();
 
-
-            // ─── Load danh sách buổi học từ getngaygoc ────────────────────
             function loadBuoiHoc() {
                 $.ajax({
                     url: '/LopHoc/getngaygoc',
@@ -126,7 +123,6 @@
                             const ketthuc = String(x.gioKetThuc).substring(0, 5);
                             const label = `${thu} - ${ngayStr}  •  ${batdau} - ${ketthuc}`;
 
-                            // Lưu ngayHoc gốc dưới dạng ISO string vào data-ngaygoc
                             $('#selectBuoiHoc').append(
                                 $('<option>', {
                                     value: x.id,
@@ -134,7 +130,7 @@
                                     'data-thu': x.thu,
                                     'data-start': batdau,
                                     'data-end': ketthuc,
-                                    'data-ngaygoc': x.ngayHoc  // ISO: "2026-03-06T00:00:00"
+                                    'data-ngaygoc': x.ngayHoc
                                 })
                             );
                         });
@@ -142,84 +138,104 @@
                         $('#selectBuoiHoc').trigger('change');
                     },
                     error: function () {
-                        showMessage('Không tải được danh sách buổi học', false);
+                        showMessage('Không tải được danh sách buổi học', 'error');
                     }
                 });
             }
 
-
-            // ─── Khi chọn buổi học → cập nhật state ──────────────────────
             $('#selectBuoiHoc').on('change', function () {
                 const opt = $(this).find('option:selected');
-
                 const start = opt.data('start');
-                const end   = opt.data('end');
+                const end = opt.data('end');
 
-                selectedThu     = opt.data('thu') || 0;
+                selectedThu = opt.data('thu') || 0;
                 selectedNgayGoc = opt.data('ngaygoc') || null;
-
                 durationMinutes = (start && end) ? getMinutes(start, end) : 0;
 
                 clearInputFields();
             });
 
-
-            // ─── Tự tính giờ kết thúc khi nhập giờ bắt đầu ──────────────
             $('#startTime').on('change', function () {
                 const start = $(this).val();
                 if (!start || durationMinutes === 0) return;
                 $('#endTime').val(addMinutes(start, durationMinutes));
             });
 
-
-            // ─── Lưu thay đổi ─────────────────────────────────────────────
             $('#btnSave').click(function () {
                 const buoiId = $('#selectBuoiHoc').val();
-                const ngay   = $('#newDate').val();
-                const start  = $('#startTime').val();
-                const end    = $('#endTime').val();
+                const ngay = $('#newDate').val();
+                const start = $('#startTime').val();
+                const end = $('#endTime').val();
 
                 if (!buoiId || !ngay || !start || !end) {
-                    showMessage('Vui lòng nhập đầy đủ dữ liệu', false);
+                    showMessage('Vui lòng nhập đầy đủ dữ liệu', 'warning');
                     return;
                 }
 
                 if (!selectedNgayGoc) {
-                    showMessage('Không xác định được ngày gốc, vui lòng chọn lại buổi học', false);
+                    showMessage('Không xác định được ngày gốc, vui lòng chọn lại buổi học', 'warning');
                     return;
                 }
 
-                // Lấy phần date từ ISO string (yyyy-MM-dd)
                 const ngayGocFormatted = selectedNgayGoc.substring(0, 10);
 
                 const payload = {
-                    ID:buoiId,
-                    idlophoc:   lopHocId,
-                    ngaygoc:    ngayGocFormatted,   // lấy từ data thực, không hardcode
-                    thu:        selectedThu,
-                    ngaydoi:    ngay,
-                    giobatdau:  start + ":00",
-                    gioketthuc: end   + ":00"
+                    ID: buoiId,
+                    idlophoc: lopHocId,
+                    ngaygoc: ngayGocFormatted,
+                    thu: selectedThu,
+                    ngaydoi: ngay,
+                    giobatdau: start + ':00',
+                    gioketthuc: end + ':00'
                 };
 
                 $.ajax({
-                    url:         '/LopHoc/LuuDoiLichHoc',
-                    type:        'POST',
+                    url: '/LopHoc/LuuDoiLichHoc',
+                    type: 'POST',
                     contentType: 'application/json',
-                    data:        JSON.stringify(payload),
+                    data: JSON.stringify(payload),
                     success: function (res) {
                         if (!res.success) {
-                            showMessage(res.message, false);
+                            showMessage(res.message || 'Không thể lưu thay đổi.', 'error');
                             return;
                         }
-                        showMessage('Lưu thay đổi thành công', true);
-                        clearInputFields();
+
+                        guiEmailThongBao(ngayGocFormatted, ngay, start, end);
+                    },
+                    error: function () {
+                        showMessage('Không thể kết nối server.', 'error');
                     }
                 });
             });
 
+            function guiEmailThongBao(ngayGoc, ngayMoi, gioBatDau, gioKetThuc) {
+                $.ajax({
+                    url: '/LopHoc/SendDoiNgayHocNotification',
+                    type: 'POST',
+                    data: {
+                        lopId: lopHocId,
+                        ngayGoc: formatDate(ngayGoc),
+                        ngayMoi: formatDate(ngayMoi),
+                        gioBatDau: gioBatDau,
+                        gioKetThuc: gioKetThuc
+                    },
+                    success: function (res) {
+                        if (!res.success) {
+                            showMessage('Đã lưu đổi lịch nhưng gửi email chưa thành công: ' + (res.message || ''), 'warning');
+                            clearInputFields();
+                            return;
+                        }
 
-            // ─── Helpers ──────────────────────────────────────────────────
+                        showMessage('Lưu thay đổi thành công. ' + (res.message || ''), 'success');
+                        clearInputFields();
+                    },
+                    error: function () {
+                        showMessage('Đã lưu đổi lịch thành công nhưng không gửi được email thông báo.', 'warning');
+                        clearInputFields();
+                    }
+                });
+            }
+
             function clearInputFields() {
                 $('#newDate').val('');
                 $('#startTime').val('');
@@ -241,15 +257,24 @@
                 return (parseInt(e[0]) * 60 + parseInt(e[1])) - (parseInt(s[0]) * 60 + parseInt(s[1]));
             }
 
-            function showMessage(msg, ok) {
-                const box = $('#alertBox');
-                box.removeClass('d-none alert-success alert-danger');
-                box.addClass(ok ? 'alert-success' : 'alert-danger');
-                box.text(msg);
+            function formatDate(yyyyMMdd) {
+                const p = yyyyMMdd.split('-');
+                if (p.length !== 3) return yyyyMMdd;
+                return `${p[2]}/${p[1]}/${p[0]}`;
+            }
+
+            function showMessage(msg, icon) {
+                Swal.fire({
+                    icon: icon || 'info',
+                    title: 'Thông báo',
+                    text: msg,
+                    confirmButtonText: 'OK'
+                });
             }
 
         });
 
     </script>
+
 
 }

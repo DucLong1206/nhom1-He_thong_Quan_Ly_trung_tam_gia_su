@@ -136,4 +136,15 @@
         public int SoBuoiDaHoc { get; set; }
         public decimal SoTienDuKienHoan { get; set; }
     }
+
+    public class LopHocThongBaoInfo
+    {
+        public int LopHocId { get; set; }
+        public string MonHoc { get; set; }
+        public string DiaChi { get; set; }
+        public string? PhuHuynhName { get; set; }
+        public string? PhuHuynhEmail { get; set; }
+        public string? GiaSuName { get; set; }
+        public string? GiaSuEmail { get; set; }
+    }
 }

@@ -561,6 +561,37 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su_Logic.Logic
             }
         }
 
+        public LopHocThongBaoInfo? GetThongTinThongBaoDoiLich(int lopId)
+        {
+            var lopHoc = _context.LopHoc.FirstOrDefault(x => x.ID == lopId);
+            if (lopHoc == null)
+            {
+                return null;
+            }
+
+            var phuHuynh = _context.USER.FirstOrDefault(x => x.ID == lopHoc.idnguoitao);
+            var giaSu = _context.USER.FirstOrDefault(x => x.ID == lopHoc.idnguoinhan);
+
+            var phuHuynhEmail = phuHuynh == null
+                ? null
+                : _context.TaiKhoan.Where(x => x.ID == phuHuynh.IDTK).Select(x => x.Email).FirstOrDefault();
+            var giaSuEmail = giaSu == null
+                ? null
+                : _context.TaiKhoan.Where(x => x.ID == giaSu.IDTK).Select(x => x.Email).FirstOrDefault();
+            var monHoc = _context.MonHoc.Where(x => x.ID == lopHoc.idmon).Select(x => x.Name).FirstOrDefault() ?? "N/A";
+
+            return new LopHocThongBaoInfo
+            {
+                LopHocId = lopHoc.ID,
+                MonHoc = monHoc,
+                DiaChi = lopHoc.DIaChi,
+                PhuHuynhName = phuHuynh?.Name,
+                PhuHuynhEmail = phuHuynhEmail,
+                GiaSuName = giaSu?.Name,
+                GiaSuEmail = giaSuEmail
+            };
+        }
+
         private decimal TinhPhiMoiGioi(LopHoc lop, int soBuoiCamKet)
         {
             var hocPhiMotBuoi = lop.sotienMotBuoi ?? 0;
