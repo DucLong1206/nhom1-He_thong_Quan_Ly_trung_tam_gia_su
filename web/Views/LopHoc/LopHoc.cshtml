@@ -210,7 +210,6 @@
     </div>
 
 </div>
-
 @section Scripts {
 
     <script>
@@ -224,6 +223,9 @@
         let lessonStartedAt=null
         let timerRef=null
         let hasStartedLesson=false
+
+        let scheduleStartDate=null
+        let scheduleEndDate=null
 
         $(function(){
 
@@ -242,15 +244,15 @@
                 data:{idlop:idlop,iddk:iddk},
 
                 success:function(res){
-                    console.log(res)
+
                     if(!res.success) return
 
                     let item=res.data[0]
 
                     $(".lesson-title").html(
-                        item.mon + " lớp " + item.trinhdo +
-                        " - Gia sư " + item.giasu +
-                        "<br>Học viên: " + item.name
+                        item.mon+" lớp "+item.trinhdo+
+                        " - Gia sư "+item.giasu+
+                        "<br>Học viên: "+item.name
                     )
 
                     $("#alertEmail").text(item.email_Giasu)
@@ -261,14 +263,15 @@
                     $("#scheduledStart").text(start)
                     $("#scheduledEnd").text(end)
 
+                    scheduleStartDate = buildTodayTime(start)
+                    scheduleEndDate = buildTodayTime(end)
 
-                    // kiểm tra buổi học
-                    if(item.buoiHocID == null || item.buoiHocID == 0){
+                    startTimeWatcher()
 
-                        $("#btnStopLesson").hide()
+                    if(item.buoiHocID!=null && item.buoiHocID!=0){
 
-                    }else{
                         idbuoihoc=item.buoiHocID
+
                         loadTrangThaiBuoiHoc(item.buoiHocID)
 
                     }
@@ -279,7 +282,31 @@
 
         }
 
-                function loadTrangThaiBuoiHoc(buoiHocID){
+        function isLessonExpired(){
+
+            if(!scheduleEndDate) return false
+
+            return new Date() >= scheduleEndDate
+
+        }
+
+        function startTimeWatcher(){
+
+            setInterval(function(){
+
+                if(isLessonExpired()){
+
+                    $("#btnStartLesson").prop("disabled",true)
+                    $("#btnCapture").prop("disabled",true)
+                    $("#btnOpenCam").prop("disabled",true)
+
+                }
+
+            },10000)
+
+        }
+
+        function loadTrangThaiBuoiHoc(buoiHocID){
 
             $.ajax({
 
@@ -288,29 +315,27 @@
                 data:{buoiHocID:buoiHocID},
 
                 success:function(res){
-                    console.log(res)
 
                     if(!res.success) return
 
-                    $("#btnStopLesson").hide()
                     $("#btnStartLesson").hide()
                     $("#btnCapture").hide()
                     $("#btnOpenCam").hide()
 
                     if(res.data.trangThai==1){
-                        hasStartedLesson = true
+
+                        hasStartedLesson=true
+
                         idbuoihoc=res.data.id
+
                         $("#btnStopLesson").show()
-                        // lấy giờ bắt đầu từ server
-                             let time = res.data.gioBatDau.split('.')[0]   // bỏ mili giây
 
-        let today = new Date().toISOString().split('T')[0]
+                        let time=res.data.gioBatDau.split('.')[0]
 
-        lessonStartedAt = new Date(today + "T" + time)
+                        let today=new Date().toISOString().split('T')[0]
 
-        console.log(lessonStartedAt)
+                        lessonStartedAt=new Date(today+"T"+time)
 
-                        // tính thời gian đã trôi
                         function updateTimer(){
 
                             let diff=Math.floor((Date.now()-lessonStartedAt.getTime())/1000)
@@ -337,6 +362,14 @@
 
         $("#btnOpenCam").click(async function(){
 
+            if(isLessonExpired()){
+
+                Swal.fire("Đã quá giờ kết thúc","Không thể mở camera","warning")
+
+                return
+
+            }
+
             streamRef=await navigator.mediaDevices.getUserMedia({video:true})
 
             $("#camPreview")[0].srcObject=streamRef
@@ -345,57 +378,81 @@
 
         })
 
-               $("#btnCapture").click(function(){
+        $("#btnCapture").click(function(){
 
-            let video = $("#camPreview")[0]
-            let canvas = $("#captureCanvas")[0]
+            if(isLessonExpired()){
 
-            canvas.width = video.videoWidth
-            canvas.height = video.videoHeight
+                Swal.fire("Đã quá giờ kết thúc","Không thể chụp ảnh","warning")
+
+                return
+
+            }
+
+            let video=$("#camPreview")[0]
+            let canvas=$("#captureCanvas")[0]
+
+            canvas.width=video.videoWidth
+            canvas.height=video.videoHeight
 
             canvas.getContext("2d").drawImage(video,0,0)
 
-            let data = canvas.toDataURL()
+            let data=canvas.toDataURL()
 
             $("#capturedImage").attr("src",data)
 
-            capturedOk = true
+            capturedOk=true
 
             $("#statusCapture").html('<span class="status-dot dot-ok"></span>Đã chụp')
 
-            // TẮT CAMERA
             if(streamRef){
-                streamRef.getTracks().forEach(track => track.stop())
-                $("#camPreview")[0].srcObject = null
+
+                streamRef.getTracks().forEach(track=>track.stop())
+
+                $("#camPreview")[0].srcObject=null
+
             }
 
         })
 
         $("#btnStartLesson").click(function(){
 
-            if(!capturedOk){
-                Swal.fire("Thiếu xác nhận","Cần chụp ảnh trước khi bắt đầu","warning")
+            if(isLessonExpired()){
+
+                Swal.fire("Đã quá giờ kết thúc","Không thể bắt đầu buổi học","error")
+
                 return
+
+            }
+
+            if(!capturedOk){
+
+                Swal.fire("Thiếu xác nhận","Cần chụp ảnh trước khi bắt đầu","warning")
+
+                return
+
             }
 
             $.ajax({
 
                 url:'/LopHoc/StartLesson',
                 type:'POST',
-                data:{
-                    idlop:idlop
-                },
+                data:{idlop:idlop},
 
                 success:function(res){
 
                     if(!res.success){
-                        Swal.fire("Không thể bắt đầu buổi học",res.message || "Có lỗi xảy ra","error")
+
+                        Swal.fire("Không thể bắt đầu buổi học",res.message,"error")
+
                         return
+
                     }
 
                     $("#btnStopLesson").show()
-                    hasStartedLesson = true
-                    idbuoihoc = Number(res.success) || 0
+
+                    hasStartedLesson=true
+
+                    idbuoihoc=Number(res.success)||0
 
                     lessonStartedAt=new Date()
 
@@ -419,7 +476,7 @@
 
         })
 
-               $("#btnStopLesson").click(function(){
+        $("#btnStopLesson").click(function(){
 
             clearInterval(timerRef)
 
@@ -427,27 +484,22 @@
 
                 url:'/LopHoc/StopLesson',
                 type:'POST',
-                data:{
-                    ID:idbuoihoc
-                },
+                data:{ID:idbuoihoc},
 
                 success:function(res){
 
                     if(res.success){
 
-                        hasStartedLesson = false
+                        hasStartedLesson=false
+
                         $("#timerBox").text("00:00:00")
 
-                        Swal.fire({
-                            title:"Đã kết thúc buổi học",
-                            icon:"success"
-                        }).then(()=>{
+                        Swal.fire("Đã kết thúc buổi học","","success")
+                        .then(()=>{
+
                             window.location.href="/LopHoc/ThongBaoLich"
+
                         })
-
-                    }else{
-
-                        Swal.fire("Lỗi",res.message,"error")
 
                     }
 
@@ -458,63 +510,14 @@
         })
 
         function buildTodayTime(hhmm){
+
             if(!hhmm) return null
-            const today = new Date().toISOString().split('T')[0]
+
+            const today=new Date().toISOString().split('T')[0]
+
             return new Date(`${today}T${hhmm}:00`)
+
         }
-
-        function getNotifyKey(type){
-            const today = new Date().toISOString().split('T')[0]
-            return `lesson-alert-${type}-${idlop}-${iddk}-${today}`
-        }
-
-        function markNotified(type){
-            localStorage.setItem(getNotifyKey(type), '1')
-        }
-
-        function wasNotified(type){
-            return localStorage.getItem(getNotifyKey(type)) === '1'
-        }
-
-        function sendLessonAlertEmail(alertType, lessonName, scheduledStart, scheduledEnd, email){
-            if(!email) return
-
-            $.ajax({
-                url:'/LopHoc/SendLessonAlertEmail',
-                type:'POST',
-                data:{
-                    email: email,
-                    alertType: alertType,
-                    lessonName: lessonName,
-                    scheduledStart: scheduledStart,
-                    scheduledEnd: scheduledEnd
-                }
-            })
-        }
-
-        function startLessonAlertWatcher(email, lessonName, scheduledStart, scheduledEnd){
-            if(alertCheckerRef){
-                clearInterval(alertCheckerRef)
-            }
-
-            const checkAndNotify = function(){
-                const now = new Date()
-
-                if(scheduleStartDate && now > scheduleStartDate && !hasStartedLesson && !wasNotified('overdue-start')){
-                    sendLessonAlertEmail('overdue-start', lessonName, scheduledStart, scheduledEnd, email)
-                    markNotified('overdue-start')
-                }
-
-                if(scheduleEndDate && now > scheduleEndDate && hasStartedLesson && !wasNotified('overdue-end')){
-                    sendLessonAlertEmail('overdue-end', lessonName, scheduledStart, scheduledEnd, email)
-                    markNotified('overdue-end')
-                }
-            }
-
-            checkAndNotify()
-            alertCheckerRef = setInterval(checkAndNotify, 60 * 1000)
-        }
-
 
     </script>
 
