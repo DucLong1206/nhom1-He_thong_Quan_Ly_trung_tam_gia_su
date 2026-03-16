@@ -1,6 +1,7 @@
 ﻿using He_thong_Quan_Ly_trung_tam_gia_su_Entity;
 using He_thong_Quan_Ly_trung_tam_gia_su_Entity.Entity;
 using He_thong_Quan_Ly_trung_tam_gia_su_Logic.ILogic;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace He_thong_Quan_Ly_trung_tam_gia_su_Logic.Logic
@@ -12,20 +13,25 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su_Logic.Logic
         {
             _context = context;
         }
-        public List<danhsanhgiasu_List> GetListGiaSu()
+        public List<danhsanhgiasu_List> GetListGiaSu(string keyword, int idmon, decimal gia, int sapxep)
         {
             try
             {
-
                 var result = _context.Set<danhsanhgiasu_List>()
-                            .FromSqlRaw("EXEC [dbo].[GiaSu_listdanhsanhgiasu] ")
-                            .ToList();
+                    .FromSqlRaw(
+                    "EXEC GiaSu_listdanhsanhgiasu @keywword, @idmon, @gia, @sapxep",
+                    new SqlParameter("@keywword", keyword ?? ""),
+                    new SqlParameter("@idmon", idmon),
+                    new SqlParameter("@gia", gia),
+                    new SqlParameter("@sapxep", sapxep)
+                    )
+                    .ToList();
 
                 return result;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return null;
+                return new List<danhsanhgiasu_List>();
             }
         }
         public List<MonHoc> getlisstmonhoc()
@@ -36,7 +42,7 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su_Logic.Logic
         public List<GiaSu_MonHoc_List> getlistmonhocbyidgiasu(int id)
         {
             var monhoc = _context.GiaSu_MonHoc
-                .Where(x => x.IDUser == id)
+                .Where(x => x.IDUser == id && x.Isdelete != true)
                 .Join(
                     _context.MonHoc,
                     gm => gm.IDMon,

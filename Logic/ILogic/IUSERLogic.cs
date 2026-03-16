@@ -9,5 +9,6 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su_Logic.ILogic
         bool EDIT(USER ur, out string mess);
         int checkEmailExists(string email, int id);
         bool changepass(string pass, int id, int type);
+        bool DELETEMONHOCGIASU(int id);
     }
 }

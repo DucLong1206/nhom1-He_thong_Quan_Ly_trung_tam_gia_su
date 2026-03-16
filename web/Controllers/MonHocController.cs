@@ -1,5 +1,5 @@
-﻿using He_thong_Quan_Ly_trung_tam_gia_su_Entity.Entity;
-using He_thong_Quan_Ly_trung_tam_gia_su.Infrastructure.Security;
+﻿using He_thong_Quan_Ly_trung_tam_gia_su.Infrastructure.Security;
+using He_thong_Quan_Ly_trung_tam_gia_su_Entity.Entity;
 using He_thong_Quan_Ly_trung_tam_gia_su_Logic.ILogic;
 using Microsoft.AspNetCore.Mvc;
 
@@ -24,13 +24,13 @@ public class MonHocController : Controller
 
         return View();
     }
-    public JsonResult getlist(string? keyword, int? monHocId, int? xaId, string sort = "name_asc")
+    public JsonResult getlist(string keyword, int idmon, decimal gia, int sapxep)
     {
         var guardResult = SessionAccessGuard.EnsureUserType(this, 2);
         if (guardResult != null)
             return Json(new { success = false, message = "Bạn không có quyền truy cập vào khu vực này." });
 
-        var vm = _mh.GetListGiaSu();
+        var vm = _mh.GetListGiaSu(keyword, idmon, gia, sapxep);
 
         return Json(new { data = vm });
     }

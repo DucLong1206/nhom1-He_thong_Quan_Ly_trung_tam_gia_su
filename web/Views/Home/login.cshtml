@@ -13,12 +13,12 @@
     <div class="background" id="bgGrid"></div>
 
     <div class="login-card">
-        <h2>SIGN IN</h2>
+        <h2>ĐĂNG NHẬP</h2>
 
         <form method="post" asp-action="Login">
             @* <p class="text-muted" style="font-size:0.9rem;">Đăng nhập bằng tài khoản Admin để vào danh sách môn học.</p> *@
-            <input type="text" name="username" placeholder="Username" required />
-            <input type="password" name="password" placeholder="Password" required />
+            <input type="text" name="username" placeholder="Tên đăng nhập" required />
+            <input type="password" name="password" placeholder="Mật khẩu" required />
 
             <div class="extras">
                 <a asp-action="ForgotPassword">Quên mật khẩu?</a>

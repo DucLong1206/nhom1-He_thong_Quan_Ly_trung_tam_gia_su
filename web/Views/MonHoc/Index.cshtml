@@ -1,8 +1,9 @@
 @{
-    ViewData["Title"] = "Danh sách môn học";
+    ViewData["Title"] = "Danh sách gia sư";
 }
 
 <style>
+
     .gs-list {
         display: flex;
         flex-direction: column;
@@ -12,52 +13,37 @@
     .gs-card {
         display: flex;
         align-items: center;
-        background: #ffffff;
+        background: #fff;
         border: 1px solid #e8e8f0;
-        border-radius: 16px;
-        padding: 16px 20px;
-        position: relative;
-        overflow: hidden;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        border-radius: 14px;
+        padding: 16px;
         cursor: pointer;
+        transition: 0.2s;
     }
-
-        .gs-card::after {
-            content: '';
-            position: absolute;
-            right: 0;
-            top: 0;
-            bottom: 0;
-            width: 4px;
-            border-radius: 2px 0 0 2px;
-            background: var(--stripe, #6c63ff);
-        }
 
         .gs-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 28px rgba(0,0,0,0.10);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
         }
 
     .gs-avatar {
-        width: 62px;
-        height: 62px;
-        border-radius: 14px;
-        background: linear-gradient(135deg, var(--grad1, #6c63ff), var(--grad2, #48cfad));
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        background: linear-gradient(135deg,#6c63ff,#48cfad);
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.2rem;
-        font-weight: 700;
+        font-weight: bold;
         color: #fff;
-        flex-shrink: 0;
-        object-fit: cover; /* dùng cho thẻ <img> */
+        object-fit: cover;
     }
 
     .gs-divider {
         width: 1px;
         height: 50px;
-        background: #e8e8f0;
-        margin: 0 18px;
+        background: #eee;
+        margin: 0 15px;
     }
 
     .gs-info {
@@ -66,206 +52,313 @@
 
     .gs-name {
         font-weight: 700;
-        font-size: 0.95rem;
-        margin-bottom: 5px;
+        margin-bottom: 6px;
     }
 
     .gs-tags {
         display: flex;
-        flex-wrap: wrap;
         gap: 6px;
-        margin-bottom: 8px;
+        margin-bottom: 6px;
     }
 
     .gs-tag {
-        font-size: 0.68rem;
-        font-weight: 600;
-        padding: 2px 9px;
+        font-size: 12px;
+        padding: 3px 8px;
         border-radius: 20px;
-        text-transform: uppercase;
     }
 
-        .gs-tag.subject {
-            background: rgba(108,99,255,0.1);
-            color: #6c63ff;
-        }
+    .subject {
+        background: #eef2ff;
+        color: #6366f1;
+    }
 
-        .gs-tag.area {
-            background: rgba(255,159,67,0.1);
-            color: #d97706;
-        }
+    .area {
+        background: #fff4e6;
+        color: #d97706;
+    }
 
     .gs-price {
-        font-size: 1rem;
         font-weight: 700;
         color: #059669;
     }
 
-    .gs-empty {
-        text-align: center;
-        padding: 40px;
-        color: #9ca3af;
-        font-style: italic;
+    .price-filter {
+        padding: 10px;
+        border: 1px solid #eee;
+        border-radius: 10px;
     }
 
     .gs-loading {
         text-align: center;
         padding: 40px;
-        color: #6c63ff;
     }
+
+    .gs-empty {
+        text-align: center;
+        padding: 40px;
+        color: #999;
+    }
+
 </style>
 
-<h1 class="mb-3">Danh sách môn học & gia sư</h1>
+<h3 class="mb-3">Tìm gia sư</h3>
 
 <form id="filterForm" class="row g-3 mb-4">
+
     <div class="col-md-3">
-        <label class="form-label">Từ khóa</label>
-        <input class="form-control" name="keyword" placeholder="Ví dụ: Toán, Nguyễn Văn A" />
+        <label>Từ khóa</label>
+        <input class="form-control" name="keyword" placeholder="Tên gia sư...">
     </div>
 
     <div class="col-md-3">
-        <label class="form-label">Môn học</label>
-        <select class="form-select" name="monHocId">
-            <option value="">-- Tất cả --</option>
+        <label>Môn học</label>
+        <select class="form-select" name="monHocId" id="monHocId">
+            <option value="">Tất cả</option>
         </select>
     </div>
 
     <div class="col-md-3">
-        <label class="form-label">Khu vực</label>
-        <select class="form-select" name="xaId">
-            <option value="">-- Tất cả --</option>
-        </select>
+
+        <label>Giá tối đa / giờ</label>
+
+        <div class="price-filter">
+
+            <input type="range" id="priceRange" min="0" max="500000" step="50000" value="0" class="form-range">
+
+            <div class="d-flex gap-2 mt-2">
+
+                <input type="number" id="priceInput" class="form-control">
+
+                <span class="align-self-center">VNĐ</span>
+
+            </div>
+
+            <small>
+                Giá: <span id="priceLabel">0</span> VNĐ
+            </small>
+
+        </div>
+
     </div>
 
     <div class="col-md-3">
-        <label class="form-label">Sắp xếp</label>
+        <label>Sắp xếp</label>
         <select class="form-select" name="sort">
-            <option value="name_asc">Tên A-Z</option>
-            <option value="name_desc">Tên Z-A</option>
-            <option value="price_asc">Giá tăng dần</option>
-            <option value="price_desc">Giá giảm dần</option>
+            <option value="price_asc">Giá tăng</option>
+            <option value="price_desc">Giá giảm</option>
         </select>
     </div>
 
     <div class="col-12">
-        <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+        <button class="btn btn-primary">Tìm kiếm</button>
     </div>
+
 </form>
 
+
 <div class="gs-list">
-    <div class="gs-loading">Đang tải dữ liệu...</div>
+
+    <div class="gs-loading">Đang tải...</div>
+
 </div>
 
+
+
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
 
-        // Load dữ liệu lần đầu khi trang mở
-        loadData();
+    const priceRange=document.getElementById("priceRange")
+    const priceInput=document.getElementById("priceInput")
+    const priceLabel=document.getElementById("priceLabel")
 
-        // Submit form tìm kiếm
-        document.getElementById("filterForm").addEventListener("submit", function (e) {
-            e.preventDefault();
-            loadData();
-        });
+    priceRange.oninput=function(){
 
-        function loadData() {
-            const container = document.querySelector(".gs-list");
+    priceInput.value=this.value
+    priceLabel.innerText=Number(this.value).toLocaleString()
 
-            // Hiển thị loading
-            container.innerHTML = `<div class="gs-loading">⏳ Đang tải dữ liệu...</div>`;
+    }
 
-            // Lấy params từ form
-            const formData = new FormData(document.getElementById("filterForm"));
-            const queryString = new URLSearchParams(formData).toString();
+    priceInput.oninput=function(){
 
-            // AJAX call
-            $.ajax({
-                url: `/MonHoc/getlist?${queryString}`,
-                type: "GET",
-                dataType: "json",
-                success: function (res) {
-                    renderList(res.data);
-                },
-                error: function (xhr, status, error) {
-                    container.innerHTML = `<div class="gs-empty">❌ Lỗi tải dữ liệu: ${error}</div>`;
-                    console.error("AJAX error:", status, error);
-                }
-            });
-        }
+    priceRange.value=this.value
+    priceLabel.innerText=Number(this.value).toLocaleString()
 
-        function getInitials(tenGiaSu) {
-            if (!tenGiaSu) return "GS";
-            const parts = tenGiaSu.trim().split(" ");
-            if (parts.length >= 2)
-                return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-            if (tenGiaSu.length >= 2)
-                return tenGiaSu.substring(0, 2).toUpperCase();
-            return "GS";
-        }
+    }
 
-        function getAvatarHtml(item) {
-            
-            // Nếu có ảnh -> hiển thị ảnh thật
-            if (item.avata && item.avata.trim() !== "") {
-                console.log(item)
-                return `<img src="${item.avata}"
-                             class="gs-avatar"
-                             alt="${item.name ?? 'avatar'}"
-                             onerror="this.outerHTML=getDefaultAvatar('${getInitials(item.name)}')"
-                             style="object-fit:cover;" />`;
-            }
-            // Nếu không có ảnh -> hiển thị chữ viết tắt mặc định
-            return `<div class="gs-avatar">${getInitials(item.name)}</div>`;
-        }
+    document.addEventListener("DOMContentLoaded",function(){
 
-        // Hàm fallback khi ảnh lỗi
-        window.getDefaultAvatar = function(initials) {
-            return `<div class="gs-avatar">${initials}</div>`;
-        };
+    loadSubjects()
 
-        function renderList(data) {
-            const container = document.querySelector(".gs-list");
-            container.innerHTML = "";
+    loadData()
 
-            if (!data || data.length === 0) {
-                container.innerHTML = `<div class="gs-empty">Không có dữ liệu phù hợp.</div>`;
-                return;
-            }
+    document.getElementById("filterForm").addEventListener("submit",function(e){
 
-            data.forEach(item => {
-                const params = new URLSearchParams({
-                    tutorName: item.name ?? "",
-                    mon:       item.mon ?? "",
-                    xa:        item.xa ?? "",
-                    giaTheoGio: item.giaTheoGio ?? 0,
-                    ID:        item.id ?? 0,
-                    IDXa:      item.idXa ?? 0,
-                    IDMon:     item.idMon ?? 0,
-                    Trinhdo:   item.trinhdo ?? 0,
-                    avata:     item.avata ??""
-                });
+    e.preventDefault()
 
-                const detailUrl  = `/MonHoc/TutorDetail?${params.toString()}`;
-                const avatarHtml = getAvatarHtml(item); // ← lấy avatar (ảnh thật hoặc mặc định)
+    loadData()
 
-                const html = `
-                <a class="gs-card text-decoration-none" href="${detailUrl}">
-                    ${avatarHtml}
-                    <div class="gs-divider"></div>
-                    <div class="gs-info">
-                        <div class="gs-name text-dark">${item.name ?? ""}</div>
-                        <div class="gs-tags">
-                            <span class="gs-tag subject">${item.mon ?? ""} - Lớp ${item.trinhdo ?? ""}</span>
-                            <span class="gs-tag area">${item.xa ?? ""}</span>
-                        </div>
-                        <div class="gs-price">
-                            ${Number(item.giaTheoGio).toLocaleString()} VNĐ / giờ
-                        </div>
-                    </div>
-                </a>`;
+    })
 
-                container.insertAdjacentHTML("beforeend", html);
-            });
-        }
-    });
+    })
+
+
+
+    function loadSubjects(){
+
+    $.ajax({
+
+    url:"/USER/getlisstmonhoc",
+
+    type:"GET",
+
+    success:function(res){
+
+    let html='<option value="">Tất cả</option>'
+
+    res.data.forEach(x=>{
+
+    html+=`<option value="${x.id}">${x.name}</option>`
+
+    })
+
+    $("#monHocId").html(html)
+
+    }
+
+    })
+
+    }
+
+
+
+    function loadData(){
+
+    const container=document.querySelector(".gs-list")
+
+    container.innerHTML='<div class="gs-loading">Đang tải...</div>'
+
+
+    const keyword=document.querySelector("[name='keyword']").value || ""
+    const idmon=document.querySelector("[name='monHocId']").value || 0
+    const sort=document.querySelector("[name='sort']").value
+
+    let sapxep=0
+
+    if(sort==="price_desc") sapxep=1
+    if(sort==="price_asc") sapxep=2
+
+    let gia=document.getElementById("priceRange").value || 0
+
+    $.ajax({
+
+    url:"/MonHoc/getlist",
+
+    type:"GET",
+
+    data:{
+    keyword:keyword,
+    idmon:idmon,
+    gia:gia,
+    sapxep:sapxep
+    },
+
+    success:function(res){
+
+    renderList(res.data)
+
+    },
+
+    error:function(){
+
+    container.innerHTML='<div class="gs-empty">Lỗi tải dữ liệu</div>'
+
+    }
+
+    })
+
+    }
+
+
+
+    function getInitials(name){
+
+    if(!name) return "GS"
+
+    let arr=name.split(" ")
+
+    return (arr[0][0]+arr[arr.length-1][0]).toUpperCase()
+
+    }
+
+
+
+    function getAvatar(item){
+
+    if(item.avata && item.avata!==""){
+
+    return `<img src="${item.avata}" class="gs-avatar">`
+
+    }
+
+    return `<div class="gs-avatar">${getInitials(item.name)}</div>`
+
+    }
+
+
+
+    function renderList(data){
+
+    const container=document.querySelector(".gs-list")
+
+    container.innerHTML=""
+
+    if(!data || data.length===0){
+
+    container.innerHTML='<div class="gs-empty">Không có dữ liệu</div>'
+
+    return
+
+    }
+
+    data.forEach(item=>{
+
+    const avatar=getAvatar(item)
+
+    const html=`
+
+    <a class="gs-card text-decoration-none" href="/MonHoc/TutorDetail?id=${item.id}">
+
+    ${avatar}
+
+    <div class="gs-divider"></div>
+
+    <div class="gs-info">
+
+    <div class="gs-name">${item.name}</div>
+
+    <div class="gs-tags">
+
+    <span class="gs-tag subject">${item.mon} - Lớp ${item.trinhdo}</span>
+
+    <span class="gs-tag area">${item.xa}</span>
+
+    </div>
+
+    <div class="gs-price">
+
+    ${Number(item.giaTheoGio).toLocaleString()} VNĐ / giờ
+
+    </div>
+
+    </div>
+
+    </a>
+
+    `
+
+    container.insertAdjacentHTML("beforeend",html)
+
+    })
+
+    }
+
 </script>

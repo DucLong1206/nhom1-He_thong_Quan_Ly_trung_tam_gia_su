@@ -107,6 +107,18 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su_Logic.Logic
             }
             return false;
         }
+        public bool DELETEMONHOCGIASU(int id)
+        {
+            var xoa = _context.GiaSu_MonHoc.FirstOrDefault(x => x.ID == id);
+
+            if (xoa == null)
+                return false;
+
+            xoa.Isdelete = true;
+            _context.SaveChanges();
+
+            return true;
+        }
 
     }
 }

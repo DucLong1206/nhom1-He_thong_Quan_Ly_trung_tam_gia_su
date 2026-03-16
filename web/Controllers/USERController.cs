@@ -76,9 +76,6 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
         [HttpPost]
         public JsonResult Save(USER model, IFormFile avatarFile)
         {
-            var guardResult = SessionAccessGuard.EnsureLoggedIn(this);
-            if (guardResult != null)
-                return Json(new { success = false, message = "Vui lòng đăng nhập." });
 
             string mes = "";
 
@@ -106,11 +103,17 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
                 var updateResult = _user.EDIT(model, out mes);
                 if (!updateResult)
                     return Json(new { success = false, message = "Cập nhật thất bại" });
+
                 return Json(new { success = true, message = "Cập nhật thành công" });
             }
             else
             {
                 var user = _user.save(model, mes);
+                if (user)
+                {
+                    HttpContext.Session.SetInt32("UserId", model.ID);
+                    HttpContext.Session.SetString("UserName", model?.Name ?? "");
+                }
                 return Json(new { success = true, message = "Lưu thành công" });
             }
 
@@ -204,6 +207,16 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
 
             return new string(Enumerable.Repeat(chars, length)
                 .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
+        [HttpPost]
+        public JsonResult DeleteMonHocGiaSu(int id)
+        {
+            var kq = _user.DELETEMONHOCGIASU(id);
+
+            return Json(new
+            {
+                success = kq
+            });
         }
     }
 }
