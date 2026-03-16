@@ -118,4 +118,13 @@
         public string Email_Giasu { get; set; }
         public string DIaChi { get; set; }
     }
+
+    public class XuLyHoanPhiResult
+    {
+        public bool Success { get; set; }
+        public string Message { get; set; }
+        public int? IDHopDong { get; set; }
+        public int SoBuoiDaHoc { get; set; }
+        public decimal SoTienHoan { get; set; }
+    }
 }

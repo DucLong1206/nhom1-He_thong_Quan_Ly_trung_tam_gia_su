@@ -21,5 +21,6 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su_Logic.ILogic
         int luuthongtinbuoihoc(int idlop);
         LopHoc_BuoiHoc GetTrangThaiBuoiHoc(int ID);
         bool StopLesson(int ID);
+        XuLyHoanPhiResult XuLyHoanPhiKhiLopHong2BuoiDau(int lopId, int idNhanVienXuLy);
     }
 }

@@ -367,5 +367,25 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
 
             return Json(new { success = true });
         }
+
+        [HttpPost]
+        public JsonResult XuLyHoanPhiKhiLopHong2BuoiDau(int lopId)
+        {
+            var guardResult = SessionAccessGuard.EnsureUserType(this, 2);
+            if (guardResult != null)
+                return Json(new { success = false, message = "Bạn không có quyền truy cập vào khu vực này." });
+
+            var idNhanVien = HttpContext.Session.GetInt32("UserId") ?? 0;
+            var result = _lh.XuLyHoanPhiKhiLopHong2BuoiDau(lopId, idNhanVien);
+
+            return Json(new
+            {
+                success = result.Success,
+                message = result.Message,
+                idHopDong = result.IDHopDong,
+                soBuoiDaHoc = result.SoBuoiDaHoc,
+                soTienHoan = result.SoTienHoan
+            });
+        }
     }
 }

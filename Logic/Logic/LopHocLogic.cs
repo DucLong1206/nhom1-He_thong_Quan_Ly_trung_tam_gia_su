@@ -252,7 +252,7 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su_Logic.Logic
                     NgayBatDau = DateTime.Now,
                     TrangThai = 1,
                     IDGiaSu = lophoc.idnguoinhan,
-                    PhiMoiGioi = 20000,
+                    PhiMoiGioi = TinhPhiMoiGioi(lophoc, soBuoi),
                     SoBuoiCamKet = soBuoi
 
                 };
@@ -281,7 +281,11 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su_Logic.Logic
                     if (lop != null)
                     {
                         lop.TrangThai = 3;
-                        lop.PhiMoiGioi = 20000;
+                        var soBuoiCamKet = _context.LopHoc_Buoihocdangki.Count(x => x.IDlophoc == id);
+                        var phiMoiGioi = TinhPhiMoiGioi(lop, soBuoiCamKet);
+                        lop.PhiMoiGioi = phiMoiGioi;
+                        hopdong.PhiMoiGioi = phiMoiGioi;
+                        hopdong.SoBuoiCamKet = soBuoiCamKet;
                     }
                 }
 
@@ -436,6 +440,98 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su_Logic.Logic
             _context.SaveChanges();
 
             return true;
+        }
+
+        public XuLyHoanPhiResult XuLyHoanPhiKhiLopHong2BuoiDau(int lopId, int idNhanVienXuLy)
+        {
+            var result = new XuLyHoanPhiResult
+            {
+                Success = false,
+                Message = "Không xử lý được hoàn phí.",
+                SoBuoiDaHoc = 0,
+                SoTienHoan = 0
+            };
+
+            try
+            {
+                var hopDong = _context.HopDong.FirstOrDefault(x => x.IDLopHoc == lopId);
+                if (hopDong == null)
+                {
+                    result.Message = "Không tìm thấy hợp đồng của lớp.";
+                    return result;
+                }
+
+                var lopHoc = _context.LopHoc.FirstOrDefault(x => x.ID == lopId);
+                if (lopHoc == null)
+                {
+                    result.Message = "Không tìm thấy lớp học.";
+                    return result;
+                }
+
+                var soBuoiDaHoc = _context.LopHoc_BuoiHoc
+                    .Count(x => x.IDLop == lopId
+                                && (x.TrangThai == 2 || x.GioKetThuc != null));
+
+                result.SoBuoiDaHoc = soBuoiDaHoc;
+                result.IDHopDong = hopDong.ID;
+
+                if (soBuoiDaHoc > 2)
+                {
+                    result.Message = "Lớp đã quá 2 buổi đầu, không thuộc diện hoàn phí theo rule.";
+                    return result;
+                }
+
+                if (_context.HoanPhi.Any(x => x.IDHopDong == hopDong.ID))
+                {
+                    result.Message = "Hợp đồng này đã có bản ghi hoàn phí trước đó.";
+                    return result;
+                }
+
+                var heSoHoan = soBuoiDaHoc <= 1 ? 1.0m : 0.5m;
+                var soTienHoan = Math.Round(hopDong.PhiMoiGioi * heSoHoan, 0, MidpointRounding.AwayFromZero);
+
+                var hoanPhi = new HoanPhi
+                {
+                    IDHopDong = hopDong.ID,
+                    IDUser = lopHoc.idnguoitao ?? 0,
+                    IDnhanvien = idNhanVienXuLy,
+                    SoTienHoan = soTienHoan,
+                    NgayXuLy = DateTime.Now
+                };
+
+                _context.HoanPhi.Add(hoanPhi);
+
+                hopDong.TrangThai = 3;
+                lopHoc.TrangThai = 5;
+
+                _context.SaveChanges();
+
+                result.Success = true;
+                result.SoTienHoan = soTienHoan;
+                result.Message = $"Xử lý hoàn phí thành công. Số tiền hoàn: {soTienHoan:N0} VNĐ.";
+                return result;
+            }
+            catch (Exception ex)
+            {
+                result.Message = ex.Message;
+                return result;
+            }
+        }
+
+        private decimal TinhPhiMoiGioi(LopHoc lop, int soBuoiCamKet)
+        {
+            var hocPhiMotBuoi = lop.sotienMotBuoi ?? 0;
+            var tongHocPhiDuKien = hocPhiMotBuoi * soBuoiCamKet;
+
+            var phiTheoTyLe = tongHocPhiDuKien * 0.15m;
+
+            const decimal phiToiThieu = 20000m;
+            const decimal phiToiDa = 500000m;
+
+            var phiSauChanDuoi = Math.Max(phiToiThieu, phiTheoTyLe);
+            var phiCuoi = Math.Min(phiSauChanDuoi, phiToiDa);
+
+            return Math.Round(phiCuoi, 0, MidpointRounding.AwayFromZero);
         }
     }
 }
