@@ -333,7 +333,7 @@
 
         if(!dsBuoi.length){
 
-        alert("Vui lòng nhập ít nhất 1 buổi học");
+        showAlert("Vui lòng nhập ít nhất 1 buổi học", "warning");
         return;
 
         }
@@ -355,9 +355,10 @@
 
         $('#btnDongY').click(function(){
 
-        if(!confirm("Bạn chắc chắn muốn chấp nhận lớp này?"))return;
-
-        sendPhanHoi({lopid:lopHocId,loai:"dongy"});
+        confirmAction("Bạn chắc chắn muốn chấp nhận lớp này?").then(ok => {
+            if(!ok) return;
+            sendPhanHoi({lopid:lopHocId,loai:"dongy"});
+        });
 
         });
 
@@ -365,9 +366,10 @@
 
         $('#btnHuy').click(function(){
 
-        if(!confirm("Bạn chắc chắn muốn hủy lớp này?"))return;
-
-        sendPhanHoi({lopid:lopHocId,loai:"huy"});
+        confirmAction("Bạn chắc chắn muốn hủy lớp này?").then(ok => {
+            if(!ok) return;
+            sendPhanHoi({lopid:lopHocId,loai:"huy"});
+        });
 
         });
 
@@ -375,7 +377,8 @@
 
         if($(this).prop('disabled')) return;
 
-        if(!confirm("Xác nhận gửi yêu cầu hoàn phí cho lớp này?")) return;
+        confirmAction("Xác nhận gửi yêu cầu hoàn phí cho lớp này?").then(ok => {
+        if(!ok) return;
 
         $.ajax({
 
@@ -387,19 +390,20 @@
 
         if(!res.success){
 
-        alert(res.message||"Không thể xử lý hoàn phí.");
+        showAlert(res.message||"Không thể xử lý hoàn phí.", "error");
         loadRefundEligibility();
         return;
 
         }
 
-        alert((res.message || "Đã xử lý hoàn phí") + "\nSố tiền hoàn: " + Number(res.soTienHoan || 0).toLocaleString('vi-VN') + " VNĐ");
+        showAlert((res.message || "Đã xử lý hoàn phí") + "\nSố tiền hoàn: " + Number(res.soTienHoan || 0).toLocaleString('vi-VN') + " VNĐ", "success");
         loadRefundEligibility();
 
         }
 
         })
 
+        });
         });
 
         function loadRefundEligibility(){
@@ -449,13 +453,14 @@
 
         if(!res.success){
 
-        alert(res.message);
+        showAlert(res.message, "error");
         return;
 
         }
 
-        alert(res.message||"Thành công");
-        location.reload();
+        showAlert(res.message||"Thành công", "success").then(() => {
+            location.reload();
+        });
 
         }
 
@@ -464,6 +469,28 @@
         }
 
 
+
+
+
+        function confirmAction(message){
+            return Swal.fire({
+                title: 'Xác nhận',
+                text: message,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Đồng ý',
+                cancelButtonText: 'Hủy'
+            }).then(result => result.isConfirmed);
+        }
+
+        function showAlert(message, icon){
+            return Swal.fire({
+                title: 'Thông báo',
+                text: message,
+                icon: icon || 'info',
+                confirmButtonText: 'OK'
+            });
+        }
 
         function formatThu(thu){
 

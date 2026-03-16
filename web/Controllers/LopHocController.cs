@@ -403,5 +403,66 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
                 soTienHoan = result.SoTienHoan
             });
         }
+
+
+        [HttpPost]
+        public JsonResult SendDoiNgayHocNotification(int lopId, string ngayGoc, string ngayMoi, string gioBatDau, string gioKetThuc)
+        {
+            var guardResult = SessionAccessGuard.EnsureUserTypes(this, 1, 2);
+            if (guardResult != null)
+                return Json(new { success = false, message = "Bạn không có quyền truy cập vào khu vực này." });
+
+            if (lopId <= 0)
+                return Json(new { success = false, message = "Lớp học không hợp lệ." });
+
+            var thongTin = _lh.GetThongTinThongBaoDoiLich(lopId);
+            if (thongTin == null)
+                return Json(new { success = false, message = "Không tìm thấy thông tin lớp học để gửi email." });
+
+            var tenNguoiDoi = HttpContext.Session.GetString("FullName") ?? "Người dùng";
+            var loaiNguoiDoi = HttpContext.Session.GetInt32("TypeUsser") == 2 ? "Phụ huynh" : "Gia sư";
+            var emailService = new EmailService();
+            var emailResults = new List<(string Email, bool Sent, string Message)>();
+
+            void SendIfValid(string? email, string? tenNguoiNhan)
+            {
+                if (string.IsNullOrWhiteSpace(email))
+                {
+                    emailResults.Add((email ?? "", false, "Thiếu email người nhận."));
+                    return;
+                }
+
+                var subject = $"[Thông báo đổi lịch] Lớp {thongTin.MonHoc} - #{thongTin.LopHocId}";
+                var body = $@"<p>Xin chào <b>{tenNguoiNhan ?? "Bạn"}</b>,</p>
+<p>{loaiNguoiDoi} <b>{tenNguoiDoi}</b> vừa thực hiện điều chỉnh lịch học cho lớp <b>#{thongTin.LopHocId}</b>.</p>
+<ul>
+<li>Môn học: <b>{thongTin.MonHoc}</b></li>
+<li>Địa chỉ: <b>{thongTin.DiaChi}</b></li>
+<li>Ngày gốc: <b>{ngayGoc}</b></li>
+<li>Ngày mới: <b>{ngayMoi}</b></li>
+<li>Khung giờ mới: <b>{gioBatDau} - {gioKetThuc}</b></li>
+</ul>
+<p>Vui lòng kiểm tra lại lịch để tránh nhầm lẫn.</p>";
+
+                var sent = emailService.SendMail(email, subject, body);
+                emailResults.Add((email, sent, sent ? "Đã gửi email." : "Gửi email thất bại."));
+            }
+
+            SendIfValid(thongTin.PhuHuynhEmail, thongTin.PhuHuynhName);
+            SendIfValid(thongTin.GiaSuEmail, thongTin.GiaSuName);
+
+            var sentCount = emailResults.Count(x => x.Sent);
+
+            return Json(new
+            {
+                success = sentCount > 0,
+                message = sentCount == 2
+                    ? "Đã gửi thông báo email cho cả phụ huynh và gia sư."
+                    : sentCount == 1
+                        ? "Đã gửi email cho 1 người, vui lòng kiểm tra email còn lại."
+                        : "Không gửi được email thông báo.",
+                details = emailResults.Select(x => new { email = x.Email, sent = x.Sent, message = x.Message })
+            });
+        }
     }
 }

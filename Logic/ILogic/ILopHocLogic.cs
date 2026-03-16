@@ -23,5 +23,6 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su_Logic.ILogic
         bool StopLesson(int ID);
         KiemTraDieuKienHoanPhiResult KiemTraDieuKienHoanPhi(int lopId);
         XuLyHoanPhiResult XuLyHoanPhiKhiLopHong2BuoiDau(int lopId, int idNhanVienXuLy);
+        LopHocThongBaoInfo? GetThongTinThongBaoDoiLich(int lopId);
     }
 }
