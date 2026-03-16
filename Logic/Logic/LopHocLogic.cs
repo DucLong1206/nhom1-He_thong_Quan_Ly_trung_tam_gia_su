@@ -478,7 +478,7 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su_Logic.Logic
                 {
                     IDHopDong = hopDong.ID,
                     IDUser = lopHoc.idnguoitao ?? 0,
-                    IDnhanvien = idNhanVienXuLy,
+                    IDnhanvien = 0, // idNhanVienXuLy,
                     SoTienHoan = soTienHoan,
                     NgayXuLy = DateTime.Now
                 };
@@ -548,7 +548,7 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su_Logic.Logic
                 }
 
                 var heSoHoan = soBuoiDaHoc <= 1 ? 1.0m : 0.5m;
-                result.SoTienDuKienHoan = Math.Round(hopDong.PhiMoiGioi * heSoHoan, 0, MidpointRounding.AwayFromZero);
+                result.SoTienDuKienHoan = Math.Round(lopHoc.sotienMotBuoi ?? 0 * heSoHoan, 0, MidpointRounding.AwayFromZero);
                 result.CoTheHoanPhi = true;
                 result.Message = $"Đủ điều kiện hoàn phí. Số tiền dự kiến hoàn: {result.SoTienDuKienHoan:N0} VNĐ.";
 
