@@ -192,10 +192,12 @@
 
                     
                 }
-                <a href="/LopHoc/DoiNgayHoc?lopId=@lop.ID&nguon=gia-su" class="btn btn-outline-warning">
-                    🔁 Điều chỉnh ngày học sang ngày khác
-                </a>
-
+                  @if (lop?.TrangThai == 8 && lop?.TrangThai == 9 && lop?.TrangThai == 5)
+                {
+                    <a href="/LopHoc/DoiNgayHoc?lopId=@lop.ID&nguon=gia-su" class="btn btn-outline-warning">
+                        🔁 Điều chỉnh ngày học sang ngày khác
+                    </a>
+                }
             </div>
 
 

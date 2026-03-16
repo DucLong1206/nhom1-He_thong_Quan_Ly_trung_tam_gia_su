@@ -108,7 +108,7 @@
             <button type="button" id="btnDongY" class="btn btn-success">Chấp nhận</button>
             <button type="button" id="btnShowEdit" class="btn btn-warning text-white">Điều chỉnh</button>
             <button type="button" id="btnHuy" class="btn btn-danger">Hủy</button>
-            <a href="/LopHoc/DoiNgayHoc?lopId=@lopHocId&nguon=phu-huynh" class="btn btn-outline-warning">Điều chỉnh ngày học sang ngày khác</a>
+            <a href="/LopHoc/DoiNgayHoc?lopId=@lopHocId&nguon=phu-huynh" id="btndieuchinh" class="btn btn-outline-warning">Điều chỉnh ngày học sang ngày khác</a>
 
             <a href="/LopHoc/Index" class="btn btn-secondary">Quay lại</a>
 
@@ -147,6 +147,7 @@
         if(!res.success)return;
 
         const d=res.data;
+        console.log(d)
 
         $('#monHoc').text(d.mon);
         $('#giaSu').text(d.name);
@@ -160,7 +161,12 @@
                 $('#btnDongY').hide();
                 $('#btnShowEdit').hide();
             }
+        if(d.trangthai === "Hủy"){
+              $('#btndieuchinh').hide();
+              $('#btnHuy').hide();
+         }
         }
+        
 
         })
 
