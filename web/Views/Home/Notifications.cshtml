@@ -1,0 +1,51 @@
+@model IEnumerable<He_thong_Quan_Ly_trung_tam_gia_su_Entity.Entity.ThongBao>
+
+@{
+    ViewData["Title"] = "Tất cả thông báo";
+}
+
+<div class="container py-4">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold">🔔 Tất cả thông báo</h5>
+            <span class="badge bg-primary">@Model.Count() thông báo</span>
+        </div>
+        <div class="card-body p-0">
+            @if (!Model.Any())
+            {
+                <div class="p-5 text-center text-muted">
+                    <p>Bạn chưa có thông báo nào.</p>
+                </div>
+            }
+            else
+            {
+                <div class="list-group list-group-flush">
+                    @foreach (var item in Model)
+                    {
+                        <a href="@item.Link" 
+                           onclick="MarkAsRead(@item.Id)"
+                           class="list-group-item list-group-item-action p-3 @(item.DaDoc ? "" : "bg-light")">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1 @(item.DaDoc ? "text-dark" : "fw-bold text-primary")">
+                                    @item.NoiDung
+                                </h6>
+                                <small class="text-muted">@item.NgayTao.ToString("dd/MM/yyyy HH:mm")</small>
+                            </div>
+                            @if (!item.DaDoc)
+                            {
+                                <span class="badge rounded-pill bg-danger" style="font-size: 10px;">Mới</span>
+                            }
+                        </a>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<script>
+    function MarkAsRead(id) {
+        // Gọi AJAX để đánh dấu đã đọc khi người dùng click trong trang danh sách
+        $.post('/Home/DanhDauDaDoc', { id: id });
+    }
+</script>

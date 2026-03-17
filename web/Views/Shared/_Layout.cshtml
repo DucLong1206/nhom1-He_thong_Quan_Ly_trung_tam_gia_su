@@ -71,9 +71,29 @@
 
                     <ul class="navbar-nav">
 
-
                         @if (!string.IsNullOrEmpty(userName))
                         {
+                            <li class="nav-item dropdown d-flex align-items-center me-3">
+                                <a class="nav-link dropdown-toggle position-relative" href="#" id="notificationDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <span style="font-size:20px;">&#128276;</span>
+                                    <span class="position-absolute top-25 start-100 translate-middle badge rounded-pill bg-danger" id="noti-count" style="display: none; font-size: 0.65em;">
+                                        0
+                                    </span>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="notificationDropdown" style="width: 320px; max-height: 400px; overflow-y: auto;">
+                                    <li><h6 class="dropdown-header">Thông báo của bạn</h6></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <div id="noti-list">
+                                        <li><span class="dropdown-item text-center text-muted small">Đang tải...</span></li>
+                                    </div>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item text-center text-primary small fw-bold" href="/Home/Notifications">
+                                            Xem tất cả thông báo
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
                             <li class="nav-item d-flex align-items-center me-3 text-muted small">
                                 Xin chào, @userName
                             </li>
@@ -177,5 +197,60 @@
         console.log("UserID:", "@userId");
         console.log("UserName:", "@userName");
     </script>
+
+    @if (!string.IsNullOrEmpty(userName))
+    {
+        <script>
+            $(document).ready(function () {
+                // Tải thông báo khi trang vừa mở
+                FetchNotifications();
+                // Thiết lập tự động tải lại thông báo mỗi 30 giây (30000 ms)
+                setInterval(FetchNotifications, 30000);
+
+                function FetchNotifications() {
+                    $.ajax({
+                        url: '/Home/GetAppNotifications', // Đường dẫn tới hàm trong HomeController
+                        type: 'GET',
+                        success: function (data) {
+                            if (data.success) {
+                                // Cập nhật số lượng thông báo chưa đọc trên chuông
+                                if (data.unreadCount > 0) {
+                                    $('#noti-count').text(data.unreadCount).show();
+                                } else {
+                                    $('#noti-count').hide();
+                                }
+
+                                // Cập nhật danh sách thông báo vào dropdown
+                                var html = '';
+                                if (data.items && data.items.length > 0) {
+                                    $.each(data.items, function (i, item) {
+                                        // Nếu chưa đọc thì tô đậm, đọc rồi thì bình thường
+                                        var bgClass = item.isRead ? '' : 'bg-light fw-bold';
+                                        html += `<li>
+                                                    <a class="dropdown-item text-wrap border-bottom ${bgClass}" style="font-size: 14px; white-space: normal;" href="${item.link}" onclick="MarkAsRead(${item.id})">
+                                                        ${item.message}
+                                                        <br><small class="text-muted" style="font-size: 11px;">${item.timeAgo}</small>
+                                                    </a>
+                                                 </li>`;
+                                    });
+                                } else {
+                                    html = '<li><span class="dropdown-item text-center text-muted small">Không có thông báo mới</span></li>';
+                                }
+                                $('#noti-list').html(html);
+                            }
+                        },
+                        error: function (err) {
+                            console.log("Lỗi tải thông báo", err);
+                        }
+                    });
+                }
+            });
+
+            // Hàm đánh dấu đã đọc khi click vào thông báo
+            function MarkAsRead(id) {
+                $.post('/Home/DanhDauDaDoc', { id: id });
+            }
+        </script>
+    }
 </body>
 </html>

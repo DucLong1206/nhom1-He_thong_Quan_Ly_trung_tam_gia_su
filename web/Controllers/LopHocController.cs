@@ -2,15 +2,19 @@
 using He_thong_Quan_Ly_trung_tam_gia_su.Infrastructure.Security;
 using He_thong_Quan_Ly_trung_tam_gia_su_Logic.ILogic;
 using Microsoft.AspNetCore.Mvc;
+using He_thong_Quan_Ly_trung_tam_gia_su_Entity;
 
 namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
 {
     public class LopHocController : Controller
     {
         private readonly ILopHocLogic _lh;
-        public LopHocController(ILopHocLogic lh)
+        private readonly Appdbcontext _context;
+        public LopHocController(ILopHocLogic lh, Appdbcontext context)
         {
             _lh = lh;
+            _context = context;
+
         }
 
         public IActionResult Index()
@@ -85,11 +89,82 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
                 return Json(new { success = false, message = "Dữ liệu không hợp lệ." });
             }
 
-            //if (request.loai == "tuchoi" && string.IsNullOrWhiteSpace(request.lydo))
-            //{
-            //    return Json(new { success = false, message = "Vui lòng nhập lý do từ chối." });
-            //}     
+            // Gọi logic đổi trạng thái
             var change = _lh.changestatus(request, out mess);
+
+            // --- TẠO THÔNG BÁO CHI TIẾT CÓ TÊN NGƯỜI DÙNG & MÔN HỌC ---
+            if (change)
+            {
+                try
+                {
+                    var lop = _context.LopHoc.Find(request.lopid);
+                    if (lop != null)
+                    {
+                        // Lấy tên môn học, tên gia sư và tên phụ huynh từ CSDL
+                        var tenMon = _context.MonHoc.Where(m => m.ID == lop.idmon).Select(m => m.Name).FirstOrDefault() ?? "Môn học";
+                        var tenGiaSu = _context.USER.Where(u => u.ID == lop.idnguoinhan).Select(u => u.Name).FirstOrDefault() ?? "Gia sư";
+                        var tenPhuHuynh = _context.USER.Where(u => u.ID == lop.idnguoitao).Select(u => u.Name).FirstOrDefault() ?? "Phụ huynh";
+                        var trinhDo = lop.trinhdo;
+
+                        string noiDungTB = "";
+                        int nguoiNhanTB = 0;
+                        string linkTB = "";
+
+                        // Lấy loại tài khoản đang thao tác
+                        var typeUser = HttpContext.Session.GetInt32("TypeUsser");
+
+                        if (typeUser == 1) // Gia sư đang thao tác -> Báo cho phụ huynh
+                        {
+                            // SỬA TẠI ĐÂY: Dùng .Value hoặc ?? 0 và ép kiểu (int) vì idnguoitao là int?
+                            nguoiNhanTB = lop.idnguoitao ?? 0; 
+                            linkTB = $"/LopHoc/LichHocDetail/{lop.ID}"; 
+
+                            if (request.loai == "tuchoi") {
+                                noiDungTB = $"Gia sư {tenGiaSu} đã từ chối dạy {tenMon} - lớp {trinhDo} mà bạn đăng ký.";
+                            } 
+                            else if (request.loai == "dieuchinh") {
+                                noiDungTB = $"Gia sư {tenGiaSu} vừa đề xuất điều chỉnh lịch học {tenMon} - lớp {trinhDo}.";
+                            }
+                            else if (request.loai == "dongy") {
+                                noiDungTB = $"Gia sư {tenGiaSu} đã đồng ý nhận lớp {tenMon} - lớp {trinhDo} của bạn.";
+                            }
+                        }
+                        else if (typeUser == 2) // Phụ huynh đang thao tác -> Báo cho gia sư
+                        {
+                            // SỬA TẠI ĐÂY: idnguoinhan trong class của bạn là int, nên gán trực tiếp
+                            nguoiNhanTB = lop.idnguoinhan; 
+                            linkTB = $"/LopHoc/Detail/{lop.ID}"; 
+
+                            if (request.loai == "huy") {
+                                noiDungTB = $"Phụ huynh {tenPhuHuynh} đã hủy yêu cầu đăng ký lớp {tenMon} - lớp {trinhDo}.";
+                            } 
+                            else if (request.loai == "dieuchinhph") {
+                                noiDungTB = $"Phụ huynh {tenPhuHuynh} vừa đề xuất điều chỉnh lịch học lớp {tenMon} - lớp {trinhDo}.";
+                            }
+                        }
+
+                        if (!string.IsNullOrEmpty(noiDungTB) && nguoiNhanTB > 0)
+                        {
+                            var thongBao = new ThongBao
+                            {
+                                UserId = nguoiNhanTB,
+                                NoiDung = noiDungTB,
+                                Link = linkTB, 
+                                DaDoc = false,
+                                NgayTao = DateTime.Now
+                            };
+                            _context.ThongBaos.Add(thongBao);
+                            _context.SaveChanges();
+                        }
+                    }
+                }
+                catch (Exception ex) 
+                {
+                    // Console.WriteLine(ex.Message); 
+                }
+            }
+            // --- KẾT THÚC TẠO THÔNG BÁO ---
+
             return Json(new
             {
                 success = change,
@@ -98,6 +173,7 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
                 loai = request.loai
             });
         }
+
         [HttpGet]
         public JsonResult GetLopHocDetailById(int id)
         {

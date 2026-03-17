@@ -291,6 +291,84 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
             var check = _tk.save(tk, mes);
             return Json(new { success = tk, Mess = mes });
         }
+        // --- CODE XỬ LÝ CHUÔNG THÔNG BÁO ---
+        [HttpGet]
+        public JsonResult GetAppNotifications()
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            
+            // Nếu chưa đăng nhập thì không lấy dữ liệu
+            if (userId == null) 
+                return Json(new { success = false });
+
+            try
+            {
+                // Lấy 10 thông báo mới nhất dựa vào UserId
+                var danhSachThongBao = _db.ThongBaos
+                    .Where(x => x.UserId == userId)
+                    .OrderByDescending(x => x.NgayTao)
+                    .Take(10)
+                    .ToList();
+
+                // Đếm số thông báo chưa đọc
+                int unreadCount = danhSachThongBao.Count(x => !x.DaDoc);
+
+                var items = danhSachThongBao.Select(x => new
+                {
+                    id = x.Id,
+                    message = x.NoiDung,
+                    isRead = x.DaDoc,
+                    link = x.Link,
+                    timeAgo = x.NgayTao.ToString("dd/MM HH:mm") 
+                }).ToList();
+
+                return Json(new 
+                { 
+                    success = true, 
+                    unreadCount = unreadCount, 
+                    items = items 
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi khi lấy thông báo");
+                return Json(new { success = false, message = "Có lỗi xảy ra." });
+            }
+        }
+
+        [HttpPost]
+        public JsonResult DanhDauDaDoc(int id)
+        {
+            try
+            {
+                var noti = _db.ThongBaos.Find(id);
+                if (noti != null && !noti.DaDoc)
+                {
+                    noti.DaDoc = true;
+                    _db.SaveChanges();
+                }
+                return Json(new { success = true });
+            }
+            catch
+            {
+                return Json(new { success = false });
+            }
+        }
+
+        [HttpGet]
+        public IActionResult Notifications()
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null) return RedirectToAction("Login");
+
+            // Lấy toàn bộ thông báo của người dùng này, xếp mới nhất lên đầu
+            var list = _db.ThongBaos
+                    .Where(x => x.UserId == userId)
+                    .OrderByDescending(x => x.NgayTao)
+                    .ToList();
+
+            return View(list);
+        }
 
     }
 }
