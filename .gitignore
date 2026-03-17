@@ -8,6 +8,8 @@
 *.sln.docstates
 *.userprefs
 
+[Bb]in/
+[Oo]bj/
 ############################
 # Build folders
 ############################
