@@ -107,6 +107,29 @@
             grid-template-columns: 1fr;
         }
     }
+
+    /* --- CSS CHO KHUNG BÌNH LUẬN --- */
+    #commentList {
+        max-height: 350px; /* Giới hạn chiều cao khung bình luận */
+        overflow-y: auto;  /* Tự động hiện thanh cuộn dọc nếu nội dung bị tràn */
+        padding-right: 8px; /* Lùi vào một chút để không bị dính vào thanh cuộn */
+    }
+
+    /* Làm đẹp thanh cuộn (Tùy chọn, nhìn sẽ rất Pro) */
+    #commentList::-webkit-scrollbar {
+        width: 6px;
+    }
+    #commentList::-webkit-scrollbar-track {
+        background: #f8f9fa; 
+        border-radius: 10px;
+    }
+    #commentList::-webkit-scrollbar-thumb {
+        background: #d1d5db; 
+        border-radius: 10px;
+    }
+    #commentList::-webkit-scrollbar-thumb:hover {
+        background: #9ca3af; 
+    }
 </style>
 
 <h1 class="mb-4">Chi tiết gia sư</h1>
@@ -152,6 +175,10 @@
         </div>
 
         <h5 class="mt-4">Bình luận gần đây</h5>
+        <div class="mb-3">
+            <textarea class="form-control mb-2" id="txtBinhLuan" rows="2" placeholder="Chia sẻ trải nghiệm của bạn về gia sư này..."></textarea>
+            <button class="btn btn-sm btn-primary" onclick="guiBinhLuan()">Gửi bình luận</button>
+        </div>
         <div id="commentList"></div>
     </section>
 
@@ -224,48 +251,65 @@
     const _avata     = "@(avata ?? "")";   // chuỗi rỗng nếu null
 
     // -------------------------------------------------------
-    // Xử lý avatar khi DOM sẵn sàng
+    // Xử lý avatar khi DOM sẵn sàng & Load dữ liệu thật
     // -------------------------------------------------------
-    document.addEventListener("DOMContentLoaded", function () {
+    // Lấy ID gia sư từ Razor ra một biến JS để dùng chung cho an toàn
+    const GIA_SU_ID = @(ViewData["ID"] ?? 0);
 
+    document.addEventListener("DOMContentLoaded", function () {
         const avatarEl = document.getElementById("avatarEl");
 
         if (!_avata || _avata.trim() === "") {
-            // Không có ảnh → hiển thị chữ viết tắt
             avatarEl.textContent = _initials;
         }
-        // Nếu có ảnh, Razor đã render <img> rồi;
-        // onerror trên <img> sẽ fallback về initials nếu ảnh lỗi
 
-        // -------------------------------------------------------
-        // Thống kê & bình luận tĩnh (demo)
-        // -------------------------------------------------------
-        const staticStats = {
-            "Nguyễn Văn A": { soMon: 2, soHocSinh: 14, danhGia: "4.7/5" },
-            "Trần Thị B":   { soMon: 4, soHocSinh: 23, danhGia: "4.9/5" }
-        };
+        // --- ĐỔ DỮ LIỆU THỐNG KÊ TỪ CONTROLLER ---
+        document.getElementById("soMon").textContent      = "@ViewBag.SoMon";
+        document.getElementById("soHocSinh").textContent  = "@ViewBag.SoHocSinh";
+        document.getElementById("danhGia").textContent    = "@ViewBag.DanhGia";
 
-        const staticComments = {
-            "Nguyễn Văn A": [
-                { ten: "Phụ huynh bé Minh", noiDung: "Gia sư dạy kỹ, con dễ hiểu bài hơn sau 2 tuần." },
-                { ten: "Phụ huynh bé An",   noiDung: "Đúng giờ, có báo cáo tiến độ sau mỗi buổi." }
-            ],
-            default: [
-                { ten: "Phụ huynh lớp 8",  noiDung: "Gia sư nhiệt tình, hỗ trợ cả bài tập về nhà." },
-                { ten: "Học viên THPT",     noiDung: "Giải thích dễ hiểu, giúp em tự tin hơn khi kiểm tra." }
-            ]
-        };
-
-        const stats = staticStats[_tutorName] || { soMon: 3, soHocSinh: 18, danhGia: "4.8/5" };
-        document.getElementById("soMon").textContent      = stats.soMon;
-        document.getElementById("soHocSinh").textContent  = stats.soHocSinh;
-        document.getElementById("danhGia").textContent    = stats.danhGia;
-
-        const comments = staticComments[_tutorName] || staticComments.default;
-        document.getElementById("commentList").innerHTML  = comments
-            .map(c => `<div class="comment-item"><strong>${c.ten}:</strong> ${c.noiDung}</div>`)
-            .join("");
+        // Tự động load bình luận từ DB khi vừa mở trang
+        loadBinhLuan();
     });
+
+    // -------------------------------------------------------
+    // API Bình Luận
+    // -------------------------------------------------------
+    function loadBinhLuan() {
+        $.get("/MonHoc/GetBinhLuan?idGiaSu=" + GIA_SU_ID, function (res) {
+            let html = "";
+            if (!res || res.length === 0) {
+                html = "<div class='text-muted small'>Chưa có bình luận nào.</div>";
+            } else {
+                res.forEach(c => {
+                    html += `<div class="comment-item">
+                                <strong>${c.ten}</strong> <small class="text-muted">(${c.ngayTao})</small>
+                                <p class="mb-0 mt-1">${c.noiDung}</p>
+                             </div>`;
+                });
+            }
+            document.getElementById("commentList").innerHTML = html;
+        });
+    }
+
+    function guiBinhLuan() {
+        let noiDung = document.getElementById("txtBinhLuan").value;
+        if (!noiDung.trim()) {
+            alert("Vui lòng nhập nội dung bình luận!"); 
+            return;
+        }
+
+        $.post("/MonHoc/DangBinhLuan", { idGiaSu: GIA_SU_ID, noiDung: noiDung }, function (res) {
+            if (res.success) {
+                document.getElementById("txtBinhLuan").value = ""; // Xóa trắng ô nhập
+                loadBinhLuan(); // Tải lại danh sách bình luận mới nhất
+            } else {
+                alert(res.message); // Báo lỗi (VD: Chưa đăng nhập, không phải phụ huynh)
+            }
+        }).fail(function() {
+            alert("Có lỗi kết nối tới máy chủ.");
+        });
+    }
 
     // Fallback khi ảnh lỗi (gọi từ onerror trong Razor)
     function setInitials() {
