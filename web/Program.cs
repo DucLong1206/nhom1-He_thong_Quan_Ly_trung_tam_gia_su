@@ -1,6 +1,7 @@
 ﻿using He_thong_Quan_Ly_trung_tam_gia_su_Entity;
 using He_thong_Quan_Ly_trung_tam_gia_su_Logic.ILogic;
 using He_thong_Quan_Ly_trung_tam_gia_su_Logic.Logic;
+using He_thong_Quan_Ly_trung_tam_gia_su.Data;
 using He_thong_Quan_Ly_trung_tam_gia_su.Infrastructure.BackgroundJobs;
 using Microsoft.EntityFrameworkCore;
 
@@ -34,6 +35,13 @@ builder.Services.AddSession(options =>
 });
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<Appdbcontext>();
+    db.Database.EnsureCreated();
+    DemoDataSeeder.Seed(db);
+}
 
 if (!app.Environment.IsDevelopment())
 {
