@@ -32,6 +32,7 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su_Entity
         public DbSet<LichHomNayModel> LichHomNayModel { get; set; }
         public DbSet<ThongTinBuoiHocModel> ThongTinBuoiHocModel { get; set; }
         public DbSet<BinhLuan> BinhLuan { get; set; }
+        public DbSet<ThongBao> ThongBaos { get; set; }
 
 
 

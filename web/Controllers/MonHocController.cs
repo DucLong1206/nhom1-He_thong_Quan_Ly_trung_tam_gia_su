@@ -93,6 +93,30 @@ public class MonHocController : Controller
 
         var save = _lh.SaveLopHoc(model, out mess);
 
+        // --- TẠO THÔNG BÁO CHO GIA SƯ (ĐẶT LỊCH) ---
+        if (save) 
+        {
+            try
+            {
+                var tenMon = _context.MonHoc.Where(m => m.ID == model.lop.idmon).Select(m => m.Name).FirstOrDefault() ?? "Môn học";
+                var tenPhuHuynh = HttpContext.Session.GetString("UserName") ?? "Một phụ huynh";
+                
+                var thongBao = new ThongBao
+                {
+                    UserId = model.lop.idnguoinhan, 
+                    NoiDung = $"Phụ huynh {tenPhuHuynh} vừa đăng ký lớp {tenMon} - lớp {model.lop.trinhdo} với bạn.",
+                    Link = model.lop.ID > 0 ? $"/LopHoc/Detail/{model.lop.ID}" : "/Home/TutorDashboard", 
+                    DaDoc = false,
+                    NgayTao = DateTime.Now
+                };
+
+                _context.ThongBaos.Add(thongBao);
+                _context.SaveChanges();
+            }
+            catch { }
+        }
+        // --- KẾT THÚC TẠO THÔNG BÁO ---
+
         if (mess.Length > 0) return Json(new { success = false, mess = mess });
         return Json(new { success = true });
     }
@@ -124,6 +148,26 @@ public class MonHocController : Controller
 
             _context.BinhLuan.Add(bl);
             _context.SaveChanges();
+
+            // --- TẠO THÔNG BÁO CHO GIA SƯ (BÌNH LUẬN) ---
+            try 
+            {
+                var tenPhuHuynh = HttpContext.Session.GetString("UserName") ?? "Một phụ huynh";
+
+                var thongBao = new ThongBao
+                {
+                    UserId = idGiaSu,
+                    NoiDung = $"Phụ huynh {tenPhuHuynh} vừa để lại bình luận mới trên hồ sơ của bạn.",
+                    Link = $"/MonHoc/TutorDetail?id={idGiaSu}",
+                    DaDoc = false,
+                    NgayTao = DateTime.Now
+                };
+
+                _context.ThongBaos.Add(thongBao);
+                _context.SaveChanges();
+            }
+            catch { }
+            // --- KẾT THÚC TẠO THÔNG BÁO ---
 
             return Json(new { success = true });
         }
