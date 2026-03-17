@@ -422,27 +422,18 @@ Dựa trên source code phân tích được, hệ thống đã đạt được 
 
 ## 7. Hạn chế
 
-1. **Source code tầng Entity và Logic bị thiếu**: Thư mục `He_thong_Quan_Ly_trung_tam_gia_su_Entity` và `Logic` trong workspace hiện tại chỉ còn thư mục `obj/` — mã nguồn thực sự không được commit lên repository. Điều này gây khó khăn trong việc đánh giá toàn bộ nghiệp vụ và cấu trúc cơ sở dữ liệu.
 
-2. **Xác thực dựa trên Session tự triển khai**: Không sử dụng ASP.NET Core Identity hoặc JWT, dẫn đến thiếu các tính năng bảo mật nâng cao như refresh token, lockout tài khoản sau đăng nhập sai nhiều lần, hoặc two-factor authentication.
+1. **Xác thực dựa trên Session tự triển khai**: Không sử dụng ASP.NET Core Identity hoặc JWT, dẫn đến thiếu các tính năng bảo mật nâng cao như refresh token, lockout tài khoản sau đăng nhập sai nhiều lần, hoặc two-factor authentication.
 
-3. **Thiếu phân quyền chi tiết bằng Attribute**: Việc kiểm tra quyền thông qua `SessionAccessGuard` trực tiếp trong action thay vì dùng `[Authorize]` attribute làm giảm tính nhất quán và dễ bỏ sót.
+2. **Thiếu phân quyền chi tiết bằng Attribute**: Việc kiểm tra quyền thông qua `SessionAccessGuard` trực tiếp trong action thay vì dùng `[Authorize]` attribute làm giảm tính nhất quán và dễ bỏ sót.
 
-4. **File `Controllers/TestGIT.cs` không hợp lệ**: File này chứa nội dung văn bản thường (không phải C#), sẽ gây lỗi biên dịch nếu thuộc phạm vi build.
+3. **Không có unit test**: Không tìm thấy bất kỳ test project nào trong solution.
 
-5. **Dự án gốc chưa tích hợp**: `Program.cs` và `.csproj` ở thư mục gốc vẫn là boilerplate mặc định, chưa tích hợp với module `web/` — hai project không kết nối với nhau trong solution.
-
-6. **Không có unit test**: Không tìm thấy bất kỳ test project nào trong solution.
-
-7. **Chuỗi kết nối CSDL không có trong workspace**: File `appsettings.json` của dự án gốc không chứa `ConnectionStrings`, và file `appsettings.json` của `web/` không có trong workspace — việc cấu hình CSDL cần thực hiện thủ công.
-
-8. **Upload file chưa xử lý bảo mật nâng cao**: Chức năng upload ảnh đại diện cần bổ sung kiểm tra MIME type và giới hạn kích thước file để ngăn chặn nguy cơ upload file độc hại.
+4. **Upload file chưa xử lý bảo mật nâng cao**: Chức năng upload ảnh đại diện cần bổ sung kiểm tra MIME type và giới hạn kích thước file để ngăn chặn nguy cơ upload file độc hại.
 
 ---
 
 ## 8. Hướng phát triển
-
-1. **Hoàn thiện tầng Entity và Logic**: Đưa toàn bộ source code vào repository, thêm migration EF Core để quản lý schema CSDL có kiểm soát phiên bản.
 
 2. **Chuyển sang ASP.NET Core Identity**: Tích hợp Identity để có sẵn các tính năng bảo mật như lockout, email confirmation, two-factor authentication và quản lý role chuẩn hóa.
 
