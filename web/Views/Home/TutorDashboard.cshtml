@@ -2,13 +2,115 @@
     ViewData["Title"] = "Danh sách lịch học";
 }
 
+<style>
+    /* UI MỚI CHO DASHBOARD */
+    body {
+        background-color: #f4f7f6;
+    }
+
+    .tutor-header {
+        font-weight: 800;
+        background: linear-gradient(135deg, #6c63ff, #48cfad);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        margin-bottom: 2rem;
+    }
+
+    /* Chỉnh sửa Accordion gom nhóm Học Sinh */
+    .student-group {
+        border: none;
+        border-radius: 16px !important;
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        background: #fff;
+    }
+
+    .accordion-button {
+        font-size: 1.1rem;
+        font-weight: 700;
+        background-color: #fff;
+        color: #2c3e50;
+        padding: 1.2rem 1.5rem;
+    }
+
+    .accordion-button:not(.collapsed) {
+        background-color: #f8f9ff;
+        color: #6c63ff;
+        box-shadow: inset 0 -1px 0 rgba(0,0,0,.125);
+    }
+
+    .accordion-button:focus {
+        box-shadow: none;
+        border-color: rgba(0,0,0,.125);
+    }
+
+    .student-badge {
+        background: linear-gradient(135deg, #6c63ff, #48cfad);
+        font-size: 0.85rem;
+        padding: 0.4em 0.8em;
+    }
+
+    /* CSS Grid dàn thẻ theo hàng ngang */
+    .class-grid {
+        display: grid;
+        /* Tự động chia cột: mỗi cột tối thiểu 320px, nếu màn rộng sẽ tự động dàn thêm cột */
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 1.5rem;
+        padding: 1rem 0;
+    }
+
+    /* Thẻ Lớp Học */
+    .schedule-card {
+        border: 1px solid #eef2f7;
+        border-radius: 14px;
+        background: #fff;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .schedule-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(108, 99, 255, 0.15);
+        border-color: #d1d5db;
+    }
+
+    .schedule-card .card-title {
+        font-weight: 700;
+        color: #2c3e50;
+        border-bottom: 2px dashed #eee;
+        padding-bottom: 10px;
+        margin-bottom: 15px;
+    }
+
+    .info-line {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 8px;
+        color: #4b5563;
+        font-size: 0.95rem;
+    }
+
+    .info-label {
+        font-weight: 600;
+        min-width: 85px;
+        color: #6b7280;
+    }
+</style>
+
 <div class="container py-4">
+    <h3 class="tutor-header">Danh sách lớp học của Gia sư</h3>
 
-    <h3 class="mb-4">Danh sách lớp học của Gia sư</h3>
-
-    <div class="row g-3" id="dsLopHoc">
+    <div class="accordion" id="accordionStudents">
+        <div class="text-center py-5 text-muted" id="loadingDiv">
+            <div class="spinner-border text-primary" role="status"></div>
+            <div class="mt-2">Đang tải dữ liệu...</div>
+        </div>
     </div>
-
 </div>
 
 @section Scripts{
@@ -18,105 +120,124 @@
         });
 
         function loadDanhSach() {
-
             $.get("/LopHoc/GETDANHSACHLICHHOC", function (data) {
+                $("#loadingDiv").hide();
 
-                let html = "";
+                if (!data || data.length === 0) {
+                    $("#accordionStudents").html('<div class="text-center py-5 text-muted"><h4>Chưa có lớp học nào.</h4></div>');
+                    return;
+                }
 
+                // 1. Thuật toán gộp mảng: Gom các lớp học theo ID của Phụ huynh/Học sinh
+                let groupedData = {};
+                
                 data.forEach(item => {
-
-                    let lop = item.lop;
-                    let dsBuoi = item.dsBuoi || [];
-
-                    let thoiGian = "";
-
-                    if (dsBuoi.length > 0) {
-
-                        thoiGian = dsBuoi
-                            .slice(0, 2)
-                            .map(b => `${getThu(b.thu)} - ${b.giobatdau.substring(0,5)}`)
-                            .join("<br>");
-
-                        if (dsBuoi.length > 2) {
-                            thoiGian += "<br>...";
-                        }
+                    let studentId = (item.nguoiGui && item.nguoiGui.id) ? item.nguoiGui.id : 0;
+                    let studentName = (item.nguoiGui && item.nguoiGui.name) ? item.nguoiGui.name : "Học viên ẩn danh";
+                    
+                    if (!groupedData[studentId]) {
+                        groupedData[studentId] = {
+                            name: studentName,
+                            classes: []
+                        };
                     }
-
-                    let trangthai = renderTrangThai(lop.trangThai);
-
-                    html += `
-                    <div class="col-md-6">
-                        <div class="card shadow-sm h-100 schedule-card" onclick="viewDetail(${lop.id})">
-                            <div class="card-body">
-
-                                <h5 class="card-title">Môn ${item.tenmon}-lớp ${lop.trinhdo}</h5>
-
-                                <p class="mb-1"><b>Tên học viên:</b> ${item.nguoiGui.name ?? ''}</p>
-
-                                <p class="mb-1"><b>Địa chỉ:</b> ${lop.dIaChi ?? ''}</p>
-
-                                <p class="mb-1">
-                                    <b>Thời gian:</b><br>
-                                    ${thoiGian}
-                                </p>
-
-                                <p class="mb-2">
-                                    ${trangthai}
-                                </p>
-
-                            </div>
-                        </div>
-                    </div>
-                    `;
+                    groupedData[studentId].classes.push(item);
                 });
 
-                $("#dsLopHoc").html(html);
+                // 2. Render ra giao diện (Accordion + Grid)
+                let html = "";
+                let index = 0;
 
+                for (let key in groupedData) {
+                    let student = groupedData[key];
+                    
+                    // Người đầu tiên sẽ tự động mở ngăn kéo, các người sau sẽ đóng lại
+                    let showClass = index === 0 ? "show" : "";
+                    let btnClass = index === 0 ? "" : "collapsed";
+
+                    // Duyệt từng lớp của học sinh này để tạo Grid
+                    let cardsHtml = student.classes.map(item => {
+                        let lop = item.lop;
+                        let dsBuoi = item.dsBuoi || [];
+                        let thoiGian = "";
+
+                        if (dsBuoi.length > 0) {
+                            thoiGian = dsBuoi
+                                .slice(0, 2)
+                                .map(b => `${getThu(b.thu)} - ${b.giobatdau.substring(0, 5)}`)
+                                .join("<br>");
+
+                            if (dsBuoi.length > 2) thoiGian += "<br><i>... (Xem chi tiết)</i>";
+                        } else {
+                            thoiGian = "Chưa sắp lịch";
+                        }
+
+                        let trangthai = renderTrangThai(lop.trangThai);
+
+                        return `
+                            <div class="schedule-card p-4" onclick="viewDetail(${lop.id})">
+                                <h5 class="card-title">Môn ${item.tenmon} - Lớp ${lop.trinhdo}</h5>
+                                
+                                <div class="info-line">
+                                    <span class="info-label">Địa chỉ:</span>
+                                    <span>${lop.dIaChi ?? 'Chưa cập nhật'}</span>
+                                </div>
+                                
+                                <div class="info-line">
+                                    <span class="info-label">Thời gian:</span>
+                                    <span>${thoiGian}</span>
+                                </div>
+                                
+                                <div class="mt-auto pt-3 text-end">
+                                    ${trangthai}
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+
+                    // Ghép các lớp vào ngăn kéo của học sinh tương ứng
+                    html += `
+                    <div class="accordion-item student-group">
+                        <h2 class="accordion-header" id="heading${key}">
+                            <button class="accordion-button ${btnClass}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${key}">
+                                👤 Học viên: ${student.name} 
+                                <span class="badge rounded-pill student-badge ms-3">${student.classes.length} Lớp đăng ký</span>
+                            </button>
+                        </h2>
+                        <div id="collapse${key}" class="accordion-collapse collapse ${showClass}" data-bs-parent="#accordionStudents">
+                            <div class="accordion-body bg-light">
+                                <div class="class-grid">
+                                    ${cardsHtml}
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+                    
+                    index++;
+                }
+
+                $("#accordionStudents").html(html);
             });
         }
 
         function getThu(t) {
-
             const thu = {
-                2: "Thứ 2",
-                3: "Thứ 3",
-                4: "Thứ 4",
-                5: "Thứ 5",
-                6: "Thứ 6",
-                7: "Thứ 7",
-                8: "Chủ nhật"
+                2: "Thứ 2", 3: "Thứ 3", 4: "Thứ 4", 5: "Thứ 5", 6: "Thứ 6", 7: "Thứ 7", 8: "Chủ nhật"
             };
-
             return thu[t] ?? "";
         }
 
         function renderTrangThai(tt) {
-
-                   switch (tt) {
-
-            case 1:
-                return `<span class="badge bg-warning text-dark">Mới tạo</span>`;
-
-            case 2:
-                return `<span class="badge bg-info text-dark">Điều chỉnh</span>`;
-            case 9:
-                return `<span class="badge bg-info text-dark">Điều chỉnh phụ huynh</span>`;
-
-            case 3:
-                return `<span class="badge bg-primary">Đang dạy</span>`;
-
-            case 4:
-                return `<span class="badge bg-success">Kết thúc</span>`;
-
-            case 5:
-                return `<span class="badge bg-danger">Hủy</span>`;
-
-            case 6:
-                return `<span class="badge bg-dark">Không tiếp nhận</span>`;
-
-            default:
-                return `<span class="badge bg-secondary">Không xác định</span>`;
-        }
+            switch (tt) {
+                case 1: return `<span class="badge bg-warning text-dark px-3 py-2">Mới tạo</span>`;
+                case 2: return `<span class="badge bg-info text-dark px-3 py-2">Chờ GS điều chỉnh</span>`;
+                case 9: return `<span class="badge bg-info text-dark px-3 py-2">Chờ PH điều chỉnh</span>`;
+                case 3: return `<span class="badge bg-primary px-3 py-2">Đang dạy</span>`;
+                case 4: return `<span class="badge bg-success px-3 py-2">Kết thúc</span>`;
+                case 5: return `<span class="badge bg-danger px-3 py-2">Hủy</span>`;
+                case 6: return `<span class="badge bg-dark px-3 py-2">Không tiếp nhận</span>`;
+                default: return `<span class="badge bg-secondary px-3 py-2">Không xác định</span>`;
+            }
         }
 
         function viewDetail(id) {
@@ -124,17 +245,3 @@
         }
     </script>
 }
-
-
-
-<style>
-    .schedule-card {
-        cursor: pointer;
-        transition: 0.2s;
-    }
-
-        .schedule-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-        }
-</style>
