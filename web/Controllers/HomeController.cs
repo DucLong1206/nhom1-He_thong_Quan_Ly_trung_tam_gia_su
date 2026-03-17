@@ -355,5 +355,20 @@ namespace He_thong_Quan_Ly_trung_tam_gia_su.Controllers
             }
         }
 
+        [HttpGet]
+        public IActionResult Notifications()
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null) return RedirectToAction("Login");
+
+            // Lấy toàn bộ thông báo của người dùng này, xếp mới nhất lên đầu
+            var list = _db.ThongBaos
+                    .Where(x => x.UserId == userId)
+                    .OrderByDescending(x => x.NgayTao)
+                    .ToList();
+
+            return View(list);
+        }
+
     }
 }
