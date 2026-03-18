@@ -654,7 +654,6 @@ Mở trình duyệt và truy cập:
 |----------|----------|
 | `docs/danh-gia-tong-quan-du-an.md` | Đánh giá tổng thể dự án |
 | `docs/danh-gia-bai-giao-theo-video.md` | Đánh giá bài giao theo video |
-| `docs/huong-dan-codex-hoan-phi-va-phi-moi-gioi.md` | Ghi chú nghiệp vụ hoàn phí/phi môi giới |
 | `video_thuyet_trinh.md` | Nội dung thuyết trình dự án |
 
 
