@@ -17,6 +17,7 @@
 7. [Hạn chế](#7-hạn-chế)
 8. [Hướng phát triển](#8-hướng-phát-triển)
 9. [Hướng dẫn cài đặt và chạy](#9-hướng-dẫn-cài-đặt-và-chạy)
+10. [Phụ lục nhanh](#10-phụ-lục-nhanh)
 
 ---
 
@@ -56,7 +57,18 @@ Hệ thống là một ứng dụng web được xây dựng trên nền tảng 
 | 4 | Quản lý lớp học | Tạo và theo dõi các lớp học |
 | 5 | Cảnh báo lịch học | Dịch vụ nền tự động nhắc nhở khi lớp học sắp diễn ra |
 | 6 | Đặt lại mật khẩu | Sinh mật khẩu ngẫu nhiên, mã hóa và gửi qua email |
-| 7 | Khởi tạo dữ liệu mẫu | Tự động seed dữ liệu demo khi khởi động hệ thống lần đầu |
+| 7 | Khởi tạo dữ liệu mẫu | Có lớp `DemoDataSeeder`, hiện tại chưa được gọi trong `Program.cs` |
+
+### 2.3 Ma trận vai trò và quyền truy cập
+
+| Vai trò (`TypeUsser`) | Khu vực chính | Quyền tiêu biểu |
+|-----------------------|---------------|-----------------|
+| 0 - Admin | `Home` | Đăng nhập hệ thống, quản trị tổng quan |
+| 1 - Nhân viên | `LopHoc`, `USER/TutorSubjects`, `Home/TutorDashboard` | Duyệt lớp, quản lý hồ sơ người dùng, xử lý lịch học |
+| 2 - Phụ huynh | `MonHoc`, `LopHoc` (một số action), `Home/TutorDashboard` | Tìm gia sư, đăng ký lớp, theo dõi/điều chỉnh lịch |
+| 3 - Gia sư | Hạn chế hơn, theo điều hướng `SessionAccessGuard` | Truy cập theo phiên đăng nhập và luồng được phân quyền |
+
+> Quyền truy cập được kiểm tra bằng `SessionAccessGuard.EnsureUserType(...)` hoặc `EnsureUserTypes(...)`.
 
 ---
 
@@ -72,8 +84,9 @@ Hệ thống là một ứng dụng web được xây dựng trên nền tảng 
 | Thành phần | Phiên bản | Mục đích sử dụng |
 |------------|-----------|-----------------|
 | ASP.NET Core MVC | 8.0 | Web framework chính |
-| Entity Framework Core | 8.x | ORM mapping và truy vấn cơ sở dữ liệu |
-| BCrypt.Net-Next | — | Mã hóa mật khẩu một chiều (hashing) |
+| Entity Framework Core | 8.0.22 | ORM mapping và truy vấn cơ sở dữ liệu |
+| Microsoft.EntityFrameworkCore.SqlServer | 8.0.22 | Provider kết nối SQL Server |
+| BCrypt.Net-Next | 4.1.0 | Mã hóa mật khẩu một chiều (hashing) |
 | Bootstrap | 5.x | Giao diện responsive |
 | jQuery | 3.x | Xử lý AJAX và DOM |
 | jquery-validation | — | Validation phía client |
@@ -83,7 +96,7 @@ Hệ thống là một ứng dụng web được xây dựng trên nền tảng 
 
 - **Microsoft SQL Server** — Hệ quản trị cơ sở dữ liệu quan hệ chính.
 - Kết nối thông qua chuỗi `DefaultConnection` cấu hình trong `appsettings.json`.
-- Sử dụng EF Core với `EnsureCreated()` để tự động tạo schema khi khởi động.
+- Truy cập dữ liệu qua EF Core (`Appdbcontext`); schema CSDL hiện cần được tạo bằng migration/script SQL.
 
 ### 3.4 Công cụ hỗ trợ
 
@@ -91,6 +104,14 @@ Hệ thống là một ứng dụng web được xây dựng trên nền tảng 
 - **Git** — Quản lý phiên bản mã nguồn.
 - **IIS Express** — Web server phát triển nội bộ.
 - **Postman / trình duyệt** — Kiểm thử API và giao diện.
+
+### 3.5 Bảng phụ thuộc theo project
+
+| Project | Vai trò | Package nổi bật |
+|---------|---------|-----------------|
+| `web` | Tầng trình bày (MVC) + DI + middleware | `Microsoft.EntityFrameworkCore`, `Microsoft.EntityFrameworkCore.SqlServer`, `Microsoft.EntityFrameworkCore.Tools` |
+| `Logic` | Tầng nghiệp vụ | `BCrypt.Net-Next`, `Microsoft.EntityFrameworkCore`, `Microsoft.EntityFrameworkCore.SqlServer` |
+| `He_thong_Quan_Ly_trung_tam_gia_su_Entity` | Tầng dữ liệu (Entity + DbContext) | `Microsoft.EntityFrameworkCore`, `Microsoft.EntityFrameworkCore.SqlServer`, `Microsoft.EntityFrameworkCore.Tools` |
 
 ---
 
@@ -167,7 +188,19 @@ Bốn loại người dùng (`TypeUsser`):
 
 ### 4.2 Thiết kế cơ sở dữ liệu
 
-> *Lưu ý: Source code của tầng Entity (He_thong_Quan_Ly_trung_tam_gia_su_Entity) không có trong workspace hiện tại (chỉ còn thư mục obj/). Các bảng dưới đây được suy luận dựa trên `DemoDataSeeder.cs`, `USERController.cs`, và các ILogic service được đăng ký trong `web/Program.cs`.*
+> *Lưu ý: Source code tầng Entity/Logic có đầy đủ trong workspace hiện tại. Danh sách dưới đây tổng hợp trực tiếp từ `Appdbcontext` và các class entity.*
+
+#### Danh sách DbSet/Entity trong `Appdbcontext`
+
+| Nhóm | Entity/Model | Kiểu |
+|------|--------------|------|
+| Danh mục | `DM_tinh`, `DM_XA`, `DM_NganHang`, `MonHoc` | Bảng danh mục |
+| Tài khoản - hồ sơ | `TaiKhoan`, `USER`, `NhanVien` | Bảng nghiệp vụ |
+| Gia sư | `GiaSu_MonHoc`, `GiaSu_KhuVuc` | Bảng liên kết |
+| Lớp học | `LopHoc`, `LopHoc_Buoihocdangki`, `LopHoc_BuoiHoc`, `LopHoc_LichSu`, `LopHoc_LichSu_Buoihocjdangki`, `Lophoc_doilich` | Bảng nghiệp vụ/lịch học |
+| Hợp đồng - phí | `HopDong`, `HopDong_LichSu`, `HoanPhi` | Bảng nghiệp vụ |
+| Tương tác | `BinhLuan`, `ThongBao` | Bảng nghiệp vụ |
+| Model truy vấn không khóa | `danhsanhgiasu_List`, `LopHoc_List`, `lophocbyid`, `LopHoc_LichHoc`, `LichHomNayModel`, `ThongTinBuoiHocModel` | `HasNoKey()` |
 
 #### Các bảng chính
 
@@ -189,34 +222,71 @@ Bốn loại người dùng (`TypeUsser`):
 |-----|------|-------|
 | Id | int (PK) | Khóa chính |
 | IDTK | int (FK) | Liên kết với `TaiKhoan` |
+| Name | nvarchar | Họ tên người dùng |
+| DiaChi | nvarchar | Địa chỉ |
 | SDT | nvarchar | Số điện thoại |
-| AvatarPath | nvarchar | Đường dẫn ảnh đại diện |
+| STK | nvarchar | Số tài khoản ngân hàng |
+| avata | nvarchar | Đường dẫn ảnh đại diện |
 | IDXa | int (FK) | Liên kết với `DM_Xa` |
-| IDNganHang | int (FK) | Liên kết với `DM_NganHang` |
+| NganHang | int (FK) | Liên kết với `DM_NganHang` |
 
 **Bảng `GiaSu_MonHoc` (Gia sư – Môn học)**
 
 | Cột | Kiểu | Mô tả |
 |-----|------|-------|
 | Id | int (PK) | Khóa chính |
-| IDGiaSu | int (FK) | Liên kết với tài khoản gia sư |
-| IDMonHoc | int (FK) | Liên kết với `MonHoc` |
+| IDUser | int (FK) | Liên kết người dùng gia sư (`USER`) |
+| IDMon | int (FK) | Liên kết với `MonHoc` |
+| GiaTheoGio | decimal | Học phí theo giờ |
+| Trinhdo | int | Trình độ/lớp phụ trách |
+| Isdelete | bit | Đánh dấu xóa mềm |
 
 **Bảng `MonHoc` (Môn học)**
 
 | Cột | Kiểu | Mô tả |
 |-----|------|-------|
 | Id | int (PK) | Khóa chính |
-| TenMonHoc | nvarchar | Tên môn học |
+| Name | nvarchar | Tên môn học |
 
 **Bảng `LopHoc` (Lớp học)**
 
 | Cột | Kiểu | Mô tả |
 |-----|------|-------|
 | Id | int (PK) | Khóa chính |
-| TenLop | nvarchar | Tên lớp học |
-| IDGiaSu | int (FK) | Gia sư phụ trách |
-| ThoiGianBatDau | datetime | Thời gian bắt đầu buổi học |
+| idnguoitao | int (FK, nullable) | Người tạo lớp (thường là phụ huynh) |
+| idnguoinhan | int (FK) | Gia sư nhận lớp |
+| idmon | int (FK, nullable) | Môn học |
+| trinhdo | int (nullable) | Trình độ/lớp |
+| sotienMotBuoi | decimal (nullable) | Học phí mỗi buổi |
+| PhiMoiGioi | decimal (nullable) | Phí môi giới |
+| NgayBatdau | datetime | Ngày bắt đầu |
+| NgayKetthuc | datetime (nullable) | Ngày kết thúc |
+| DIaChi | nvarchar | Địa chỉ học |
+| IDxa | int (FK, nullable) | Xã/phường |
+| TrangThai | int (nullable) | Trạng thái lớp |
+| isdetele | bit (nullable) | Đánh dấu xóa mềm |
+| ngaytao | datetime (nullable) | Thời điểm tạo lớp |
+
+**Bảng `BinhLuan` (Bình luận gia sư)**
+
+| Cột | Kiểu | Mô tả |
+|-----|------|-------|
+| ID | int (PK) | Khóa chính |
+| IDGiaSu | int | ID gia sư được bình luận |
+| IDPhuHuynh | int | ID phụ huynh/người viết bình luận |
+| NoiDung | nvarchar | Nội dung bình luận |
+| NgayTao | datetime | Thời điểm tạo bình luận |
+
+**Bảng `ThongBao` (Thông báo hệ thống)**
+
+| Cột | Kiểu | Mô tả |
+|-----|------|-------|
+| Id | int (PK) | Khóa chính |
+| UserId | int | ID người nhận thông báo |
+| NoiDung | nvarchar(500) | Nội dung thông báo |
+| Link | nvarchar(255) | Đường dẫn điều hướng khi click |
+| DaDoc | bit | Trạng thái đã đọc/chưa đọc |
+| NgayTao | datetime | Thời điểm tạo thông báo |
 
 **Các bảng danh mục (DM_)**
 
@@ -230,12 +300,15 @@ Bốn loại người dùng (`TypeUsser`):
 
 ```
 TaiKhoan ──── USER (1:1, qua IDTK)
-TaiKhoan ──── GiaSu_MonHoc (1:N, gia sư có nhiều môn)
+USER     ──── GiaSu_MonHoc (1:N, gia sư có nhiều môn)
 MonHoc   ──── GiaSu_MonHoc (1:N, môn có nhiều gia sư dạy)
-TaiKhoan ──── LopHoc (1:N, gia sư đứng nhiều lớp)
+USER     ──── LopHoc (1:N, qua idnguoitao / idnguoinhan)
 DM_Tinh  ──── DM_Xa (1:N, tỉnh gồm nhiều xã)
 DM_Xa    ──── USER (1:N)
 DM_NganHang── USER (1:N)
+USER     ──── BinhLuan (1:N, qua IDPhuHuynh)
+USER     ──── BinhLuan (1:N, qua IDGiaSu)
+USER     ──── ThongBao (1:N, người dùng nhận nhiều thông báo)
 ```
 
 ---
@@ -246,7 +319,7 @@ DM_NganHang── USER (1:N)
 
 **Luồng hoạt động:**
 
-1. Người dùng truy cập trang danh sách → Controller gọi `_user.GetList()` → trả về View.
+1. Người dùng truy cập trang `Index`/`AddorEdit` → Controller trả về View và khởi tạo `ViewBag.idtk` khi cần.
 2. Kích hoạt form thêm/sửa (`AddorEdit`) → AJAX load dữ liệu `GETUSER(id)` → điền form.
 3. Submit form → `[HttpPost] Save(USER model, IFormFile avatarFile)`:
    - Kiểm tra độ dài số điện thoại.
@@ -325,15 +398,18 @@ nhom1-He_thong_Quan_Ly_trung_tam_gia_su/
 ├── web/                                        # Dự án ứng dụng thực tế
 │   ├── Program.cs                             # Entry point đầy đủ (EF, DI, Session)
 │   ├── Controllers/
-│   │   └── USERController.cs                  # Quản lý hồ sơ người dùng
+│   │   ├── HomeController.cs
+│   │   ├── USERController.cs
+│   │   ├── MonHocController.cs
+│   │   └── LopHocController.cs
 │   └── Data/
 │       └── DemoDataSeeder.cs                  # Khởi tạo dữ liệu mẫu
 │
 ├── He_thong_Quan_Ly_trung_tam_gia_su_Entity/   # Tầng Entity (EF Core)
-│   └── [Appdbcontext + Entities]              # *(source không có, chỉ còn obj/)*
+│   └── [Appdbcontext + Entities]              # Source đầy đủ
 │
 └── Logic/                                      # Tầng Business Logic
-    └── [ILogic interfaces + implementations]  # *(source không có, chỉ còn obj/)*
+        └── [ILogic interfaces + implementations]  # Source đầy đủ
 ```
 
 ---
@@ -350,8 +426,29 @@ nhom1-He_thong_Quan_Ly_trung_tam_gia_su/
   - `IUSERLogic`, `ILopHocLogic`, `IDM_NganHangLogic`
 - **Đăng ký Background Service**: `LessonAlertBackgroundService` hoạt động song song với ứng dụng.
 - **Cấu hình Session**: Cookie HTTP-only, thời gian timeout 8 giờ.
-- **Seed dữ liệu**: Gọi `DemoDataSeeder.Seed(db)` sau khi tạo scope để khởi tạo tài khoản mẫu.
+- **Seed dữ liệu**: Hiện tại `Program.cs` chưa gọi `DemoDataSeeder.Seed(db)`.
 - **Cấu hình middleware pipeline**: HTTPS Redirection → Static Files → Routing → Session → Authorization.
+
+### 5.2.1 Bảng Controller và chức năng
+
+| Controller | Màn hình/chức năng chính | Nhóm action tiêu biểu |
+|------------|--------------------------|-----------------------|
+| `HomeController` | Đăng nhập, dashboard, trang tĩnh, kiểm tra DB | `Login`, `TutorDashboard`, `DbHealth`, `Logout` |
+| `USERController` | Hồ sơ người dùng, môn dạy gia sư, đổi/reset mật khẩu | `Save`, `GETUSER`, `TutorSubjects`, `checkpass`, `ChangePass` |
+| `MonHocController` | Tìm gia sư, xem chi tiết gia sư, đăng ký lớp, bình luận | `getlist`, `TutorDetail`, `Save`, `DangBinhLuan`, `GetBinhLuan` |
+| `LopHocController` | Quản lý lớp, lịch học, hợp đồng, hoàn phí, gửi cảnh báo | `GETDANHSACHLICHHOC`, `StartLesson`, `StopLesson`, `KiemTraDieuKienHoanPhi`, `XuLyPhanHoi` |
+
+### 5.2.2 Bảng DI service mapping
+
+| Interface | Implementation | Vòng đời |
+|-----------|----------------|----------|
+| `IMonhocLogic` | `MonhocLogic` | Scoped |
+| `ITaiKhoanLogic` | `TaiKhoanLogic` | Scoped |
+| `IDM_TinhLogic` | `DM_TinhLogic` | Scoped |
+| `IDM_XaLogic` | `DM_XaLogic` | Scoped |
+| `IUSERLogic` | `USERLogic` | Scoped |
+| `ILopHocLogic` | `LopHocLogic` | Scoped |
+| `IDM_NganHangLogic` | `DM_NganHangLogic` | Scoped |
 
 #### Module 2: Quản lý người dùng (`USERController`)
 
@@ -415,7 +512,7 @@ Dựa trên source code phân tích được, hệ thống đã đạt được 
 6. **Danh mục địa chính tích hợp**: Load động danh sách xã theo tỉnh thông qua AJAX.
 7. **Chức năng reset mật khẩu qua email**: Tự động sinh mật khẩu ngẫu nhiên, mã hóa và gửi về email người dùng.
 8. **Dịch vụ nền cảnh báo lịch học**: `LessonAlertBackgroundService` hoạt động song song, tự động nhắc nhở khi lớp học sắp diễn ra.
-9. **Seed dữ liệu tự động**: Khởi tạo tài khoản mẫu cho cả 4 vai trò khi chạy lần đầu.
+9. **Có sẵn lớp seed dữ liệu mẫu**: `DemoDataSeeder` đã chuẩn bị 4 tài khoản mẫu theo vai trò.
 10. **Giao diện Bootstrap 5**: Layout responsive đồng nhất trên mọi trang.
 
 ---
@@ -435,23 +532,23 @@ Dựa trên source code phân tích được, hệ thống đã đạt được 
 
 ## 8. Hướng phát triển
 
-2. **Chuyển sang ASP.NET Core Identity**: Tích hợp Identity để có sẵn các tính năng bảo mật như lockout, email confirmation, two-factor authentication và quản lý role chuẩn hóa.
+1. **Chuyển sang ASP.NET Core Identity**: Tích hợp Identity để có sẵn các tính năng bảo mật như lockout, email confirmation, two-factor authentication và quản lý role chuẩn hóa.
 
-3. **Xây dựng API RESTful**: Tách frontend và backend bằng cách cung cấp Web API (ASP.NET Core Web API), cho phép tích hợp với ứng dụng di động hoặc SPA.
+2. **Xây dựng API RESTful**: Tách frontend và backend bằng cách cung cấp Web API (ASP.NET Core Web API), cho phép tích hợp với ứng dụng di động hoặc SPA.
 
-4. **Phân quyền chi tiết hơn**: Áp dụng policy-based authorization kết hợp Claims để kiểm soát quyền truy cập từng tài nguyên.
+3. **Phân quyền chi tiết hơn**: Áp dụng policy-based authorization kết hợp Claims để kiểm soát quyền truy cập từng tài nguyên.
 
-5. **Tích hợp thông báo thời gian thực**: Sử dụng SignalR thay thế hoặc bổ sung cho Background Service để đẩy cảnh báo lịch học đến giao diện người dùng theo thời gian thực.
+4. **Tích hợp thông báo thời gian thực**: Sử dụng SignalR thay thế hoặc bổ sung cho Background Service để đẩy cảnh báo lịch học đến giao diện người dùng theo thời gian thực.
 
-6. **Hệ thống quản lý học phí**: Thêm module theo dõi học phí, thanh toán qua ngân hàng (tích hợp VNPay, Momo).
+5. **Hệ thống quản lý học phí**: Thêm module theo dõi học phí, thanh toán qua ngân hàng (tích hợp VNPay, Momo).
 
-7. **Báo cáo và thống kê**: Bổ sung dashboard thống kê số lớp học, doanh thu, hiệu suất gia sư bằng biểu đồ (Chart.js).
+6. **Báo cáo và thống kê**: Bổ sung dashboard thống kê số lớp học, doanh thu, hiệu suất gia sư bằng biểu đồ (Chart.js).
 
-8. **Thêm unit test và integration test**: Sử dụng xUnit/NUnit để kiểm thử tầng Logic, đảm bảo chất lượng khi mở rộng hệ thống.
+7. **Thêm unit test và integration test**: Sử dụng xUnit/NUnit để kiểm thử tầng Logic, đảm bảo chất lượng khi mở rộng hệ thống.
 
-9. **Triển khai Docker**: Đóng gói ứng dụng và SQL Server thành Docker Compose để dễ dàng triển khai trên các môi trường khác nhau.
+8. **Triển khai Docker**: Đóng gói ứng dụng và SQL Server thành Docker Compose để dễ dàng triển khai trên các môi trường khác nhau.
 
-10. **Cải thiện giao diện**: Xây dựng giao diện quản trị chuyên nghiệp hơn (AdminLTE, Tabler) và hỗ trợ đa ngôn ngữ.
+9. **Cải thiện giao diện**: Xây dựng giao diện quản trị chuyên nghiệp hơn (AdminLTE, Tabler) và hỗ trợ đa ngôn ngữ.
 
 ---
 
@@ -524,7 +621,7 @@ Mở trình duyệt và truy cập:
 - HTTP: `http://localhost:5290`
 - HTTPS: `https://localhost:7149`
 
-> Khi chạy lần đầu, hệ thống tự động tạo schema CSDL (`EnsureCreated`) và seed 4 tài khoản mẫu.
+> Dự án hiện chưa gọi `EnsureCreated()` và chưa gọi `DemoDataSeeder.Seed(...)` trong `Program.cs`; bạn cần tạo CSDL trước (migrations hoặc script SQL) nếu máy mới hoàn toàn.
 
 **Bước 7: Đăng nhập với tài khoản mẫu**
 
@@ -536,5 +633,28 @@ Mở trình duyệt và truy cập:
 | ph@demo.local | Phuhuynh123! | Phụ huynh |
 
 ---
+
+## 10. Phụ lục nhanh
+
+### 10.1 Danh sách interface nghiệp vụ
+
+| Interface | Chức năng |
+|-----------|-----------|
+| `IMonhocLogic` | Lọc danh sách gia sư, quản lý môn học gia sư |
+| `ILopHocLogic` | Quản lý lớp học, lịch học, hợp đồng, hoàn phí |
+| `IUSERLogic` | Quản lý hồ sơ người dùng và đổi mật khẩu |
+| `ITaiKhoanLogic` | Tạo/lưu tài khoản |
+| `IDM_TinhLogic` | Lấy danh sách tỉnh |
+| `IDM_XaLogic` | Lấy danh sách xã theo tỉnh |
+| `IDM_NganHangLogic` | Lấy danh mục ngân hàng |
+
+### 10.2 Danh sách tài liệu nội bộ
+
+| Tài liệu | Mục đích |
+|----------|----------|
+| `docs/danh-gia-tong-quan-du-an.md` | Đánh giá tổng thể dự án |
+| `docs/danh-gia-bai-giao-theo-video.md` | Đánh giá bài giao theo video |
+| `docs/huong-dan-codex-hoan-phi-va-phi-moi-gioi.md` | Ghi chú nghiệp vụ hoàn phí/phi môi giới |
+| `video_thuyet_trinh.md` | Nội dung thuyết trình dự án |
 
 
